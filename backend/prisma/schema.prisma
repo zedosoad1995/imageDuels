@@ -1,0 +1,58 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id         String       @id @default(uuid())
+  email      String
+  password   String
+  Collection Collection[]
+  Duel       Duel[]
+}
+
+model Collection {
+  id          String  @id @default(uuid())
+  title       String
+  description String?
+  question    String?
+  owner       User    @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  ownerId     String
+}
+
+model Image {
+  id              String @id @default(uuid())
+  filepath        String
+  rating          Float
+  ratingDeviation Float
+  volatility      Float
+  numVotes        Int    @default(0)
+  duelsAsImage1   Duel[] @relation("image1Relation")
+  duelsAsImage2   Duel[] @relation("image2Relation")
+}
+
+model Duel {
+  id         String      @id @default(uuid())
+  image1     Image       @relation("image1Relation", fields: [image1Id], references: [id], onDelete: Cascade)
+  image2     Image       @relation("image2Relation", fields: [image2Id], references: [id], onDelete: Cascade)
+  isActive   Boolean     @default(true)
+  voter      User        @relation(fields: [voterId], references: [id], onDelete: Cascade)
+  outcome    DuelOutcome
+  isFinished Boolean     @default(false)
+  image1Id   String
+  image2Id   String
+  voterId    String
+}
+
+enum DuelOutcome {
+  WIN
+  DRAW
+  LOSS
+}
