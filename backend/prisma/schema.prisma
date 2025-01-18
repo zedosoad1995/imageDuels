@@ -16,42 +16,52 @@ model User {
   password   String
   Collection Collection[]
   Duel       Duel[]
+  createdAt  DateTime     @default(now())
 }
 
 model Collection {
-  id          String  @id @default(uuid())
+  id          String             @id @default(uuid())
   title       String
   description String?
   question    String?
-  owner       User    @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  mode        CollectionModeEnum
+  owner       User               @relation(fields: [ownerId], references: [id], onDelete: Cascade)
   ownerId     String
+  createdAt   DateTime           @default(now())
+}
+
+enum CollectionModeEnum {
+  PERSONAL
+  PUBLIC
 }
 
 model Image {
-  id              String @id @default(uuid())
+  id              String   @id @default(uuid())
   filepath        String
   rating          Float
   ratingDeviation Float
   volatility      Float
-  numVotes        Int    @default(0)
-  duelsAsImage1   Duel[] @relation("image1Relation")
-  duelsAsImage2   Duel[] @relation("image2Relation")
+  numVotes        Int      @default(0)
+  duelsAsImage1   Duel[]   @relation("image1Relation")
+  duelsAsImage2   Duel[]   @relation("image2Relation")
+  createdAt       DateTime @default(now())
 }
 
 model Duel {
-  id         String      @id @default(uuid())
-  image1     Image       @relation("image1Relation", fields: [image1Id], references: [id], onDelete: Cascade)
-  image2     Image       @relation("image2Relation", fields: [image2Id], references: [id], onDelete: Cascade)
-  isActive   Boolean     @default(true)
-  voter      User        @relation(fields: [voterId], references: [id], onDelete: Cascade)
-  outcome    DuelOutcome
-  isFinished Boolean     @default(false)
+  id         String          @id @default(uuid())
+  image1     Image           @relation("image1Relation", fields: [image1Id], references: [id], onDelete: Cascade)
+  image2     Image           @relation("image2Relation", fields: [image2Id], references: [id], onDelete: Cascade)
+  isActive   Boolean         @default(true)
+  voter      User            @relation(fields: [voterId], references: [id], onDelete: Cascade)
+  outcome    DuelOutcomeEnum
+  isFinished Boolean         @default(false)
   image1Id   String
   image2Id   String
   voterId    String
+  createdAt  DateTime        @default(now())
 }
 
-enum DuelOutcome {
+enum DuelOutcomeEnum {
   WIN
   DRAW
   LOSS
