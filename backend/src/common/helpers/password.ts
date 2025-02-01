@@ -9,7 +9,7 @@ export const hashPassword = async (password: string) => {
   return hashedPassword;
 };
 
-export const checkPasswords = async (
+export const checkPassword = async (
   suppliedPassword: string,
   storedPassword: string,
 ) => {
