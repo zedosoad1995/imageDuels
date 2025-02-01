@@ -1,9 +1,47 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { prisma } from 'src/common/prisma';
 import { CreateCollectionDto } from './dto/collections.dto';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class CollectionsService {
+  async getMany(userId?: string) {
+    const whereQuery: Prisma.CollectionWhereInput = {};
+
+    if (userId) {
+      whereQuery.ownerId = userId;
+    } else {
+      whereQuery.mode = 'PUBLIC';
+    }
+
+    return prisma.collection.findMany({
+      where: whereQuery,
+    });
+  }
+
+  async getOne(collectionId: string) {
+    const collection = prisma.collection.findUnique({
+      where: {
+        id: collectionId,
+      },
+      include: {
+        images: true,
+      },
+    });
+
+    if (!collection) {
+      throw new NotFoundException(
+        `Collection id ${collectionId} does not exist`,
+      );
+    }
+
+    return collection;
+  }
+
   async create(collection: CreateCollectionDto, userId: string) {
     const foundCollection = await prisma.collection.findFirst({
       where: {

@@ -8,7 +8,7 @@ import {
 
 @Injectable()
 export class ImagesService {
-  async addImageToCollection(collectionId: string) {
+  async create(collectionId: string) {
     const collection = await prisma.collection.findUnique({
       where: { id: collectionId },
     });
