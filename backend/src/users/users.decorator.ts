@@ -10,13 +10,13 @@ export const LoggedUser = createParamDecorator(
     const request = ctx.switchToHttp().getRequest();
     const user = request.user;
 
-    if (!user?.email) {
+    if (!user?.id) {
       throw new UnauthorizedException();
     }
 
     const loggedUser = await prisma.user.findUnique({
       where: {
-        email: user.email,
+        id: user.id,
       },
     });
 

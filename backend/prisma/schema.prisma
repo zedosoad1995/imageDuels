@@ -32,6 +32,8 @@ model Collection {
 
 enum CollectionModeEnum {
   PERSONAL
+  SECRET
+  PRIVATE
   PUBLIC
 }
 
