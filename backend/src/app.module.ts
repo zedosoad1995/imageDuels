@@ -5,9 +5,10 @@ import { ConfigModule } from '@nestjs/config';
 import { CollectionsController } from './collections/collections.controller';
 import { CollectionsService } from './collections/collections.service';
 import { CollectionsModule } from './collections/collections.module';
+import { ImagesModule } from './images/images.module';
 
 @Module({
-  imports: [UsersModule, AuthModule, ConfigModule.forRoot(), CollectionsModule],
+  imports: [UsersModule, AuthModule, ConfigModule.forRoot(), CollectionsModule, ImagesModule],
   controllers: [CollectionsController],
   providers: [CollectionsService],
 })

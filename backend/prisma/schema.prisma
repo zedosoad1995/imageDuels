@@ -28,6 +28,7 @@ model Collection {
   owner       User               @relation(fields: [ownerId], references: [id], onDelete: Cascade)
   ownerId     String
   createdAt   DateTime           @default(now())
+  images      Image[]
 }
 
 enum CollectionModeEnum {
@@ -38,15 +39,17 @@ enum CollectionModeEnum {
 }
 
 model Image {
-  id              String   @id @default(uuid())
+  id              String     @id @default(uuid())
   filepath        String
   rating          Float
   ratingDeviation Float
   volatility      Float
-  numVotes        Int      @default(0)
-  duelsAsImage1   Duel[]   @relation("image1Relation")
-  duelsAsImage2   Duel[]   @relation("image2Relation")
-  createdAt       DateTime @default(now())
+  numVotes        Int        @default(0)
+  collection      Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+  duelsAsImage1   Duel[]     @relation("image1Relation")
+  duelsAsImage2   Duel[]     @relation("image2Relation")
+  createdAt       DateTime   @default(now())
+  collectionId    String
 }
 
 model Duel {

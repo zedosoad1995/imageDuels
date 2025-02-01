@@ -15,7 +15,7 @@ export const LoggedUser = createParamDecorator(
 
     if (!user?.id) {
       logger.error(
-        `request.user should exist and have the field "id", but is: ${user}`,
+        `request.user should exist and have the field "id", but is: ${JSON.stringify(user)}`,
       );
       throw new UnauthorizedException();
     }
@@ -27,7 +27,7 @@ export const LoggedUser = createParamDecorator(
     });
 
     if (!loggedUser) {
-      logger.error(`This user id does not exist: ${user.id}`);
+      logger.error(`User id does not exist: ${user.id}`);
       throw new UnauthorizedException();
     }
 

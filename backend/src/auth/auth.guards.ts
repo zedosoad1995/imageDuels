@@ -8,12 +8,11 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
 
+const logger = new Logger('Auth Guards');
+
 @Injectable()
 export class AuthGuard implements CanActivate {
-  constructor(
-    private jwtService: JwtService,
-    private readonly logger = new Logger(AuthGuard.name),
-  ) {}
+  constructor(private jwtService: JwtService) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
@@ -31,7 +30,7 @@ export class AuthGuard implements CanActivate {
 
       request['user'] = payload.user;
     } catch (error) {
-      this.logger.error(error);
+      logger.error(error);
       throw new UnauthorizedException();
     }
 
