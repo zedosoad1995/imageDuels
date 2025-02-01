@@ -1,9 +1,12 @@
 import {
   createParamDecorator,
   ExecutionContext,
+  Logger,
   UnauthorizedException,
 } from '@nestjs/common';
 import { prisma } from 'src/common/prisma';
+
+const logger = new Logger('Users Decorators');
 
 export const LoggedUser = createParamDecorator(
   async (data: unknown, ctx: ExecutionContext) => {
@@ -11,6 +14,9 @@ export const LoggedUser = createParamDecorator(
     const user = request.user;
 
     if (!user?.id) {
+      logger.error(
+        `request.user should exist and have the field "id", but is: ${user}`,
+      );
       throw new UnauthorizedException();
     }
 
@@ -21,6 +27,7 @@ export const LoggedUser = createParamDecorator(
     });
 
     if (!loggedUser) {
+      logger.error(`This user id does not exist: ${user.id}`);
       throw new UnauthorizedException();
     }
 

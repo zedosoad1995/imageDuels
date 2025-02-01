@@ -2,6 +2,7 @@ import {
   CanActivate,
   ExecutionContext,
   Injectable,
+  Logger,
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
@@ -9,7 +10,10 @@ import { Request } from 'express';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
-  constructor(private jwtService: JwtService) {}
+  constructor(
+    private jwtService: JwtService,
+    private readonly logger = new Logger(AuthGuard.name),
+  ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
@@ -26,7 +30,8 @@ export class AuthGuard implements CanActivate {
       });
 
       request['user'] = payload.user;
-    } catch {
+    } catch (error) {
+      this.logger.error(error);
       throw new UnauthorizedException();
     }
 
