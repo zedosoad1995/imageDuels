@@ -7,7 +7,7 @@ import {
   UsePipes,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { CreateUserDto, createUserSchema } from './dto/users.dto';
+import { CreateUserDto, createUserSchema } from './dto/createUser.dto';
 import { ZodValidationPipe } from 'src/common/pipes/zodValidation';
 import { AuthGuard } from 'src/auth/auth.guards';
 import { LoggedUser } from './users.decorator';

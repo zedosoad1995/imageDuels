@@ -11,16 +11,23 @@ import {
   Query,
   DefaultValuePipe,
   ParseBoolPipe,
+  HttpCode,
+  Delete,
 } from '@nestjs/common';
 import { CollectionsService } from './collections.service';
 import { AuthGuard } from 'src/auth/auth.guards';
 import {
   CreateCollectionDto,
   createCollectionSchema,
-} from './dto/collections.dto';
+} from './dto/createCollection.dto';
 import { ZodValidationPipe } from 'src/common/pipes/zodValidation';
 import { ImagesService } from 'src/images/images.service';
+import {
+  collectionResSchema,
+  manyCollectionsResSchema,
+} from './dto/collection.dto';
 
+@UseGuards(AuthGuard)
 @Controller('collections')
 export class CollectionsController {
   constructor(
@@ -28,17 +35,19 @@ export class CollectionsController {
     private readonly imagesService: ImagesService,
   ) {}
 
-  @UseGuards(AuthGuard)
   @Get('')
-  getMany(
+  async getMany(
     @Request() req,
     @Query('onlySelf', new DefaultValuePipe(false), ParseBoolPipe)
     onlySelf: boolean,
   ) {
-    return this.collectionsService.getMany(onlySelf ? req.user.id : undefined);
+    const collections = await this.collectionsService.getMany(
+      onlySelf ? req.user.id : undefined,
+    );
+
+    return manyCollectionsResSchema.parse(collections);
   }
 
-  @UseGuards(AuthGuard)
   @Get(':collectionId')
   async getOne(@Request() req, @Param('collectionId') collectionId: string) {
     const collection = await this.collectionsService.getOne(collectionId);
@@ -53,20 +62,23 @@ export class CollectionsController {
       );
     }
 
-    // TODO: serialize, or transform what is necessary
-    return collection;
+    return collectionResSchema.parse(collection);
   }
 
-  @UseGuards(AuthGuard)
   @UsePipes(new ZodValidationPipe(createCollectionSchema))
   @Post('')
   create(@Body() createCollectionDto: CreateCollectionDto, @Request() req) {
     return this.collectionsService.create(createCollectionDto, req.user.id);
   }
 
-  @UseGuards(AuthGuard)
   @Post(':collectionId/add-image')
   addImage(@Param('collectionId') collectionId: string) {
     return this.imagesService.create(collectionId);
+  }
+
+  @Delete(':collectionId')
+  @HttpCode(204)
+  deleteOne(@Request() req, @Param('collectionId') collectionId: string) {
+    return this.collectionsService.deleteOne(collectionId, req.user.id);
   }
 }

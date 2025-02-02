@@ -6,9 +6,10 @@ import { CollectionsController } from './collections/collections.controller';
 import { CollectionsService } from './collections/collections.service';
 import { CollectionsModule } from './collections/collections.module';
 import { ImagesModule } from './images/images.module';
+import { DuelsModule } from './duels/duels.module';
 
 @Module({
-  imports: [UsersModule, AuthModule, ConfigModule.forRoot(), CollectionsModule, ImagesModule],
+  imports: [UsersModule, AuthModule, ConfigModule.forRoot(), CollectionsModule, ImagesModule, DuelsModule],
   controllers: [CollectionsController],
   providers: [CollectionsService],
 })
