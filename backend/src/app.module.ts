@@ -9,7 +9,14 @@ import { ImagesModule } from './images/images.module';
 import { DuelsModule } from './duels/duels.module';
 
 @Module({
-  imports: [UsersModule, AuthModule, ConfigModule.forRoot(), CollectionsModule, ImagesModule, DuelsModule],
+  imports: [
+    UsersModule,
+    AuthModule,
+    ConfigModule.forRoot(),
+    CollectionsModule,
+    ImagesModule,
+    DuelsModule,
+  ],
   controllers: [CollectionsController],
   providers: [CollectionsService],
 })
