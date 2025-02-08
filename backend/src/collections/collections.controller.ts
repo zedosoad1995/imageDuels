@@ -13,6 +13,8 @@ import {
   ParseBoolPipe,
   HttpCode,
   Delete,
+  UploadedFile,
+  UseInterceptors,
 } from '@nestjs/common';
 import { CollectionsService } from './collections.service';
 import { AuthGuard } from 'src/auth/auth.guards';
@@ -26,6 +28,8 @@ import {
   collectionResSchema,
   manyCollectionsResSchema,
 } from './dto/collection.dto';
+import { DuelsService } from 'src/duels/duels.service';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @UseGuards(AuthGuard)
 @Controller('collections')
@@ -33,6 +37,7 @@ export class CollectionsController {
   constructor(
     private readonly collectionsService: CollectionsService,
     private readonly imagesService: ImagesService,
+    private readonly duelsService: DuelsService,
   ) {}
 
   @Get('')
@@ -72,8 +77,23 @@ export class CollectionsController {
   }
 
   @Post(':collectionId/add-image')
-  addImage(@Param('collectionId') collectionId: string) {
-    return this.imagesService.create(collectionId);
+  @UseInterceptors(FileInterceptor('image'))
+  addImage(
+    @Param('collectionId') collectionId: string,
+    @UploadedFile() imageFile: Express.Multer.File,
+  ) {
+    return this.imagesService.create(collectionId, imageFile);
+  }
+
+  @Post(':collectionId/duels')
+  async createDuel(
+    @Request() req,
+    @Param('collectionId') collectionId: string,
+  ) {
+    const [image1, image2] =
+      await this.imagesService.getMatchImages(collectionId);
+
+    return this.duelsService.create(image1, image2, req.user.id);
   }
 
   @Delete(':collectionId')

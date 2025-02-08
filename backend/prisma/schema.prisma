@@ -70,6 +70,6 @@ model Duel {
 
 enum DuelOutcomeEnum {
   WIN
-  DRAW
+  SKIP
   LOSS
 }

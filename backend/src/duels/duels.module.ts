@@ -5,5 +5,6 @@ import { DuelsService } from './duels.service';
 @Module({
   controllers: [DuelsController],
   providers: [DuelsService],
+  exports: [DuelsService],
 })
 export class DuelsModule {}
