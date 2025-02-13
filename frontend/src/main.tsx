@@ -5,6 +5,8 @@ import { createBrowserRouter, RouterProvider } from "react-router";
 import { App } from "./Pages/App";
 import { Register } from "./Pages/Register/Register";
 import { Login } from "./Pages/Login/Login";
+import { Explore } from "./Pages/Explore/Explore";
+import { Collection } from "./Pages/Collection/Collections";
 
 const router = createBrowserRouter([
   {
@@ -18,6 +20,14 @@ const router = createBrowserRouter([
   {
     path: "/register",
     Component: Register,
+  },
+  {
+    path: "/explore",
+    Component: Explore,
+  },
+  {
+    path: "/collection/:id",
+    Component: Collection,
   },
 ]);
 

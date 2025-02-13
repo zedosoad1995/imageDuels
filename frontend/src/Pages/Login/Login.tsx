@@ -1,8 +1,11 @@
 import { useState } from "react";
 import styles from "./Login.module.css";
 import { login } from "../../Api/auth";
+import { useNavigate } from "react-router";
 
 export const Login = () => {
+  const navigate = useNavigate();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -16,6 +19,7 @@ export const Login = () => {
     const { token } = await login(email, password);
 
     localStorage.setItem("token", token);
+    navigate("/explore");
   };
 
   return (

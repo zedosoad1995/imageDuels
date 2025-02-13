@@ -24,11 +24,9 @@ export class ImagesService {
       );
     }
 
-    console.log(imageFile);
-
     return prisma.image.create({
       data: {
-        filepath: '',
+        filepath: imageFile.filename,
         rating: RATING_INIT,
         ratingDeviation: RATING_DEVIATION_INIT,
         volatility: VOLATILITY_INIT,

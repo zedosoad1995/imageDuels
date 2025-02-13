@@ -30,6 +30,7 @@ import {
 } from './dto/collection.dto';
 import { DuelsService } from 'src/duels/duels.service';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
 
 @UseGuards(AuthGuard)
 @Controller('collections')
@@ -77,7 +78,17 @@ export class CollectionsController {
   }
 
   @Post(':collectionId/add-image')
-  @UseInterceptors(FileInterceptor('image'))
+  @UseInterceptors(
+    FileInterceptor('image', {
+      storage: diskStorage({
+        destination: './uploads',
+        filename: (req, file, cb) => {
+          const ext = file.originalname.split('.').pop();
+          cb(null, `${Date.now()}.${ext}`);
+        },
+      }),
+    }),
+  )
   addImage(
     @Param('collectionId') collectionId: string,
     @UploadedFile() imageFile: Express.Multer.File,
