@@ -1,11 +1,12 @@
 import { useState } from "react";
-import styles from "./Login.module.css";
 import { login } from "../../Api/auth";
 import { useNavigate } from "react-router";
+import { Button, Flex, PasswordInput, TextInput } from "@mantine/core";
 
 export const Login = () => {
   const navigate = useNavigate();
 
+  const [isLoading, setIsLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -16,27 +17,48 @@ export const Login = () => {
     };
 
   const handleSubmit = async () => {
-    const { token } = await login(email, password);
+    setIsLoading(true);
 
-    localStorage.setItem("token", token);
-    navigate("/explore");
+    try {
+      const { token } = await login(email, password);
+
+      localStorage.setItem("token", token);
+      navigate("/");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
-    <div className={styles.box}>
-      <input
-        placeholder="email"
-        type="email"
+    <Flex
+      gap="md"
+      justify="center"
+      direction="column"
+      style={{ height: "100%" }}
+    >
+      <TextInput
+        label="Email"
+        placeholder="Email"
         value={email}
         onChange={handleChange(setEmail)}
+        type="email"
+        autoComplete="email"
+        inputMode="email"
       />
-      <input
-        placeholder="password"
-        type="password"
+      <PasswordInput
+        label="Password"
+        placeholder="Password"
         value={password}
         onChange={handleChange(setPassword)}
+        type="password"
       />
-      <button onClick={handleSubmit}>Login</button>
-    </div>
+      <Button
+        onClick={handleSubmit}
+        loaderProps={{ type: "dots" }}
+        loading={isLoading}
+      >
+        Login
+      </Button>
+    </Flex>
   );
 };
