@@ -25,10 +25,10 @@ export const getCollection = (id: string): Promise<ICollection> => {
 
 export const addImageToCollection = (
   id: string,
-  image: Blob
+  image: File
 ): Promise<ICollection> => {
   const formData = new FormData();
-  formData.append("image", image);
+  formData.append("image", image, image.name);
 
   return api.post(`/collections/${id}/add-image`, formData, {
     headers: {

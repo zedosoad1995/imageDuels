@@ -5,6 +5,7 @@ import {
   getCollection,
   ICollection,
 } from "../../Api/collections";
+import imageCompression from "browser-image-compression";
 
 export const Collection = () => {
   const { id } = useParams();
@@ -14,13 +15,18 @@ export const Collection = () => {
 
   const onFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files?.length || !id) return;
-    const file = e.target.files[0];
-    try {
-      const response = await addImageToCollection(id, file);
-      console.log("Uploaded:", response);
-    } catch (error) {
-      console.error("Upload error:", error);
+    let file = e.target.files[0];
+
+    if (file.size > 1 * 1024 * 1024) {
+      const options = {
+        maxSizeMB: 1,
+        maxWidthOrHeight: 1920,
+        useWebWorker: true,
+      };
+      file = await imageCompression(file, options);
     }
+
+    await addImageToCollection(id, file);
   };
 
   const handleButtonClick = () => {
@@ -56,7 +62,7 @@ export const Collection = () => {
         <div key={id}>
           <img
             src={import.meta.env.VITE_IMAGES_URL + "/" + filepath}
-            height={100}
+            height={300}
           />
           <p>{numVotes} votes</p>
         </div>
