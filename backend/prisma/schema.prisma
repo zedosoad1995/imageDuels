@@ -46,6 +46,7 @@ model Image {
   ratingDeviation Float
   volatility      Float
   numVotes        Int        @default(0)
+  version         Int        @default(0)
   collection      Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
   duelsAsImage1   Duel[]     @relation("image1Relation")
   duelsAsImage2   Duel[]     @relation("image2Relation")

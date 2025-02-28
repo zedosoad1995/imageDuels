@@ -3,7 +3,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { prisma } from 'src/common/prisma';
+import { prisma } from 'src/common/helpers/prisma';
 import { CreateCollectionDto } from './dto/createCollection.dto';
 import { Prisma } from '@prisma/client';
 
@@ -24,12 +24,17 @@ export class CollectionsService {
   }
 
   async getOne(collectionId: string) {
+    // TODO: Should not have rating desc like this, should improve
     const collection = await prisma.collection.findUnique({
       where: {
         id: collectionId,
       },
       include: {
-        images: true,
+        images: {
+          orderBy: {
+            rating: 'desc',
+          },
+        },
       },
     });
 

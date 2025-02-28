@@ -4,6 +4,7 @@ const imagesResSchema = z.object({
   id: z.string(),
   filepath: z.string(),
   numVotes: z.number(),
+  rating: z.number(),
 });
 
 export const collectionResSchema = z.object({

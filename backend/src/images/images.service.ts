@@ -3,12 +3,8 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { prisma } from 'src/common/prisma';
-import {
-  RATING_DEVIATION_INIT,
-  RATING_INIT,
-  VOLATILITY_INIT,
-} from './constants/rating';
+import { prisma } from 'src/common/helpers/prisma';
+import { RATING_INI, RD_INI, VOLATILITY_INI } from './constants/rating';
 import { randInt } from 'src/common/helpers/random';
 import { Image } from '@prisma/client';
 
@@ -28,9 +24,9 @@ export class ImagesService {
     return prisma.image.create({
       data: {
         filepath: imageFile.filename,
-        rating: RATING_INIT,
-        ratingDeviation: RATING_DEVIATION_INIT,
-        volatility: VOLATILITY_INIT,
+        rating: RATING_INI,
+        ratingDeviation: RD_INI,
+        volatility: VOLATILITY_INI,
         collectionId,
       },
     });

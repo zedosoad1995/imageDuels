@@ -4,7 +4,7 @@ import {
   Logger,
   UnauthorizedException,
 } from '@nestjs/common';
-import { prisma } from 'src/common/prisma';
+import { prisma } from 'src/common/helpers/prisma';
 
 const logger = new Logger('Users Decorators');
 

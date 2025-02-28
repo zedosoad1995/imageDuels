@@ -9,6 +9,7 @@ import { ImagesModule } from './images/images.module';
 import { DuelsModule } from './duels/duels.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
+import { ProvidersModule } from './providers/providers.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { join } from 'path';
       rootPath: join(__dirname, '..', 'uploads'),
       serveRoot: '/uploads',
     }),
+    ProvidersModule,
   ],
   controllers: [CollectionsController],
   providers: [CollectionsService],

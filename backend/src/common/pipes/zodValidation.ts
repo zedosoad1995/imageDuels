@@ -22,9 +22,10 @@ export class ZodValidationPipe implements PipeTransform {
         throw new BadRequestException('Validation failed.');
       }
 
-      const field = error.errors[0].path.join('.');
-      const message = error.errors[0].message;
-      throw new BadRequestException(`${field}: ${message}`);
+      const messages = error.errors
+        .map((err) => `${err.path.join('.')} - ${err.message}`)
+        .join(', ');
+      throw new BadRequestException(`Validation failed: ${messages}`);
     }
   }
 }
