@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  HttpCode,
   Param,
   Post,
   Request,
@@ -18,6 +19,7 @@ export class DuelsController {
   constructor(private readonly duelsService: DuelsService) {}
 
   @UsePipes(new ZodValidationPipe(voteSchema))
+  @HttpCode(204)
   @Post(':duelId/vote')
   async vote(
     @Request() req,

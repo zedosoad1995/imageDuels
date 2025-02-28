@@ -22,8 +22,6 @@ export class DuelsService {
           select: {
             id: true,
             numVotes: true,
-          },
-          include: {
             collection: {
               select: {
                 id: true,
@@ -37,8 +35,6 @@ export class DuelsService {
           select: {
             id: true,
             numVotes: true,
-          },
-          include: {
             collection: {
               select: {
                 id: true,
@@ -56,9 +52,9 @@ export class DuelsService {
     const image1 = duel.image1;
     const image2 = duel.image2;
 
-    if (image1.collectionId !== image2.collectionId) {
+    if (image1.collection.id !== image2.collection.id) {
       logger.error(
-        `Duel with 2 images (${image1.id}, ${image2.id}) belonging to different collections (${image1.collectionId}, ${image2.collectionId})`,
+        `Duel with 2 images (${image1.id}, ${image2.id}) belonging to different collections (${image1.collection.id}, ${image2.collection.id})`,
       );
       throw new InternalServerErrorException();
     }
