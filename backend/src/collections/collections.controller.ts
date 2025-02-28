@@ -104,7 +104,9 @@ export class CollectionsController {
     const [image1, image2] =
       await this.imagesService.getMatchImages(collectionId);
 
-    return this.duelsService.create(image1, image2, req.user.id);
+    await this.duelsService.create(image1.id, image2.id, req.user.id);
+
+    return { image1: image1.filepath, image2: image2.filepath };
   }
 
   @Delete(':collectionId')

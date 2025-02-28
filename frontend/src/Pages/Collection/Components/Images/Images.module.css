@@ -3,7 +3,6 @@
 
   &:hover {
     box-shadow: var(--mantine-shadow-around);
-    transform: scale(1);
   }
 }
 

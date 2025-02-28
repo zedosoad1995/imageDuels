@@ -10,6 +10,7 @@ import {
   VOLATILITY_INIT,
 } from './constants/rating';
 import { randInt } from 'src/common/helpers/random';
+import { Image } from '@prisma/client';
 
 @Injectable()
 export class ImagesService {
@@ -35,13 +36,16 @@ export class ImagesService {
     });
   }
 
-  async getMatchImages(collectionId: string): Promise<[string, string]> {
+  async getMatchImages(
+    collectionId: string,
+  ): Promise<[Pick<Image, 'id' | 'filepath'>, Pick<Image, 'id' | 'filepath'>]> {
     const images = await prisma.image.findMany({
       where: {
         collectionId,
       },
       select: {
         id: true,
+        filepath: true,
       },
     });
 
@@ -52,6 +56,6 @@ export class ImagesService {
     const image1 = images.splice(randInt(images.length - 1), 1)[0];
     const image2 = images[randInt(images.length - 1)];
 
-    return [image1.id, image2.id];
+    return [image1, image2];
   }
 }

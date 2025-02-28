@@ -36,3 +36,9 @@ export const addImageToCollection = (
     },
   });
 };
+
+export const createDuel = (
+  id: string
+): Promise<{ image1: string; image2: string }> => {
+  return api.post(`/collections/${id}/duels`);
+};
