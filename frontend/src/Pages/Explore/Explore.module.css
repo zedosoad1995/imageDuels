@@ -1,6 +1,6 @@
 .card {
   cursor: pointer;
-  transition: box-shadow 150ms ease, transform 100ms ease;
+  transition: box-shadow 50ms ease, transform 50ms ease;
 
   &:hover {
     box-shadow: var(--mantine-shadow-xs);

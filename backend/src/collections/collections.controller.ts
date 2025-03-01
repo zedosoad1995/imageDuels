@@ -56,7 +56,9 @@ export class CollectionsController {
 
   @Get(':collectionId')
   async getOne(@Request() req, @Param('collectionId') collectionId: string) {
-    const collection = await this.collectionsService.getOne(collectionId);
+    const collection = await this.collectionsService.getOne(collectionId, {
+      imagesSort: { rating: 'desc' },
+    });
 
     // TODO: Make admin be able to see the collection
     if (

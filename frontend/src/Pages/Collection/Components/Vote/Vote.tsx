@@ -1,4 +1,4 @@
-import { Card, Flex, Text } from "@mantine/core";
+import { Button, Card, Flex, Group, Text } from "@mantine/core";
 import { createDuel, ICollection } from "../../../../Api/collections";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router";
@@ -57,13 +57,9 @@ export const Vote = ({ collection }: Props) => {
         >
           <Card.Section withBorder style={{ textAlign: "center" }}>
             <div
+              className={classes.image}
               style={{
                 backgroundImage: `url(${getImageURL(image1)})`,
-                backgroundRepeat: "no-repeat",
-                backgroundSize: "contain",
-                backgroundPosition: "center",
-                width: "100%",
-                paddingTop: "100%",
               }}
             />
           </Card.Section>
@@ -75,18 +71,19 @@ export const Vote = ({ collection }: Props) => {
         >
           <Card.Section withBorder style={{ textAlign: "center" }}>
             <div
+              className={classes.image}
               style={{
                 backgroundImage: `url(${getImageURL(image2)})`,
-                backgroundRepeat: "no-repeat",
-                backgroundSize: "contain",
-                backgroundPosition: "center",
-                width: "100%",
-                paddingTop: "100%",
               }}
             />
           </Card.Section>
         </Card>
       </Flex>
+      <Group mt={8} justify="center">
+        <Button variant="outline" px={64} onClick={handleVote("SKIP")}>
+          Skip
+        </Button>
+      </Group>
     </>
   );
 };

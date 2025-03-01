@@ -23,17 +23,19 @@ export class CollectionsService {
     });
   }
 
-  async getOne(collectionId: string) {
-    // TODO: Should not have rating desc like this, should improve
+  async getOne(
+    collectionId: string,
+    {
+      imagesSort,
+    }: Partial<{ imagesSort: Prisma.ImageOrderByWithRelationInput }> = {},
+  ) {
     const collection = await prisma.collection.findUnique({
       where: {
         id: collectionId,
       },
       include: {
         images: {
-          orderBy: {
-            rating: 'desc',
-          },
+          orderBy: imagesSort,
         },
       },
     });
