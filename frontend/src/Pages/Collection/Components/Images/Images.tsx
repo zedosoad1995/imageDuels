@@ -6,6 +6,7 @@ import { Button, Card, Grid, Text } from "@mantine/core";
 import classes from "./Images.module.css";
 import { getImageURL } from "../../../../Utils/image";
 import { IGetCollection } from "../../../../Types/collection";
+import { notifications } from "@mantine/notifications";
 
 interface Props {
   collection: IGetCollection;
@@ -17,18 +18,66 @@ export const Images = ({ collection }: Props) => {
 
   const onFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files?.length || !id) return;
-    let file = e.target.files[0];
 
-    if (file.size > 1 * 1024 * 1024) {
-      const options: Options = {
-        maxSizeMB: 1,
-        maxWidthOrHeight: 1920,
-        useWebWorker: true,
-      };
-      file = await imageCompression(file, options);
+    const files = Array.from(e.target.files);
+
+    // TODO: limit number of files that can be uploaded (151), also be aware of how many files there are already, but the real validation should be in the backend
+
+    const res = await Promise.allSettled(
+      files.map(async (file) => {
+        if (file.size > 1 * 1024 * 1024) {
+          const options: Options = {
+            maxSizeMB: 1,
+            maxWidthOrHeight: 1920,
+            useWebWorker: true,
+          };
+          file = await imageCompression(file, options);
+        }
+
+        return addImageToCollection(id, file);
+      })
+    );
+
+    const { numSuccess, numFailures } = res.reduce(
+      (acc, val) => {
+        if (val.status === "fulfilled") {
+          acc.numSuccess += 1;
+        } else {
+          acc.numFailures += 1;
+        }
+
+        return acc;
+      },
+      { numSuccess: 0, numFailures: 0 }
+    );
+
+    if (numSuccess + numFailures === 0) return;
+
+    if (numSuccess + numFailures === 1) {
+      if (numSuccess) {
+        return notifications.show({
+          message: "Image successfully uploaded",
+        });
+      }
+
+      return notifications.show({
+        message: "Image could not be uploaded",
+        color: "red",
+      });
     }
 
-    await addImageToCollection(id, file);
+    if (numFailures > 0) {
+      return notifications.show({
+        message: `${numSuccess}/${
+          numSuccess + numFailures
+        } images were uploaded (${numFailures} images failed to upload)`,
+        color: "red",
+      });
+    }
+
+    notifications.show({
+      message: `All ${numSuccess} images successfully uploaded`,
+    });
   };
 
   const handleButtonClick = () => {
@@ -43,6 +92,7 @@ export const Images = ({ collection }: Props) => {
         ref={inputRef}
         onChange={onFileChange}
         style={{ display: "none" }}
+        multiple
         accept=".jpg, .jpeg, .png, .webp"
       />
       <Grid pt="xs">
