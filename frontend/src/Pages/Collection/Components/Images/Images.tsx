@@ -1,13 +1,14 @@
 import { useRef } from "react";
 import { useParams } from "react-router";
-import { addImageToCollection, ICollection } from "../../../../Api/collections";
+import { addImageToCollection } from "../../../../Api/collections";
 import imageCompression, { Options } from "browser-image-compression";
 import { Button, Card, Grid, Text } from "@mantine/core";
 import classes from "./Images.module.css";
 import { getImageURL } from "../../../../Utils/image";
+import { IGetCollection } from "../../../../Types/collection";
 
 interface Props {
-  collection: ICollection;
+  collection: IGetCollection;
 }
 
 export const Images = ({ collection }: Props) => {

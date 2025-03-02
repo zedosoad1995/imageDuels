@@ -1,8 +1,8 @@
 import { Text } from "@mantine/core";
-import { ICollection } from "../../../../Api/collections";
+import { IGetCollection } from "../../../../Types/collection";
 
 interface Props {
-  collection: ICollection;
+  collection: IGetCollection;
 }
 
 export const About = ({ collection }: Props) => {

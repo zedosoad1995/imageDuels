@@ -1,13 +1,14 @@
 import { Button, Card, Flex, Group, Text } from "@mantine/core";
-import { createDuel, ICollection } from "../../../../Api/collections";
+import { createDuel } from "../../../../Api/collections";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router";
 import classes from "./Vote.module.css";
 import { getImageURL } from "../../../../Utils/image";
 import { vote, VoteOutcome } from "../../../../Api/duels";
+import { IGetCollection } from "../../../../Types/collection";
 
 interface Props {
-  collection: ICollection;
+  collection: IGetCollection;
 }
 
 export const Vote = ({ collection }: Props) => {
@@ -41,6 +42,8 @@ export const Vote = ({ collection }: Props) => {
       setDuelId(duelId);
     });
   };
+
+  // TODO: Create placeholder when there aren't enough images (less than 2), or for other cases (e.g votes ran out)
 
   return (
     <>

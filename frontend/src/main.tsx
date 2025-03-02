@@ -9,6 +9,7 @@ import "@mantine/core/styles.css";
 import { createTheme, MantineProvider } from "@mantine/core";
 import { MainLayout } from "./Layouts/MainLayout/MainLayout";
 import "./index.css";
+import { CreateCollection } from "./Pages/CreateCollection/CreateCollection";
 
 const router = createBrowserRouter([
   {
@@ -25,6 +26,10 @@ const router = createBrowserRouter([
       {
         path: "/",
         Component: Explore,
+      },
+      {
+        path: "/collection/create",
+        Component: CreateCollection,
       },
       {
         path: "/collection/:id",

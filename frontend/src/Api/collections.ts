@@ -1,26 +1,23 @@
 import api from ".";
-
-export interface ICollection {
-  id: string;
-  title: string;
-  mode: string;
-  question?: string;
-  description?: string;
-  images: {
-    id: string;
-    filepath: string;
-    numVotes: number;
-  }[];
-}
-
-export type IGetCollections = Omit<ICollection, "images">[];
+import {
+  ICreateCollectionBody,
+  ICollection,
+  IGetCollection,
+  IGetCollections,
+} from "../Types/collection";
 
 export const getCollections = (): Promise<IGetCollections> => {
   return api.get("/collections");
 };
 
-export const getCollection = (id: string): Promise<ICollection> => {
+export const getCollection = (id: string): Promise<IGetCollection> => {
   return api.get(`/collections/${id}`);
+};
+
+export const createCollection = (
+  body: ICreateCollectionBody
+): Promise<ICollection> => {
+  return api.post("/collections", body);
 };
 
 export const addImageToCollection = (
