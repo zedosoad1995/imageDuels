@@ -18,9 +18,50 @@ export class CollectionsService {
       whereQuery.mode = 'PUBLIC';
     }
 
-    return prisma.collection.findMany({
+    const collections = await prisma.collection.findMany({
       where: whereQuery,
+      include: {
+        _count: {
+          select: {
+            images: true,
+          },
+        },
+        images: {
+          select: {
+            filepath: true,
+            numVotes: true,
+          },
+          orderBy: {
+            rating: 'desc',
+          },
+          take: 6,
+        },
+      },
     });
+
+    const sumRes = await prisma.image.groupBy({
+      by: ['collectionId'],
+      _sum: {
+        numVotes: true,
+      },
+    });
+
+    const votesMap = sumRes.reduce(
+      (acc, { collectionId, _sum }) => {
+        acc[collectionId] = _sum.numVotes || 0;
+        return acc;
+      },
+      {} as Record<string, number>,
+    );
+
+    const res = collections.map(({ _count, images, ...collection }) => ({
+      ...collection,
+      totalImages: _count.images,
+      totalVotes: votesMap[collection.id] || 0,
+      thumbnailImages: images.map(({ filepath }) => filepath),
+    }));
+
+    return res;
   }
 
   async getOne(

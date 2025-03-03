@@ -21,6 +21,7 @@ export const Images = ({ collection }: Props) => {
 
     const files = Array.from(e.target.files);
 
+    // TODO: Improve this, maybe allow to reload or repeat, look for efficiency, test a lot, etc.
     // TODO: limit number of files that can be uploaded (151), also be aware of how many files there are already, but the real validation should be in the backend
 
     const res = await Promise.allSettled(

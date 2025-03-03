@@ -28,7 +28,7 @@ export const Collection = () => {
       <Text fw={600} size="lg">
         {collection.title}
       </Text>
-      <Tabs defaultValue="images">
+      <Tabs defaultValue="vote">
         <Tabs.List>
           <Tabs.Tab value="vote">Vote</Tabs.Tab>
           <Tabs.Tab value="images">Images</Tabs.Tab>

@@ -4,11 +4,15 @@ export interface ICollection {
   id: string;
   title: string;
   mode: CollectionModeType;
-  question?: string;
-  description?: string;
+  question: string | null;
+  description: string | null;
 }
 
-export type IGetCollections = ICollection[];
+export type IGetCollections = (ICollection & {
+  totalImages: number;
+  totalVotes: number;
+  thumbnailImages: string[];
+})[];
 
 export type IGetCollection = ICollection & {
   images: {
