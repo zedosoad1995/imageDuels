@@ -2,19 +2,39 @@ import { useEffect, useState } from "react";
 import { getCollections } from "../../Api/collections";
 import classes from "./Explore.module.css";
 import { useNavigate } from "react-router";
-import { Affix, ActionIcon, Card, Stack, Text, Group } from "@mantine/core";
+import {
+  Affix,
+  ActionIcon,
+  Card,
+  Stack,
+  Text,
+  Group,
+  SegmentedControl,
+} from "@mantine/core";
 import PlusLogo from "../../assets/svgs/plus.svg?react";
-import { IGetCollections } from "../../Types/collection";
+import {
+  IGetCollections,
+  IGetCollectionsOrderBy,
+} from "../../Types/collection";
 import { getImageURL } from "../../Utils/image";
+
+const orderValues: { value: IGetCollectionsOrderBy; label: string }[] = [
+  {
+    value: "new",
+    label: "New",
+  },
+  { value: "popular", label: "Popular" },
+];
 
 export const Explore = () => {
   const navigate = useNavigate();
 
   const [collections, setCollections] = useState<IGetCollections>([]);
+  const [orderBy, setOrderBy] = useState<IGetCollectionsOrderBy>("new");
 
   useEffect(() => {
-    getCollections().then(setCollections);
-  }, []);
+    getCollections({ orderBy }).then(setCollections);
+  }, [orderBy]);
 
   const handleClickCollection = (id: string) => () => {
     navigate(`/collection/${id}`);
@@ -24,8 +44,18 @@ export const Explore = () => {
     navigate("/collection/create");
   };
 
+  const handleChangeOrderBy = (value: string) => {
+    setOrderBy(value as IGetCollectionsOrderBy);
+  };
+
   return (
     <>
+      <SegmentedControl
+        mb={16}
+        data={orderValues}
+        value={orderBy}
+        onChange={handleChangeOrderBy}
+      />
       <Stack gap={12}>
         {collections.map(
           ({ id, title, thumbnailImages, totalVotes, totalImages }) => (
@@ -36,7 +66,7 @@ export const Explore = () => {
               p="xs"
               withBorder
             >
-              <Text fw={700} mb={4}>
+              <Text fw={700} mb={8}>
                 {title}
               </Text>
               <Group

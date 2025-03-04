@@ -31,6 +31,7 @@ import {
 import { DuelsService } from 'src/duels/duels.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
+import { IGetCollectionsOrderBy } from './collections.type';
 
 @UseGuards(AuthGuard)
 @Controller('collections')
@@ -46,10 +47,13 @@ export class CollectionsController {
     @Request() req,
     @Query('onlySelf', new DefaultValuePipe(false), ParseBoolPipe)
     onlySelf: boolean,
+    @Query('orderBy', new DefaultValuePipe('new'))
+    orderBy: IGetCollectionsOrderBy,
   ) {
-    const collections = await this.collectionsService.getMany(
-      onlySelf ? req.user.id : undefined,
-    );
+    const collections = await this.collectionsService.getMany({
+      userId: onlySelf ? req.user.id : undefined,
+      orderBy,
+    });
 
     return manyCollectionsResSchema.parse(collections);
   }

@@ -8,6 +8,12 @@ export interface ICollection {
   description: string | null;
 }
 
+export type IGetCollectionsOrderBy = "new" | "popular";
+
+export interface IGetCollectionsQuery {
+  orderBy?: IGetCollectionsOrderBy;
+}
+
 export type IGetCollections = (ICollection & {
   totalImages: number;
   totalVotes: number;

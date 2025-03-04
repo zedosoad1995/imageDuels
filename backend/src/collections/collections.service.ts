@@ -6,16 +6,22 @@ import {
 import { prisma } from 'src/common/helpers/prisma';
 import { CreateCollectionDto } from './dto/createCollection.dto';
 import { Prisma } from '@prisma/client';
+import { IGetCollections } from './collections.type';
 
 @Injectable()
 export class CollectionsService {
-  async getMany(userId?: string) {
+  async getMany({ userId, orderBy }: IGetCollections = {}) {
     const whereQuery: Prisma.CollectionWhereInput = {};
+    const orderByQuery: Prisma.CollectionOrderByWithRelationInput = {};
 
     if (userId) {
       whereQuery.ownerId = userId;
     } else {
       whereQuery.mode = 'PUBLIC';
+    }
+
+    if (orderBy === 'new') {
+      orderByQuery.createdAt = 'desc';
     }
 
     const collections = await prisma.collection.findMany({
@@ -31,11 +37,12 @@ export class CollectionsService {
             filepath: true,
             numVotes: true,
           },
-          orderBy: {
-            rating: 'desc',
-          },
+          orderBy: orderByQuery,
           take: 6,
         },
+      },
+      orderBy: {
+        createdAt: 'desc',
       },
     });
 
@@ -60,6 +67,10 @@ export class CollectionsService {
       totalVotes: votesMap[collection.id] || 0,
       thumbnailImages: images.map(({ filepath }) => filepath),
     }));
+
+    if (orderBy === 'popular') {
+      res.sort((a, b) => b.totalVotes - a.totalVotes);
+    }
 
     return res;
   }

@@ -4,10 +4,15 @@ import {
   ICollection,
   IGetCollection,
   IGetCollections,
+  IGetCollectionsQuery,
 } from "../Types/collection";
 
-export const getCollections = (): Promise<IGetCollections> => {
-  return api.get("/collections");
+export const getCollections = (
+  query: IGetCollectionsQuery = {}
+): Promise<IGetCollections> => {
+  return api.get("/collections", {
+    params: query,
+  });
 };
 
 export const getCollection = (id: string): Promise<IGetCollection> => {

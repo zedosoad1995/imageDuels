@@ -4,8 +4,8 @@ import { z } from 'zod';
 
 export const createCollectionSchema = z
   .object({
-    title: z.string().min(1).max(200),
-    question: z.string().min(1).max(200).optional(),
+    title: z.string().max(200),
+    question: z.string().max(200).optional(),
     description: z.string().optional(),
     mode: customEnum(Object.values(CollectionModeEnum)),
   })
