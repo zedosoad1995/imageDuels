@@ -15,6 +15,7 @@ import {
   Delete,
   UploadedFile,
   UseInterceptors,
+  Patch,
 } from '@nestjs/common';
 import { CollectionsService } from './collections.service';
 import { AuthGuard } from 'src/auth/auth.guards';
@@ -32,6 +33,10 @@ import { DuelsService } from 'src/duels/duels.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { IGetCollectionsOrderBy } from './collections.type';
+import {
+  EditCollectionDto,
+  editCollectionSchema,
+} from './dto/editCollection.dto';
 
 @UseGuards(AuthGuard)
 @Controller('collections')
@@ -60,9 +65,13 @@ export class CollectionsController {
 
   @Get(':collectionId')
   async getOne(@Request() req, @Param('collectionId') collectionId: string) {
-    const collection = await this.collectionsService.getOne(collectionId, {
-      imagesSort: { rating: 'desc' },
-    });
+    const collection = await this.collectionsService.getOne(
+      collectionId,
+      req.user.id,
+      {
+        imagesSort: { rating: 'desc' },
+      },
+    );
 
     // TODO: Make admin be able to see the collection
     if (
@@ -81,6 +90,20 @@ export class CollectionsController {
   @Post('')
   create(@Body() createCollectionDto: CreateCollectionDto, @Request() req) {
     return this.collectionsService.create(createCollectionDto, req.user.id);
+  }
+
+  @UsePipes(new ZodValidationPipe(editCollectionSchema))
+  @Patch(':collectionId')
+  edit(
+    @Param('collectionId') collectionId: string,
+    @Body() editCollectionDto: EditCollectionDto,
+    @Request() req,
+  ) {
+    return this.collectionsService.edit(
+      collectionId,
+      editCollectionDto,
+      req.user.id,
+    );
   }
 
   @Post(':collectionId/add-image')

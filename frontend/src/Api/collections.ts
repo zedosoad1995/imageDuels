@@ -5,6 +5,7 @@ import {
   IGetCollection,
   IGetCollections,
   IGetCollectionsQuery,
+  IEditCollectionBody,
 } from "../Types/collection";
 
 export const getCollections = (
@@ -23,6 +24,13 @@ export const createCollection = (
   body: ICreateCollectionBody
 ): Promise<ICollection> => {
   return api.post("/collections", body);
+};
+
+export const editCollection = (
+  id: string,
+  body: IEditCollectionBody
+): Promise<ICollection> => {
+  return api.patch(`/collections/${id}`, body);
 };
 
 export const addImageToCollection = (

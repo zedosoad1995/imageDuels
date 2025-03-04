@@ -8,10 +8,13 @@ import {
 import { Outlet, useNavigate } from "react-router";
 import classes from "./MainLayout.module.css";
 import Logo from "../../assets/svgs/logo.svg?react";
+import { useEffect } from "react";
 
 export const MainLayout = () => {
   const theme = useMantineTheme();
   const navigate = useNavigate();
+
+  useEffect(() => {}, []);
 
   const handleClickLogo = () => {
     navigate("/");

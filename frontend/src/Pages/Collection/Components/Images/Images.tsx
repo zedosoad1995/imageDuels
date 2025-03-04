@@ -2,7 +2,7 @@ import { useRef } from "react";
 import { useParams } from "react-router";
 import { addImageToCollection } from "../../../../Api/collections";
 import imageCompression, { Options } from "browser-image-compression";
-import { Button, Card, Grid, Progress, Text } from "@mantine/core";
+import { Button, Card, Grid, Group, Progress, Text } from "@mantine/core";
 import classes from "./Images.module.css";
 import { IGetCollection } from "../../../../Types/collection";
 import { notifications } from "@mantine/notifications";
@@ -104,13 +104,16 @@ export const Images = ({ collection }: Props) => {
                 <Image filepath={filepath} />
               </Card.Section>
               <div className={classes.cardInfo}>
-                <Text>
-                  <Text fw={600} span>
-                    {numVotes}
-                  </Text>{" "}
-                  votes
-                </Text>
-                <Progress value={percentile * 100} />
+                <Group justify="space-between">
+                  <Text size="sm">
+                    <Text fw={600} span>
+                      {numVotes}
+                    </Text>{" "}
+                    votes
+                  </Text>
+                  <Text size="sm">{Math.round(percentile * 100)}%</Text>
+                </Group>
+                <Progress value={percentile * 100} animated />
               </div>
             </Card>
           </Grid.Col>

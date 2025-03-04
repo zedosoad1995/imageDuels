@@ -7,6 +7,7 @@ import { prisma } from 'src/common/helpers/prisma';
 import { CreateCollectionDto } from './dto/createCollection.dto';
 import { Prisma } from '@prisma/client';
 import { IGetCollections } from './collections.type';
+import { EditCollectionDto } from './dto/editCollection.dto';
 
 @Injectable()
 export class CollectionsService {
@@ -77,6 +78,7 @@ export class CollectionsService {
 
   async getOne(
     collectionId: string,
+    userId: string,
     {
       imagesSort,
     }: Partial<{ imagesSort: Prisma.ImageOrderByWithRelationInput }> = {},
@@ -111,6 +113,7 @@ export class CollectionsService {
         ...image,
         percentile: (totalImages - index - 1) / (totalImages - 1),
       })),
+      belongsToMe: collection.ownerId === userId,
     };
 
     return transformedCollection;
@@ -135,6 +138,32 @@ export class CollectionsService {
         ...collection,
         ownerId: userId,
       },
+    });
+  }
+
+  async edit(
+    collectionId: string,
+    collectionBody: EditCollectionDto,
+    userId: string,
+  ) {
+    const foundCollection = await prisma.collection.findFirst({
+      where: {
+        id: collectionId,
+        ownerId: userId,
+      },
+    });
+
+    if (!foundCollection) {
+      throw new BadRequestException(
+        'This collection cannot be edit, either does not exist, or user does not have permissions to edit it',
+      );
+    }
+
+    return prisma.collection.update({
+      where: {
+        id: collectionId,
+      },
+      data: collectionBody,
     });
   }
 

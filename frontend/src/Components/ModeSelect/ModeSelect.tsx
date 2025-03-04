@@ -1,6 +1,6 @@
 import { Group, Radio, Stack, Text } from "@mantine/core";
-import classes from "./Mode.module.css";
-import { CollectionModeType } from "../../../Types/collection";
+import classes from "./ModeSelect.module.css";
+import { CollectionModeType } from "../../Types/collection";
 
 const modesData: {
   value: CollectionModeType;
@@ -30,7 +30,7 @@ interface Props {
   onChange?: (value: string) => void;
 }
 
-export const Mode = ({ value, onChange }: Props) => {
+export const ModeSelect = ({ value, onChange }: Props) => {
   return (
     <Radio.Group value={value} onChange={onChange} label="Collection Mode">
       <Stack pt="md" gap="xs">

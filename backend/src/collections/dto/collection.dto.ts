@@ -18,6 +18,7 @@ export const collectionResSchema = z.object({
       percentile: z.number(),
     }),
   ),
+  belongsToMe: z.boolean(),
 });
 
 export const manyCollectionsResSchema = z.array(

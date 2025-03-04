@@ -27,11 +27,14 @@ export type IGetCollection = ICollection & {
     numVotes: number;
     percentile: number;
   }[];
+  belongsToMe: boolean;
 };
 
 export interface ICreateCollectionBody {
   title: string;
   mode: CollectionModeType;
-  description?: string;
-  question?: string;
+  description: string | null;
+  question: string | null;
 }
+
+export type IEditCollectionBody = Partial<ICreateCollectionBody>;

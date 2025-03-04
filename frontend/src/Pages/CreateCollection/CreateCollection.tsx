@@ -1,6 +1,6 @@
 import { Button, Stack, Textarea, TextInput } from "@mantine/core";
 import { useState } from "react";
-import { Mode } from "./Components/Mode";
+import { ModeSelect } from "../../Components/ModeSelect/ModeSelect";
 import { CollectionModeType } from "../../Types/collection";
 import { createCollection } from "../../Api/collections";
 
@@ -56,7 +56,7 @@ export const CreateCollection = () => {
         value={description}
         onChange={handleChangeDescription}
       />
-      <Mode value={mode} onChange={handleModeChange} />
+      <ModeSelect value={mode} onChange={handleModeChange} />
       <Button onClick={handleClickCreate}>Create</Button>
     </Stack>
   );
