@@ -37,13 +37,13 @@ export class CollectionsService {
             filepath: true,
             numVotes: true,
           },
-          orderBy: orderByQuery,
+          orderBy: {
+            rating: 'desc',
+          },
           take: 6,
         },
       },
-      orderBy: {
-        createdAt: 'desc',
-      },
+      orderBy: orderByQuery,
     });
 
     const sumRes = await prisma.image.groupBy({
@@ -87,6 +87,12 @@ export class CollectionsService {
       },
       include: {
         images: {
+          select: {
+            id: true,
+            filepath: true,
+            numVotes: true,
+            rating: true,
+          },
           orderBy: imagesSort,
         },
       },
@@ -98,7 +104,16 @@ export class CollectionsService {
       );
     }
 
-    return collection;
+    const totalImages = collection.images.length;
+    const transformedCollection = {
+      ...collection,
+      images: collection.images.map(({ rating, ...image }, index) => ({
+        ...image,
+        percentile: (totalImages - index - 1) / (totalImages - 1),
+      })),
+    };
+
+    return transformedCollection;
   }
 
   async create(collection: CreateCollectionDto, userId: string) {

@@ -25,6 +25,7 @@ export type IGetCollection = ICollection & {
     id: string;
     filepath: string;
     numVotes: number;
+    percentile: number;
   }[];
 };
 

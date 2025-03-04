@@ -8,5 +8,5 @@
 
 .cardInfo {
   padding-top: var(--mantine-spacing-xxs);
-  padding-bottom: var(--mantine-spacing-xxs);
+  padding-bottom: var(--mantine-spacing-xs);
 }

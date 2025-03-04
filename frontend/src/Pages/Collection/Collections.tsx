@@ -16,7 +16,7 @@ export const Collection = () => {
       return;
     }
 
-    getCollection(id).then(setCollection).then();
+    getCollection(id).then(setCollection);
   }, [id]);
 
   if (!collection) {

@@ -7,11 +7,3 @@
     transform: scale(1.003);
   }
 }
-
-.image {
-  background-repeat: no-repeat;
-  background-size: contain;
-  background-position: center;
-  width: 100%;
-  padding-top: 100%;
-}

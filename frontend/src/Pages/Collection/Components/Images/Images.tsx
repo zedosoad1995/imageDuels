@@ -2,11 +2,11 @@ import { useRef } from "react";
 import { useParams } from "react-router";
 import { addImageToCollection } from "../../../../Api/collections";
 import imageCompression, { Options } from "browser-image-compression";
-import { Button, Card, Grid, Text } from "@mantine/core";
+import { Button, Card, Grid, Progress, Text } from "@mantine/core";
 import classes from "./Images.module.css";
-import { getImageURL } from "../../../../Utils/image";
 import { IGetCollection } from "../../../../Types/collection";
 import { notifications } from "@mantine/notifications";
+import { Image } from "../../../../Components/Image/Image";
 
 interface Props {
   collection: IGetCollection;
@@ -97,20 +97,11 @@ export const Images = ({ collection }: Props) => {
         accept=".jpg, .jpeg, .png, .webp"
       />
       <Grid pt="xs">
-        {collection.images.map(({ id, filepath, numVotes }) => (
+        {collection.images.map(({ id, filepath, numVotes, percentile }) => (
           <Grid.Col key={id} span={{ base: 12, xs: 6, sm: 4, lg: 3 }}>
-            <Card withBorder className={classes.card}>
+            <Card withBorder className={classes.card} pb={0}>
               <Card.Section withBorder style={{ textAlign: "center" }}>
-                <div
-                  style={{
-                    backgroundImage: `url(${getImageURL(filepath)})`,
-                    backgroundRepeat: "no-repeat",
-                    backgroundSize: "contain",
-                    backgroundPosition: "center",
-                    width: "100%",
-                    paddingTop: "100%",
-                  }}
-                />
+                <Image filepath={filepath} />
               </Card.Section>
               <div className={classes.cardInfo}>
                 <Text>
@@ -119,6 +110,7 @@ export const Images = ({ collection }: Props) => {
                   </Text>{" "}
                   votes
                 </Text>
+                <Progress value={percentile * 100} />
               </div>
             </Card>
           </Grid.Col>

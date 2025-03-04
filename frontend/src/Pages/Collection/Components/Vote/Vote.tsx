@@ -6,6 +6,7 @@ import classes from "./Vote.module.css";
 import { getImageURL } from "../../../../Utils/image";
 import { vote, VoteOutcome } from "../../../../Api/duels";
 import { IGetCollection } from "../../../../Types/collection";
+import { Image } from "../../../../Components/Image/Image";
 
 interface Props {
   collection: IGetCollection;
@@ -59,12 +60,7 @@ export const Vote = ({ collection }: Props) => {
           onClick={handleVote("WIN")}
         >
           <Card.Section withBorder style={{ textAlign: "center" }}>
-            <div
-              className={classes.image}
-              style={{
-                backgroundImage: `url(${getImageURL(image1)})`,
-              }}
-            />
+            <Image filepath={image1} />
           </Card.Section>
         </Card>
         <Card
@@ -73,12 +69,7 @@ export const Vote = ({ collection }: Props) => {
           onClick={handleVote("LOSS")}
         >
           <Card.Section withBorder style={{ textAlign: "center" }}>
-            <div
-              className={classes.image}
-              style={{
-                backgroundImage: `url(${getImageURL(image2)})`,
-              }}
-            />
+            <Image filepath={image2} />
           </Card.Section>
         </Card>
       </Flex>

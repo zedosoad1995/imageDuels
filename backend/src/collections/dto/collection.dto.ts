@@ -15,7 +15,7 @@ export const collectionResSchema = z.object({
       id: z.string(),
       filepath: z.string(),
       numVotes: z.number(),
-      rating: z.number(),
+      percentile: z.number(),
     }),
   ),
 });

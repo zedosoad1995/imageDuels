@@ -16,7 +16,7 @@ import {
   IGetCollections,
   IGetCollectionsOrderBy,
 } from "../../Types/collection";
-import { getImageURL } from "../../Utils/image";
+import { Image } from "../../Components/Image/Image";
 
 const orderValues: { value: IGetCollectionsOrderBy; label: string }[] = [
   {
@@ -77,12 +77,7 @@ export const Explore = () => {
                 {thumbnailImages.map((filepath) => (
                   <Card withBorder miw={150}>
                     <Card.Section withBorder style={{ textAlign: "center" }}>
-                      <div
-                        className={classes.image}
-                        style={{
-                          backgroundImage: `url(${getImageURL(filepath)})`,
-                        }}
-                      />
+                      <Image filepath={filepath} />
                     </Card.Section>
                   </Card>
                 ))}
