@@ -4,7 +4,7 @@ import { createBrowserRouter, RouterProvider } from "react-router";
 import { Register } from "./Pages/Register/Register";
 import { Login } from "./Pages/Login/Login";
 import { Explore } from "./Pages/Explore/Explore";
-import { Collection } from "./Pages/Collection/Collections";
+import { Collection } from "./Pages/Collection/Collection";
 import "@mantine/core/styles.css";
 import { createTheme, MantineProvider } from "@mantine/core";
 import { MainLayout } from "./Layouts/MainLayout/MainLayout";

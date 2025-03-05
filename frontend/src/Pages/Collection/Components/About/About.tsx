@@ -1,14 +1,18 @@
 import { Button, Stack, Text, Textarea, TextInput } from "@mantine/core";
-import {
-  CollectionModeType,
-  IGetCollection,
-} from "../../../../Types/collection";
+import { IGetCollection } from "../../../../Types/collection";
 import { ModeSelect } from "../../../../Components/ModeSelect/ModeSelect";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import { deleteCollection, editCollection } from "../../../../Api/collections";
 import { notifications } from "@mantine/notifications";
 import { modals } from "@mantine/modals";
+import { Controller, useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  editCollectionSchema,
+  EditCollectionType,
+} from "../../../../Schemas/Collection/editCollectionSchema";
+import { CollectionContext } from "../../../../Contexts/CollectionContext";
 
 interface Props {
   collection: IGetCollection;
@@ -17,12 +21,24 @@ interface Props {
 export const About = ({ collection }: Props) => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { setCollection } = useContext(CollectionContext);
 
   const [isLoading, setIsLoading] = useState(false);
-  const [title, setTitle] = useState(collection.title);
-  const [question, setQuestion] = useState(collection.question ?? "");
-  const [description, setDescription] = useState(collection.description ?? "");
-  const [mode, setMode] = useState(collection.mode);
+
+  const {
+    register,
+    control,
+    getValues,
+    formState: { isValid },
+  } = useForm<EditCollectionType>({
+    resolver: zodResolver(editCollectionSchema),
+    defaultValues: {
+      title: collection.title,
+      description: collection.description ?? "",
+      question: collection.question ?? "",
+      mode: collection.mode,
+    },
+  });
 
   if (!collection.belongsToMe) {
     return (
@@ -35,30 +51,19 @@ export const About = ({ collection }: Props) => {
     );
   }
 
-  const handleChange =
-    (setValue: React.Dispatch<React.SetStateAction<string>>) =>
-    (event: React.ChangeEvent<HTMLInputElement>) => {
-      setValue(event.currentTarget.value);
-    };
-
-  const handleChangeDescription = (
-    event: React.ChangeEvent<HTMLTextAreaElement>
-  ) => {
-    setDescription(event.currentTarget.value);
-  };
-
-  const handleModeChange = (value: string) => {
-    setMode(value as CollectionModeType);
-  };
-
   const handleClickEdit = async () => {
     if (!id) {
       return;
     }
 
+    const { title, description, mode, question } = getValues();
+
     try {
       setIsLoading(true);
       await editCollection(id, { title, description, mode, question });
+      setCollection((val) =>
+        val ? { ...val, title, description, mode, question } : undefined
+      );
       notifications.show({ message: "Collection edited successfully" });
     } finally {
       setIsLoading(false);
@@ -95,24 +100,27 @@ export const About = ({ collection }: Props) => {
       <TextInput
         label="Title"
         placeholder="Title"
-        value={title}
-        onChange={handleChange(setTitle)}
         required
+        {...register("title")}
       />
       <TextInput
         label="Question"
         placeholder="Question"
-        value={question}
-        onChange={handleChange(setQuestion)}
+        {...register("question")}
       />
       <Textarea
         label="Description"
         placeholder="Description"
-        value={description}
-        onChange={handleChangeDescription}
+        {...register("description")}
       />
-      <ModeSelect value={mode} onChange={handleModeChange} />
-      <Button onClick={handleClickEdit} loading={isLoading}>
+      <Controller
+        name="mode"
+        control={control}
+        render={({ field: { value, onChange } }) => (
+          <ModeSelect value={value} onChange={onChange} />
+        )}
+      />
+      <Button onClick={handleClickEdit} loading={isLoading} disabled={!isValid}>
         Edit
       </Button>
       <Button onClick={openDeleteModal} color="red">
