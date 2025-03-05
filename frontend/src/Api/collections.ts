@@ -33,6 +33,10 @@ export const editCollection = (
   return api.patch(`/collections/${id}`, body);
 };
 
+export const deleteCollection = (id: string): Promise<void> => {
+  return api.delete(`/collections/${id}`);
+};
+
 export const addImageToCollection = (
   id: string,
   image: File

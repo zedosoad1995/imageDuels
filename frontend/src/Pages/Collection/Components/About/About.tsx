@@ -5,9 +5,10 @@ import {
 } from "../../../../Types/collection";
 import { ModeSelect } from "../../../../Components/ModeSelect/ModeSelect";
 import { useState } from "react";
-import { useParams } from "react-router";
-import { editCollection } from "../../../../Api/collections";
+import { useNavigate, useParams } from "react-router";
+import { deleteCollection, editCollection } from "../../../../Api/collections";
 import { notifications } from "@mantine/notifications";
+import { modals } from "@mantine/modals";
 
 interface Props {
   collection: IGetCollection;
@@ -15,6 +16,7 @@ interface Props {
 
 export const About = ({ collection }: Props) => {
   const { id } = useParams();
+  const navigate = useNavigate();
 
   const [isLoading, setIsLoading] = useState(false);
   const [title, setTitle] = useState(collection.title);
@@ -63,6 +65,31 @@ export const About = ({ collection }: Props) => {
     }
   };
 
+  const openDeleteModal = () =>
+    modals.openConfirmModal({
+      title: "Delete collection",
+      centered: true,
+      children: (
+        <Text size="sm">
+          Are you sure you want to delete this collection? This action is
+          irreversible.
+        </Text>
+      ),
+      labels: { confirm: "Delete collection", cancel: "Cancel" },
+      confirmProps: { color: "red" },
+      onConfirm: handleClickDelete,
+    });
+
+  const handleClickDelete = async () => {
+    if (!id) {
+      return;
+    }
+
+    await deleteCollection(id);
+    navigate("/");
+    notifications.show({ message: "Collection deleted" });
+  };
+
   return (
     <Stack>
       <TextInput
@@ -87,6 +114,9 @@ export const About = ({ collection }: Props) => {
       <ModeSelect value={mode} onChange={handleModeChange} />
       <Button onClick={handleClickEdit} loading={isLoading}>
         Edit
+      </Button>
+      <Button onClick={openDeleteModal} color="red">
+        Delete
       </Button>
     </Stack>
   );

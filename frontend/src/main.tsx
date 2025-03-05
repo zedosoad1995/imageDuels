@@ -12,6 +12,7 @@ import "./index.css";
 import "@mantine/notifications/styles.css";
 import { CreateCollection } from "./Pages/CreateCollection/CreateCollection";
 import { Notifications } from "@mantine/notifications";
+import { ModalsProvider } from "@mantine/modals";
 
 const router = createBrowserRouter([
   {
@@ -54,7 +55,9 @@ createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <MantineProvider theme={theme}>
       <Notifications />
-      <RouterProvider router={router} />
+      <ModalsProvider>
+        <RouterProvider router={router} />
+      </ModalsProvider>
     </MantineProvider>
   </StrictMode>
 );

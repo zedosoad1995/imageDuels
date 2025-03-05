@@ -145,6 +145,6 @@ export class CollectionsController {
   @Delete(':collectionId')
   @HttpCode(204)
   deleteOne(@Request() req, @Param('collectionId') collectionId: string) {
-    return this.collectionsService.deleteOne(collectionId, req.user.id);
+    this.collectionsService.deleteOne(collectionId, req.user.id);
   }
 }
