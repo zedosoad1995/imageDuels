@@ -170,6 +170,13 @@ export class CollectionsService {
 
   async deleteOne(collectionId: string, userId: string) {
     return prisma.collection.delete({
+      select: {
+        images: {
+          select: {
+            filepath: true,
+          },
+        },
+      },
       where: {
         id: collectionId,
         ownerId: userId,

@@ -37,6 +37,9 @@ import {
   EditCollectionDto,
   editCollectionSchema,
 } from './dto/editCollection.dto';
+import { unlink } from 'fs';
+
+const UPLOAD_FOLDER = './uploads';
 
 @UseGuards(AuthGuard)
 @Controller('collections')
@@ -110,7 +113,7 @@ export class CollectionsController {
   @UseInterceptors(
     FileInterceptor('image', {
       storage: diskStorage({
-        destination: './uploads',
+        destination: UPLOAD_FOLDER,
         filename: (req, file, cb) => {
           const ext = file.originalname.split('.').pop();
           cb(null, `${Date.now()}.${ext}`);
@@ -144,7 +147,25 @@ export class CollectionsController {
 
   @Delete(':collectionId')
   @HttpCode(204)
-  deleteOne(@Request() req, @Param('collectionId') collectionId: string) {
-    this.collectionsService.deleteOne(collectionId, req.user.id);
+  async deleteOne(@Request() req, @Param('collectionId') collectionId: string) {
+    const collection = await this.collectionsService.deleteOne(
+      collectionId,
+      req.user.id,
+    );
+
+    collection.images.forEach(({ filepath }) => {
+      unlink(UPLOAD_FOLDER + '/' + filepath, (error) => {
+        if (!error) return;
+
+        console.error(
+          'Error trying to delete file in  ' +
+            UPLOAD_FOLDER +
+            '/' +
+            filepath +
+            ':' +
+            error,
+        );
+      });
+    });
   }
 }
