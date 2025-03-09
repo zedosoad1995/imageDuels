@@ -13,6 +13,7 @@ import "@mantine/notifications/styles.css";
 import { CreateCollection } from "./Pages/CreateCollection/CreateCollection";
 import { Notifications } from "@mantine/notifications";
 import { ModalsProvider } from "@mantine/modals";
+import { MyCollections } from "./Pages/MyCollections/MyCollections";
 
 const router = createBrowserRouter([
   {
@@ -29,6 +30,10 @@ const router = createBrowserRouter([
       {
         path: "/",
         Component: Explore,
+      },
+      {
+        path: "/collections/me",
+        Component: MyCollections,
       },
       {
         path: "/collection/create",

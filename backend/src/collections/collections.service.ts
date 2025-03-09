@@ -111,7 +111,8 @@ export class CollectionsService {
       ...collection,
       images: collection.images.map(({ rating, ...image }, index) => ({
         ...image,
-        percentile: (totalImages - index - 1) / (totalImages - 1),
+        percentile:
+          totalImages > 1 ? (totalImages - index - 1) / (totalImages - 1) : 1,
       })),
       belongsToMe: collection.ownerId === userId,
     };

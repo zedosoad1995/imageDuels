@@ -2,16 +2,7 @@ import { useEffect, useState } from "react";
 import { getCollections } from "../../Api/collections";
 import classes from "./Explore.module.css";
 import { useNavigate } from "react-router";
-import {
-  Affix,
-  ActionIcon,
-  Card,
-  Stack,
-  Text,
-  Group,
-  SegmentedControl,
-} from "@mantine/core";
-import PlusLogo from "../../assets/svgs/plus.svg?react";
+import { Card, Stack, Text, Group, SegmentedControl } from "@mantine/core";
 import {
   IGetCollections,
   IGetCollectionsOrderBy,
@@ -38,10 +29,6 @@ export const Explore = () => {
 
   const handleClickCollection = (id: string) => () => {
     navigate(`/collection/${id}`);
-  };
-
-  const handleClickAddCollection = () => {
-    navigate("/collection/create");
   };
 
   const handleChangeOrderBy = (value: string) => {
@@ -89,11 +76,6 @@ export const Explore = () => {
           )
         )}
       </Stack>
-      <Affix position={{ bottom: 20, right: 20 }}>
-        <ActionIcon radius="xl" size="xl" onClick={handleClickAddCollection}>
-          <PlusLogo />
-        </ActionIcon>
-      </Affix>
     </>
   );
 };

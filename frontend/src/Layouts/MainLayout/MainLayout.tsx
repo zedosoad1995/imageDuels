@@ -1,5 +1,6 @@
 import {
   AppShell,
+  Button,
   Group,
   Text,
   UnstyledButton,
@@ -20,16 +21,30 @@ export const MainLayout = () => {
     navigate("/");
   };
 
+  const handleClickCreate = () => {
+    navigate("/collection/create");
+  };
+
+  const handleClickMy = () => {
+    navigate("/collections/me");
+  };
+
   return (
     <AppShell header={{ height: 60 }} padding={{ sm: "lg", base: "sm" }}>
       <AppShell.Header>
-        <Group h="100%" px={32} py={8}>
+        <Group h="100%" px={32} py={8} justify="space-between">
           <UnstyledButton className={classes.logoBtn} onClick={handleClickLogo}>
             <Logo height="70%" color={theme.colors.blue[6]} />
             <Text size="xl" fw={700}>
               IMAGE DUELS
             </Text>
           </UnstyledButton>
+          <Group gap={8}>
+            <Button onClick={handleClickCreate}>Create Collection</Button>
+            <Button onClick={handleClickMy} variant="subtle">
+              My Collections
+            </Button>
+          </Group>
         </Group>
       </AppShell.Header>
 
