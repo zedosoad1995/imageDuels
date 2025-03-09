@@ -28,7 +28,7 @@ export const Explore = () => {
   }, [orderBy]);
 
   const handleClickCollection = (id: string) => () => {
-    navigate(`/collection/${id}`);
+    navigate(`/collections/${id}`);
   };
 
   const handleChangeOrderBy = (value: string) => {

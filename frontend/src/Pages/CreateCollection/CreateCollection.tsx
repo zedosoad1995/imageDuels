@@ -3,8 +3,11 @@ import { useState } from "react";
 import { ModeSelect } from "../../Components/ModeSelect/ModeSelect";
 import { CollectionModeType } from "../../Types/collection";
 import { createCollection } from "../../Api/collections";
+import { useNavigate } from "react-router";
 
 export const CreateCollection = () => {
+  const navigate = useNavigate();
+
   const [title, setTitle] = useState("");
   const [question, setQuestion] = useState("");
   const [description, setDescription] = useState("");
@@ -26,13 +29,15 @@ export const CreateCollection = () => {
     setMode(value as CollectionModeType);
   };
 
-  const handleClickCreate = () => {
-    createCollection({
+  const handleClickCreate = async () => {
+    const collection = await createCollection({
       mode,
       title,
       description,
       question,
     });
+
+    navigate(`/collections/${collection.id}`);
   };
 
   return (

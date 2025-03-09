@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useContext, useRef } from "react";
 import { useParams } from "react-router";
 import { addImageToCollection } from "../../../../Api/collections";
 import imageCompression, { Options } from "browser-image-compression";
@@ -7,6 +7,7 @@ import classes from "./Images.module.css";
 import { IGetCollection } from "../../../../Types/collection";
 import { notifications } from "@mantine/notifications";
 import { Image } from "../../../../Components/Image/Image";
+import { CollectionContext } from "../../../../Contexts/CollectionContext";
 
 interface Props {
   collection: IGetCollection;
@@ -15,6 +16,7 @@ interface Props {
 export const Images = ({ collection }: Props) => {
   const { id } = useParams();
   const inputRef = useRef<HTMLInputElement>(null);
+  const { fetchCollection } = useContext(CollectionContext);
 
   const onFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files?.length || !id) return;
@@ -23,9 +25,13 @@ export const Images = ({ collection }: Props) => {
 
     // TODO: Improve this, maybe allow to reload or repeat, look for efficiency, test a lot, etc.
     // TODO: limit number of files that can be uploaded (151), also be aware of how many files there are already, but the real validation should be in the backend
+    // TODO: Should it update only at the end, or progressively?
 
-    const res = await Promise.allSettled(
-      files.map(async (file) => {
+    let numSuccess = 0;
+    let numFailures = 0;
+
+    for (let file of files) {
+      try {
         if (file.size > 1 * 1024 * 1024) {
           const options: Options = {
             maxSizeMB: 1,
@@ -35,22 +41,14 @@ export const Images = ({ collection }: Props) => {
           file = await imageCompression(file, options);
         }
 
-        return addImageToCollection(id, file);
-      })
-    );
+        await addImageToCollection(id, file);
+        numSuccess += 1;
+      } catch (error) {
+        numFailures += 1;
+      }
+    }
 
-    const { numSuccess, numFailures } = res.reduce(
-      (acc, val) => {
-        if (val.status === "fulfilled") {
-          acc.numSuccess += 1;
-        } else {
-          acc.numFailures += 1;
-        }
-
-        return acc;
-      },
-      { numSuccess: 0, numFailures: 0 }
-    );
+    fetchCollection();
 
     if (numSuccess + numFailures === 0) return;
 
@@ -58,12 +56,14 @@ export const Images = ({ collection }: Props) => {
       if (numSuccess) {
         return notifications.show({
           message: "Image successfully uploaded",
+          autoClose: 5000,
         });
       }
 
       return notifications.show({
         message: "Image could not be uploaded",
         color: "red",
+        autoClose: 5000,
       });
     }
 
@@ -73,11 +73,13 @@ export const Images = ({ collection }: Props) => {
           numSuccess + numFailures
         } images were uploaded (${numFailures} images failed to upload)`,
         color: "red",
+        autoClose: 5000,
       });
     }
 
     notifications.show({
       message: `All ${numSuccess} images successfully uploaded`,
+      autoClose: 5000,
     });
   };
 

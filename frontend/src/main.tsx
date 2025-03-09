@@ -36,11 +36,11 @@ const router = createBrowserRouter([
         Component: MyCollections,
       },
       {
-        path: "/collection/create",
+        path: "/collections/create",
         Component: CreateCollection,
       },
       {
-        path: "/collection/:id",
+        path: "/collections/:id",
         Component: Collection,
       },
     ],

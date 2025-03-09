@@ -12,7 +12,7 @@ export const CollectionsStack = ({ collections }: Props) => {
   const navigate = useNavigate();
 
   const handleClickCollection = (id: string) => () => {
-    navigate(`/collection/${id}`);
+    navigate(`/collections/${id}`);
   };
 
   return (

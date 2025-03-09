@@ -22,7 +22,7 @@ export const MainLayout = () => {
   };
 
   const handleClickCreate = () => {
-    navigate("/collection/create");
+    navigate("/collections/create");
   };
 
   const handleClickMy = () => {
