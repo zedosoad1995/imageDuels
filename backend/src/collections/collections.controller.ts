@@ -38,6 +38,7 @@ import {
   editCollectionSchema,
 } from './dto/editCollection.dto';
 import { unlink } from 'fs';
+import { generateRandomString } from 'src/common/helpers/random';
 
 const UPLOAD_FOLDER = './uploads';
 
@@ -116,7 +117,7 @@ export class CollectionsController {
         destination: UPLOAD_FOLDER,
         filename: (req, file, cb) => {
           const ext = file.originalname.split('.').pop();
-          cb(null, `${Date.now()}.${ext}`);
+          cb(null, `${Date.now()}-${generateRandomString(12)}.${ext}`);
         },
       }),
     }),

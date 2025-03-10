@@ -44,11 +44,7 @@ export const addImageToCollection = (
   const formData = new FormData();
   formData.append("image", image, image.name);
 
-  return api.post(`/collections/${id}/add-image`, formData, {
-    headers: {
-      "Content-Type": "multipart/form-data",
-    },
-  });
+  return api.post(`/collections/${id}/add-image`, formData);
 };
 
 export const createDuel = (
