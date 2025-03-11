@@ -1,5 +1,6 @@
 import api from ".";
+import { IUser } from "../Types/user";
 
-export const getMe = (): Promise<{ id: string; email: string }> => {
+export const getMe = (): Promise<IUser> => {
   return api.get("/users/me");
 };

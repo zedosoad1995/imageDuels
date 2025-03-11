@@ -78,7 +78,7 @@ export class CollectionsService {
 
   async getOne(
     collectionId: string,
-    userId: string,
+    userId: string | undefined,
     {
       imagesSort,
     }: Partial<{ imagesSort: Prisma.ImageOrderByWithRelationInput }> = {},

@@ -1,10 +1,12 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { login } from "../../Api/auth";
 import { useNavigate } from "react-router";
 import { Button, Flex, PasswordInput, TextInput } from "@mantine/core";
+import { UserContext } from "../../Contexts/UserContext";
 
 export const Login = () => {
   const navigate = useNavigate();
+  const { setLoggedIn } = useContext(UserContext);
 
   const [isLoading, setIsLoading] = useState(false);
   const [email, setEmail] = useState("");
@@ -21,6 +23,7 @@ export const Login = () => {
 
     try {
       await login(email, password);
+      setLoggedIn(true);
 
       navigate("/");
     } finally {

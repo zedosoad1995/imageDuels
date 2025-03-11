@@ -14,3 +14,7 @@ export const register = (email: string, password: string) => {
     password,
   });
 };
+
+export const logout = (): Promise<void> => {
+  return api.post("/auth/logout");
+};

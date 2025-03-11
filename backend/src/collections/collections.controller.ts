@@ -42,7 +42,6 @@ import { generateRandomString } from 'src/common/helpers/random';
 
 const UPLOAD_FOLDER = './uploads';
 
-@UseGuards(AuthGuard)
 @Controller('collections')
 export class CollectionsController {
   constructor(
@@ -71,7 +70,7 @@ export class CollectionsController {
   async getOne(@Request() req, @Param('collectionId') collectionId: string) {
     const collection = await this.collectionsService.getOne(
       collectionId,
-      req.user.id,
+      req.user?.id,
       {
         imagesSort: { rating: 'desc' },
       },
@@ -90,12 +89,14 @@ export class CollectionsController {
     return collectionResSchema.parse(collection);
   }
 
+  @UseGuards(AuthGuard)
   @UsePipes(new ZodValidationPipe(createCollectionSchema))
   @Post('')
   create(@Body() createCollectionDto: CreateCollectionDto, @Request() req) {
     return this.collectionsService.create(createCollectionDto, req.user.id);
   }
 
+  @UseGuards(AuthGuard)
   @UsePipes(new ZodValidationPipe(editCollectionSchema))
   @Patch(':collectionId')
   edit(
@@ -110,6 +111,7 @@ export class CollectionsController {
     );
   }
 
+  @UseGuards(AuthGuard)
   @Post(':collectionId/add-image')
   @UseInterceptors(
     FileInterceptor('image', {
@@ -129,6 +131,7 @@ export class CollectionsController {
     return this.imagesService.create(collectionId, imageFile);
   }
 
+  @UseGuards(AuthGuard)
   @Post(':collectionId/duels')
   async createDuel(
     @Request() req,
@@ -146,6 +149,7 @@ export class CollectionsController {
     return { duelId: id, image1: image1.filepath, image2: image2.filepath };
   }
 
+  @UseGuards(AuthGuard)
   @Delete(':collectionId')
   @HttpCode(204)
   async deleteOne(@Request() req, @Param('collectionId') collectionId: string) {
