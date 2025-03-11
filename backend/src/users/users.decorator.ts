@@ -4,6 +4,7 @@ import {
   Logger,
   UnauthorizedException,
 } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 import { prisma } from 'src/common/helpers/prisma';
 
 const logger = new Logger('Users Decorators');
@@ -32,5 +33,22 @@ export const LoggedUser = createParamDecorator(
     }
 
     return loggedUser;
+  },
+);
+
+export const UserId = createParamDecorator(
+  async (data: unknown, ctx: ExecutionContext): Promise<string | undefined> => {
+    const request = ctx.switchToHttp().getRequest();
+    const token = request.cookies?.token;
+
+    try {
+      const payload = await new JwtService().verifyAsync(token, {
+        secret: process.env.JWT_KEY,
+      });
+
+      return payload?.user?.id;
+    } catch {
+      return;
+    }
   },
 );

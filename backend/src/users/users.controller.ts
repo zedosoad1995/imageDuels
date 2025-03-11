@@ -4,37 +4,27 @@ import {
   Get,
   NotFoundException,
   Post,
-  Request,
   UnauthorizedException,
-  UseGuards,
   UsePipes,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto, createUserSchema } from './dto/createUser.dto';
 import { ZodValidationPipe } from 'src/common/pipes/zodValidation';
 import { getMeSchema } from './dto/getMe.dto';
-import { JwtService } from '@nestjs/jwt';
+import { UserId } from './users.decorator';
 
 @Controller('users')
 export class UsersController {
-  constructor(
-    private readonly usersService: UsersService,
-    private jwtService: JwtService,
-  ) {}
+  constructor(private readonly usersService: UsersService) {}
 
   @Get('me')
-  async getProfile(@Request() req) {
-    const token = req.cookies?.token;
-    if (!token) {
+  async getProfile(@UserId() userId) {
+    if (!userId) {
       throw new NotFoundException('User is not logged in');
     }
 
-    const payload = await this.jwtService.verifyAsync(token, {
-      secret: process.env.JWT_KEY,
-    });
-
     const loggedUser = await this.usersService.getOne({
-      id: payload.user?.id,
+      id: userId,
     });
 
     if (!loggedUser) {

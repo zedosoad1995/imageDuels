@@ -39,6 +39,7 @@ import {
 } from './dto/editCollection.dto';
 import { unlink } from 'fs';
 import { generateRandomString } from 'src/common/helpers/random';
+import { UserId } from 'src/users/users.decorator';
 
 const UPLOAD_FOLDER = './uploads';
 
@@ -52,14 +53,14 @@ export class CollectionsController {
 
   @Get('')
   async getMany(
-    @Request() req,
+    @UserId() userId,
     @Query('onlySelf', new DefaultValuePipe(false), ParseBoolPipe)
     onlySelf: boolean,
     @Query('orderBy', new DefaultValuePipe('new'))
     orderBy: IGetCollectionsOrderBy,
   ) {
     const collections = await this.collectionsService.getMany({
-      userId: onlySelf ? req.user.id : undefined,
+      userId: onlySelf ? userId : undefined,
       orderBy,
     });
 
@@ -67,20 +68,17 @@ export class CollectionsController {
   }
 
   @Get(':collectionId')
-  async getOne(@Request() req, @Param('collectionId') collectionId: string) {
+  async getOne(@UserId() userId, @Param('collectionId') collectionId: string) {
     const collection = await this.collectionsService.getOne(
       collectionId,
-      req.user?.id,
+      userId,
       {
         imagesSort: { rating: 'desc' },
       },
     );
 
     // TODO: Make admin be able to see the collection
-    if (
-      collection?.mode === 'PERSONAL' &&
-      collection?.ownerId !== req.user.id
-    ) {
+    if (collection?.mode === 'PERSONAL' && collection?.ownerId !== userId) {
       throw new NotFoundException(
         `Collection id ${collectionId} does not exist`,
       );
