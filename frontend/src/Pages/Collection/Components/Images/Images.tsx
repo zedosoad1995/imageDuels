@@ -8,7 +8,6 @@ import { IGetCollection } from "../../../../Types/collection";
 import { notifications } from "@mantine/notifications";
 import { Image } from "../../../../Components/Image/Image";
 import { CollectionContext } from "../../../../Contexts/CollectionContext";
-import { getImageURL, isImageValid } from "../../../../Utils/image";
 
 interface Props {
   collection: IGetCollection;
@@ -93,7 +92,7 @@ export const Images = ({ collection }: Props) => {
 
   return (
     <>
-      <Button onClick={handleButtonClick}>Upload image</Button>
+      <Button onClick={handleButtonClick}>Upload images</Button>
       <input
         type="file"
         ref={inputRef}
@@ -107,7 +106,7 @@ export const Images = ({ collection }: Props) => {
           <Grid.Col key={id} span={{ base: 12, xs: 6, sm: 4, lg: 3 }}>
             <Card withBorder className={classes.card} pb={0}>
               <Card.Section withBorder style={{ textAlign: "center" }}>
-                <Image filepath={filepath} />
+                <Image filepath={filepath} canEdit imageId={id} />
               </Card.Section>
               <div className={classes.cardInfo}>
                 <Group justify="space-between">

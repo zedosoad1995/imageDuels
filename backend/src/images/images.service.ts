@@ -54,4 +54,26 @@ export class ImagesService {
 
     return [image1, image2];
   }
+
+  async deleteOne(imageId: string, userId: string) {
+    // Also allow admin
+    const image = await prisma.image.findUnique({
+      where: {
+        id: imageId,
+        collection: {
+          ownerId: userId,
+        },
+      },
+    });
+
+    if (!image) {
+      throw new NotFoundException('Image not found');
+    }
+
+    return prisma.image.delete({
+      where: {
+        id: imageId,
+      },
+    });
+  }
 }
