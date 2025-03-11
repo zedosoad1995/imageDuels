@@ -1,9 +1,6 @@
 import api from ".";
 
-export const login = (
-  email: string,
-  password: string
-): Promise<{ token: string }> => {
+export const login = (email: string, password: string): Promise<void> => {
   return api.post("/auth/login", {
     email,
     password,

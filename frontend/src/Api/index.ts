@@ -1,17 +1,19 @@
-import axios, { AxiosInstance, AxiosResponse } from "axios";
+import axios, { AxiosError, AxiosInstance, AxiosResponse } from "axios";
 
 const api: AxiosInstance = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
+  withCredentials: true,
 });
 
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem("token");
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+api.interceptors.response.use(
+  (response: AxiosResponse) => response.data,
+  async (error: AxiosError) => {
+    if (error.response?.status === 401) {
+      window.location.href = "/login";
+    }
+
+    throw error;
   }
-  return config;
-});
-
-api.interceptors.response.use((response: AxiosResponse) => response.data);
+);
 
 export default api;

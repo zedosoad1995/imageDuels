@@ -16,11 +16,9 @@ export class AuthGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
-    const token = this.extractTokenFromHeader(request);
+    const token = this.extractTokenFromCookie(request);
     if (!token) {
-      throw new UnauthorizedException(
-        'No Bearer Token found. Expected header "authorization" to be of format "Bearer <token>"',
-      );
+      throw new UnauthorizedException('No token found in cookies');
     }
 
     try {
@@ -37,8 +35,7 @@ export class AuthGuard implements CanActivate {
     return true;
   }
 
-  private extractTokenFromHeader(request: Request): string | undefined {
-    const [type, token] = request.headers.authorization?.split(' ') ?? [];
-    return type === 'Bearer' ? token : undefined;
+  private extractTokenFromCookie(request: Request): string | undefined {
+    return request.cookies?.token;
   }
 }

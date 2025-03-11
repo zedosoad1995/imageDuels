@@ -20,9 +20,8 @@ export const Login = () => {
     setIsLoading(true);
 
     try {
-      const { token } = await login(email, password);
+      await login(email, password);
 
-      localStorage.setItem("token", token);
       navigate("/");
     } finally {
       setIsLoading(false);

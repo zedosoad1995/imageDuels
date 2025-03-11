@@ -103,7 +103,7 @@ export const Images = ({ collection }: Props) => {
       />
       <Grid pt="xs">
         {collection.images.map(({ id, filepath, numVotes, percentile }) => (
-          <Grid.Col key={id} span={{ base: 12, xs: 6, sm: 4, lg: 3 }}>
+          <Grid.Col key={id} span={{ base: 12, xs: 6 }}>
             <Card withBorder className={classes.card} pb={0}>
               <Card.Section withBorder style={{ textAlign: "center" }}>
                 <Image filepath={filepath} canEdit imageId={id} />
