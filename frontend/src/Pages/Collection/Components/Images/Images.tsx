@@ -8,6 +8,9 @@ import { IGetCollection } from "../../../../Types/collection";
 import { notifications } from "@mantine/notifications";
 import { Image } from "../../../../Components/Image/Image";
 import { CollectionContext } from "../../../../Contexts/CollectionContext";
+import pLimit from "p-limit";
+
+const limit = pLimit(2);
 
 interface Props {
   collection: IGetCollection;
@@ -28,18 +31,20 @@ export const Images = ({ collection }: Props) => {
     // TODO: Should it update only at the end, or progressively?
 
     const res = await Promise.allSettled(
-      files.map(async (file) => {
-        if (file.size > 1 * 1024 * 1024) {
-          const options: Options = {
-            maxSizeMB: 1,
-            maxWidthOrHeight: 1920,
-            useWebWorker: true,
-          };
-          file = await imageCompression(file, options);
-        }
+      files.map((file) =>
+        limit(async () => {
+          if (file.size > 1 * 1024 * 1024) {
+            const options: Options = {
+              maxSizeMB: 1,
+              maxWidthOrHeight: 1920,
+              useWebWorker: true,
+            };
+            file = await imageCompression(file, options);
+          }
 
-        return addImageToCollection(id, file);
-      })
+          return addImageToCollection(id, file);
+        })
+      )
     );
 
     fetchCollection();

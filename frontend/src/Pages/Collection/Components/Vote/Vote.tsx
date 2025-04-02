@@ -1,9 +1,8 @@
 import { Button, Card, Flex, Group, Text } from "@mantine/core";
 import { createDuel } from "../../../../Api/collections";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useParams } from "react-router";
 import classes from "./Vote.module.css";
-import { getImageURL } from "../../../../Utils/image";
 import { vote, VoteOutcome } from "../../../../Api/duels";
 import { IGetCollection } from "../../../../Types/collection";
 import { Image } from "../../../../Components/Image/Image";
@@ -30,19 +29,35 @@ export const Vote = ({ collection }: Props) => {
     });
   }, []);
 
-  const handleVote = (outcome: VoteOutcome) => async () => {
-    if (!duelId || !id) {
-      return;
-    }
+  const handleVote = useCallback(
+    (outcome: VoteOutcome) => async () => {
+      if (!duelId || !id) {
+        return;
+      }
 
-    await vote(duelId, outcome);
+      await vote(duelId, outcome);
 
-    createDuel(id).then(({ duelId, image1, image2 }) => {
-      setImage1(image1);
-      setImage2(image2);
-      setDuelId(duelId);
-    });
-  };
+      createDuel(id).then(({ duelId, image1, image2 }) => {
+        setImage1(image1);
+        setImage2(image2);
+        setDuelId(duelId);
+      });
+    },
+    [duelId, id]
+  );
+
+  useEffect(() => {
+    const handleKeyDown = async (event: KeyboardEvent) => {
+      if (event.key === "ArrowLeft") {
+        await handleVote("WIN")();
+      } else if (event.key === "ArrowRight") {
+        await handleVote("LOSS")();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [handleVote]);
 
   // TODO: Create placeholder when there aren't enough images (less than 2), or for other cases (e.g votes ran out)
 

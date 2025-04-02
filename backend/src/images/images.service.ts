@@ -34,7 +34,12 @@ export class ImagesService {
 
   async getMatchImages(
     collectionId: string,
-  ): Promise<[Pick<Image, 'id' | 'filepath'>, Pick<Image, 'id' | 'filepath'>]> {
+  ): Promise<
+    [
+      Pick<Image, 'id' | 'filepath' | 'numVotes'>,
+      Pick<Image, 'id' | 'filepath' | 'numVotes'>,
+    ]
+  > {
     const images = await prisma.image.findMany({
       where: {
         collectionId,
@@ -42,6 +47,8 @@ export class ImagesService {
       select: {
         id: true,
         filepath: true,
+        numVotes: true,
+        rating: true,
       },
     });
 
@@ -49,8 +56,67 @@ export class ImagesService {
       throw new BadRequestException('There are not enough images');
     }
 
+    return this.randomImagesWithVotes(images);
+  }
+
+  private randomImages(
+    images: {
+      id: string;
+      filepath: string;
+      numVotes: number;
+      rating: number;
+    }[],
+  ): [
+    Pick<Image, 'id' | 'filepath' | 'numVotes' | 'rating'>,
+    Pick<Image, 'id' | 'filepath' | 'numVotes' | 'rating'>,
+  ] {
     const image1 = images.splice(randInt(images.length - 1), 1)[0];
     const image2 = images[randInt(images.length - 1)];
+
+    return [image1, image2];
+  }
+
+  private randomImagesWithVotes(
+    images: {
+      id: string;
+      filepath: string;
+      numVotes: number;
+      rating: number;
+    }[],
+  ): [
+    Pick<Image, 'id' | 'filepath' | 'numVotes' | 'rating'>,
+    Pick<Image, 'id' | 'filepath' | 'numVotes' | 'rating'>,
+  ] {
+    let image1: {
+      id: string;
+      filepath: string;
+      numVotes: number;
+      rating: number;
+    };
+
+    if (Math.random() < 0.2) {
+      image1 = images.splice(randInt(images.length - 1), 1)[0];
+    } else {
+      const lowestVotes = images.reduce(
+        (acc, val) => Math.min(acc, val.numVotes),
+        99999999999,
+      );
+      const imageLowestVotesIdx = images.findIndex(
+        ({ numVotes }) => numVotes === lowestVotes,
+      );
+
+      image1 = images.splice(imageLowestVotesIdx, 1)[0];
+    }
+
+    const sortedImages = images
+      .slice()
+      .sort(
+        (a, b) =>
+          Math.abs(a.rating - image1.rating) -
+          Math.abs(b.rating - image1.rating),
+      );
+
+    const image2 = sortedImages[randInt(Math.min(sortedImages.length - 1, 10))];
 
     return [image1, image2];
   }
