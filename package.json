@@ -19,5 +19,8 @@
   },
   "dependencies": {
     "concurrently": "^9.1.2"
+  },
+  "devDependencies": {
+    "@types/react-responsive-masonry": "^2.6.0"
   }
 }

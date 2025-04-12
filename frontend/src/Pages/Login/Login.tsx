@@ -1,7 +1,14 @@
 import { useContext, useState } from "react";
 import { login } from "../../Api/auth";
 import { useNavigate } from "react-router";
-import { Button, Flex, PasswordInput, TextInput } from "@mantine/core";
+import {
+  Anchor,
+  Button,
+  Flex,
+  PasswordInput,
+  Text,
+  TextInput,
+} from "@mantine/core";
 import { UserContext } from "../../Contexts/UserContext";
 
 export const Login = () => {
@@ -29,6 +36,10 @@ export const Login = () => {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleClickRegister = async () => {
+    navigate("/register");
   };
 
   return (
@@ -61,6 +72,12 @@ export const Login = () => {
       >
         Login
       </Button>
+      <Text ta="center">
+        Don&apos;t have an account?{" "}
+        <Anchor<"a"> fw={700} onClick={handleClickRegister}>
+          Register
+        </Anchor>
+      </Text>
     </Flex>
   );
 };

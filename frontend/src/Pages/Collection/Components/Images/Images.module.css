@@ -10,3 +10,15 @@
   padding-top: var(--mantine-spacing-xxs);
   padding-bottom: var(--mantine-spacing-xs);
 }
+
+.uploadBtn {
+  margin-bottom: var(--mantine-spacing-xs);
+}
+
+masonrycontainer {
+  gap: 4px !important;
+
+  & div {
+    gap: 4px !important;
+  }
+}

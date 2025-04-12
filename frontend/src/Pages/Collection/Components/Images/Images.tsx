@@ -2,13 +2,16 @@ import { useContext, useRef } from "react";
 import { useParams } from "react-router";
 import { addImageToCollection } from "../../../../Api/collections";
 import imageCompression, { Options } from "browser-image-compression";
-import { Button, Card, Grid, Group, Progress, Text } from "@mantine/core";
+import { Button, Group, Text } from "@mantine/core";
 import classes from "./Images.module.css";
 import { IGetCollection } from "../../../../Types/collection";
 import { notifications } from "@mantine/notifications";
-import { Image } from "../../../../Components/Image/Image";
 import { CollectionContext } from "../../../../Contexts/CollectionContext";
 import pLimit from "p-limit";
+import { getImageURL } from "../../../../Utils/image";
+import { MasonryGrid } from "../../../../Components/MasonryGrid/MasonryGrid";
+import VotingIcon from "../../../../assets/svgs/ballot.svg?react";
+import ScoreIcon from "../../../../assets/svgs/leaderboard.svg?react";
 
 const limit = pLimit(2);
 
@@ -95,9 +98,13 @@ export const Images = ({ collection }: Props) => {
     inputRef.current?.click();
   };
 
+  // TODO: Open PR to solve gutter (it always puts 10px)
+
   return (
     <>
-      <Button onClick={handleButtonClick}>Upload images</Button>
+      <Button className={classes.uploadBtn} onClick={handleButtonClick}>
+        Upload images
+      </Button>
       <input
         type="file"
         ref={inputRef}
@@ -106,29 +113,66 @@ export const Images = ({ collection }: Props) => {
         multiple
         accept=".jpg, .jpeg, .png, .webp"
       />
-      <Grid pt="xs">
+
+      <MasonryGrid numColumns={3} gap={4}>
         {collection.images.map(({ id, filepath, numVotes, percentile }) => (
-          <Grid.Col key={id} span={{ base: 12, xs: 6 }}>
-            <Card withBorder className={classes.card} pb={0}>
-              <Card.Section withBorder style={{ textAlign: "center" }}>
-                <Image filepath={filepath} canEdit imageId={id} />
-              </Card.Section>
-              <div className={classes.cardInfo}>
-                <Group justify="space-between">
-                  <Text size="sm">
-                    <Text fw={600} span>
-                      {numVotes}
-                    </Text>{" "}
-                    votes
-                  </Text>
-                  <Text size="sm">{Math.round(percentile * 100)}%</Text>
-                </Group>
-                <Progress value={percentile * 100} animated />
-              </div>
-            </Card>
-          </Grid.Col>
+          <div
+            key={id}
+            style={{ position: "relative", overflow: "auto", borderRadius: 6 }}
+          >
+            <img
+              src={getImageURL(filepath)}
+              style={{ display: "block", width: "100%" }}
+            />
+            <Group
+              px={8}
+              gap={12}
+              justify="flex-end"
+              style={{
+                position: "absolute",
+                bottom: "2px",
+                zIndex: 2,
+                width: "100%",
+              }}
+            >
+              <Group gap={4}>
+                <ScoreIcon height={16} fill="white" />
+                <Text
+                  fw={600}
+                  style={{
+                    color: "white",
+                  }}
+                >
+                  {(percentile * 100).toFixed(1)}%
+                </Text>
+              </Group>
+
+              <Group gap={4}>
+                <VotingIcon height={16} fill="white" />
+                <Text
+                  fw={600}
+                  style={{
+                    color: "white",
+                  }}
+                >
+                  {numVotes}
+                </Text>
+              </Group>
+            </Group>
+            <div
+              style={{
+                position: "absolute",
+                background: "linear-gradient(#00000000, #00000085)",
+                top: "max(calc(100% - 80px), 0px)",
+                bottom: 0,
+                left: 0,
+                right: 0,
+                zIndex: 1,
+              }}
+            />
+          </div>
         ))}
-      </Grid>
+      </MasonryGrid>
     </>
   );
 };

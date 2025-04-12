@@ -58,14 +58,12 @@ const theme = createTheme({
 });
 
 createRoot(document.getElementById("root")!).render(
-  <StrictMode>
-    <MantineProvider theme={theme}>
-      <Notifications />
-      <ModalsProvider>
-        <UserProvider>
-          <RouterProvider router={router} />
-        </UserProvider>
-      </ModalsProvider>
-    </MantineProvider>
-  </StrictMode>
+  <MantineProvider theme={theme}>
+    <Notifications />
+    <ModalsProvider>
+      <UserProvider>
+        <RouterProvider router={router} />
+      </UserProvider>
+    </ModalsProvider>
+  </MantineProvider>
 );

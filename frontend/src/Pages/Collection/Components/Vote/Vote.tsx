@@ -1,11 +1,12 @@
 import { Button, Card, Flex, Group, Text } from "@mantine/core";
 import { createDuel } from "../../../../Api/collections";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useState } from "react";
 import { useParams } from "react-router";
 import classes from "./Vote.module.css";
 import { vote, VoteOutcome } from "../../../../Api/duels";
 import { IGetCollection } from "../../../../Types/collection";
 import { Image } from "../../../../Components/Image/Image";
+import { UserContext } from "../../../../Contexts/UserContext";
 
 interface Props {
   collection: IGetCollection;
@@ -16,9 +17,10 @@ export const Vote = ({ collection }: Props) => {
   const [image1, setImage1] = useState("");
   const [image2, setImage2] = useState("");
   const [duelId, setDuelId] = useState<string>();
+  const { loggedIn } = useContext(UserContext);
 
   useEffect(() => {
-    if (!id) {
+    if (!id || !loggedIn) {
       return;
     }
 
@@ -47,6 +49,8 @@ export const Vote = ({ collection }: Props) => {
   );
 
   useEffect(() => {
+    if (!loggedIn) return;
+
     const handleKeyDown = async (event: KeyboardEvent) => {
       if (event.key === "ArrowLeft") {
         await handleVote("WIN")();
@@ -60,6 +64,7 @@ export const Vote = ({ collection }: Props) => {
   }, [handleVote]);
 
   // TODO: Create placeholder when there aren't enough images (less than 2), or for other cases (e.g votes ran out)
+  // TODO: Display 2 images to vote when not logged in, but when user clicks, show modal to sign up
 
   return (
     <>

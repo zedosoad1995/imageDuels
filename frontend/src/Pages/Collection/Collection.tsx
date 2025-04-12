@@ -8,9 +8,11 @@ import {
   CollectionContext,
   CollectionProvider,
 } from "../../Contexts/CollectionContext";
+import { UserContext } from "../../Contexts/UserContext";
 
 export const CollectionChild = () => {
   const { collection, fetchCollection } = useContext(CollectionContext);
+  const { loggedIn } = useContext(UserContext);
 
   if (!collection) {
     return null;
@@ -21,7 +23,7 @@ export const CollectionChild = () => {
       <Text fw={600} size="lg">
         {collection.title}
       </Text>
-      <Tabs defaultValue="vote">
+      <Tabs defaultValue={loggedIn ? "vote" : "images"}>
         <Tabs.List>
           <Tabs.Tab value="vote">Vote</Tabs.Tab>
           <Tabs.Tab value="images" onClick={fetchCollection}>
