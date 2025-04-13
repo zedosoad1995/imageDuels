@@ -98,8 +98,6 @@ export const Images = ({ collection }: Props) => {
     inputRef.current?.click();
   };
 
-  // TODO: Open PR to solve gutter (it always puts 10px)
-
   return (
     <>
       <Button className={classes.uploadBtn} onClick={handleButtonClick}>

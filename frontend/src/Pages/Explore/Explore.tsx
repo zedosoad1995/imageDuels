@@ -62,7 +62,7 @@ export const Explore = () => {
                 style={{ overflow: "hidden" }}
               >
                 {thumbnailImages.map((filepath) => (
-                  <Card withBorder miw={150}>
+                  <Card key={filepath} withBorder miw={150}>
                     <Card.Section withBorder style={{ textAlign: "center" }}>
                       <Image filepath={filepath} />
                     </Card.Section>

@@ -60,8 +60,6 @@ export const MasonryGrid = ({ children, numColumns, gap }: Props) => {
       organizeCols();
     });
 
-    organizeCols();
-
     observer.observe(containerRef.current);
 
     return () => {
@@ -90,7 +88,7 @@ export const MasonryGrid = ({ children, numColumns, gap }: Props) => {
       ))}
       <div
         ref={containerRef}
-        style={{ visibility: "hidden", position: "absolute" }}
+        style={{ visibility: "hidden", position: "fixed" }}
       >
         <div
           style={{
@@ -107,13 +105,12 @@ export const MasonryGrid = ({ children, numColumns, gap }: Props) => {
                   display: "flex",
                   flexDirection: "column",
                   flex: 1,
-                  position: "relative",
                 }}
               >
                 {colIndex === 0 &&
                   React.Children.map(children, (child, index) => (
                     <div
-                      style={{ position: index === 0 ? "inherit" : "absolute" }}
+                      style={{ position: index === 0 ? "inherit" : "inherit" }}
                     >
                       <div
                         ref={(el) => {
