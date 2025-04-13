@@ -129,22 +129,26 @@ export class CollectionsController {
     return this.imagesService.create(collectionId, imageFile);
   }
 
-  @UseGuards(AuthGuard)
   @Post(':collectionId/duels')
   async createDuel(
-    @Request() req,
+    @UserId() userId: string | undefined,
     @Param('collectionId') collectionId: string,
   ) {
     const [image1, image2] =
       await this.imagesService.getMatchImages(collectionId);
 
-    const { id } = await this.duelsService.create(
-      image1.id,
-      image2.id,
-      req.user.id,
-    );
+    let duelId: string | undefined;
 
-    return { duelId: id, image1: image1.filepath, image2: image2.filepath };
+    if (userId) {
+      const { id } = await this.duelsService.create(
+        image1.id,
+        image2.id,
+        userId,
+      );
+      duelId = id;
+    }
+
+    return { duelId, image1: image1.filepath, image2: image2.filepath };
   }
 
   @UseGuards(AuthGuard)

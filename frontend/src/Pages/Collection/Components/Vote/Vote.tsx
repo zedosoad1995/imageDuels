@@ -13,18 +13,18 @@ interface Props {
 }
 
 export const Vote = ({ collection }: Props) => {
-  const { id } = useParams();
+  const { id: collectionId } = useParams();
   const [image1, setImage1] = useState("");
   const [image2, setImage2] = useState("");
   const [duelId, setDuelId] = useState<string>();
   const { loggedIn } = useContext(UserContext);
 
   useEffect(() => {
-    if (!id || !loggedIn) {
+    if (!collectionId) {
       return;
     }
 
-    createDuel(id).then(({ duelId, image1, image2 }) => {
+    createDuel(collectionId).then(({ duelId, image1, image2 }) => {
       setImage1(image1);
       setImage2(image2);
       setDuelId(duelId);
@@ -33,19 +33,19 @@ export const Vote = ({ collection }: Props) => {
 
   const handleVote = useCallback(
     (outcome: VoteOutcome) => async () => {
-      if (!duelId || !id) {
+      if (!duelId || !collectionId) {
         return;
       }
 
       await vote(duelId, outcome);
 
-      createDuel(id).then(({ duelId, image1, image2 }) => {
+      createDuel(collectionId).then(({ duelId, image1, image2 }) => {
         setImage1(image1);
         setImage2(image2);
         setDuelId(duelId);
       });
     },
-    [duelId, id]
+    [duelId, collectionId]
   );
 
   useEffect(() => {

@@ -12,6 +12,7 @@ import { getImageURL } from "../../../../Utils/image";
 import { MasonryGrid } from "../../../../Components/MasonryGrid/MasonryGrid";
 import VotingIcon from "../../../../assets/svgs/ballot.svg?react";
 import ScoreIcon from "../../../../assets/svgs/leaderboard.svg?react";
+import { ImageCard } from "./Components/ImageCard";
 
 const limit = pLimit(2);
 
@@ -114,61 +115,12 @@ export const Images = ({ collection }: Props) => {
 
       <MasonryGrid numColumns={3} gap={4}>
         {collection.images.map(({ id, filepath, numVotes, percentile }) => (
-          <div
-            key={id}
-            style={{ position: "relative", overflow: "auto", borderRadius: 6 }}
-          >
-            <img
-              src={getImageURL(filepath)}
-              style={{ display: "block", width: "100%" }}
-            />
-            <Group
-              px={8}
-              gap={12}
-              justify="flex-end"
-              style={{
-                position: "absolute",
-                bottom: "2px",
-                zIndex: 2,
-                width: "100%",
-              }}
-            >
-              <Group gap={4}>
-                <ScoreIcon height={16} fill="white" />
-                <Text
-                  fw={600}
-                  style={{
-                    color: "white",
-                  }}
-                >
-                  {(percentile * 100).toFixed(1)}%
-                </Text>
-              </Group>
-
-              <Group gap={4}>
-                <VotingIcon height={16} fill="white" />
-                <Text
-                  fw={600}
-                  style={{
-                    color: "white",
-                  }}
-                >
-                  {numVotes}
-                </Text>
-              </Group>
-            </Group>
-            <div
-              style={{
-                position: "absolute",
-                background: "linear-gradient(#00000000, #00000085)",
-                top: "max(calc(100% - 80px), 0px)",
-                bottom: 0,
-                left: 0,
-                right: 0,
-                zIndex: 1,
-              }}
-            />
-          </div>
+          <ImageCard
+            filepath={filepath}
+            imageId={id}
+            numVotes={numVotes}
+            percentile={percentile}
+          />
         ))}
       </MasonryGrid>
     </>
