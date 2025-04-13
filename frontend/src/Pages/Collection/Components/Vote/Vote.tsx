@@ -1,18 +1,21 @@
 import { Button, Card, Flex, Group, Text } from "@mantine/core";
 import { createDuel } from "../../../../Api/collections";
 import { useCallback, useContext, useEffect, useState } from "react";
-import { useParams } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import classes from "./Vote.module.css";
 import { vote, VoteOutcome } from "../../../../Api/duels";
 import { IGetCollection } from "../../../../Types/collection";
 import { Image } from "../../../../Components/Image/Image";
 import { UserContext } from "../../../../Contexts/UserContext";
+import { modals } from "@mantine/modals";
 
 interface Props {
   collection: IGetCollection;
 }
 
 export const Vote = ({ collection }: Props) => {
+  const navigate = useNavigate();
+
   const { id: collectionId } = useParams();
   const [image1, setImage1] = useState("");
   const [image2, setImage2] = useState("");
@@ -31,8 +34,24 @@ export const Vote = ({ collection }: Props) => {
     });
   }, []);
 
+  const openSignUpModal = () =>
+    modals.openConfirmModal({
+      title: "Create Account",
+      centered: true,
+      children: <Text size="sm">You cannot vote without an account.</Text>,
+      labels: { confirm: "Create Account", cancel: "Cancel" },
+      confirmProps: { color: "blue" },
+      onConfirm: () => {
+        navigate("/register");
+      },
+    });
+
   const handleVote = useCallback(
     (outcome: VoteOutcome) => async () => {
+      if (!loggedIn) {
+        openSignUpModal();
+      }
+
       if (!duelId || !collectionId) {
         return;
       }

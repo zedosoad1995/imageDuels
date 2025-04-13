@@ -2,16 +2,13 @@ import { useContext, useRef } from "react";
 import { useParams } from "react-router";
 import { addImageToCollection } from "../../../../Api/collections";
 import imageCompression, { Options } from "browser-image-compression";
-import { Button, Group, Text } from "@mantine/core";
+import { Button } from "@mantine/core";
 import classes from "./Images.module.css";
 import { IGetCollection } from "../../../../Types/collection";
 import { notifications } from "@mantine/notifications";
 import { CollectionContext } from "../../../../Contexts/CollectionContext";
 import pLimit from "p-limit";
-import { getImageURL } from "../../../../Utils/image";
 import { MasonryGrid } from "../../../../Components/MasonryGrid/MasonryGrid";
-import VotingIcon from "../../../../assets/svgs/ballot.svg?react";
-import ScoreIcon from "../../../../assets/svgs/leaderboard.svg?react";
 import { ImageCard } from "./Components/ImageCard";
 
 const limit = pLimit(2);

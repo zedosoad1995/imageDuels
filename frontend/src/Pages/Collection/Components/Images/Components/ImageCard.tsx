@@ -41,7 +41,6 @@ export const ImageCard = ({
         </Text>
       ),
       labels: { confirm: "Delete image", cancel: "Cancel" },
-      confirmProps: { color: "red" },
       onConfirm: handleDelete,
     });
 
