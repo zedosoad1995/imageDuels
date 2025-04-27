@@ -17,13 +17,24 @@ export class UsersService {
     return !!existingUser;
   }
 
+  async isUsernameTaken(username: string): Promise<boolean> {
+    const existingUser = await this.getOne({ username });
+    return !!existingUser;
+  }
+
+  // TODO: maybe return the 2 errors, if both exist. Could also be done in call, but may not be necessary to optimize this
   async create(user: CreateUserDto) {
     if (await this.isEmailTaken(user.email)) {
       throw new BadRequestException('Email already in use');
     }
 
+    if (await this.isUsernameTaken(user.username)) {
+      throw new BadRequestException('Username already in use');
+    }
+
     return prisma.user.create({
       data: {
+        username: user.username,
         email: user.email,
         password: await hashPassword(user.password),
       },

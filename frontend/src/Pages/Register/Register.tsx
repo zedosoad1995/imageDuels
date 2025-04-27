@@ -13,6 +13,7 @@ import { useNavigate } from "react-router";
 export const Register = () => {
   const navigate = useNavigate();
 
+  const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -20,6 +21,7 @@ export const Register = () => {
   const handleChange =
     (setValue: React.Dispatch<React.SetStateAction<string>>) =>
     (event: React.ChangeEvent<HTMLInputElement>) => {
+      // TODO: Validate email
       setValue(event.currentTarget.value);
     };
 
@@ -27,7 +29,7 @@ export const Register = () => {
     setIsLoading(true);
 
     try {
-      await register(email, password);
+      await register(username, email, password);
 
       navigate("/login");
     } finally {
@@ -46,6 +48,15 @@ export const Register = () => {
       direction="column"
       style={{ height: "100%" }}
     >
+      <TextInput
+        label="Username"
+        placeholder="Username"
+        value={username}
+        onChange={handleChange(setUsername)}
+        type="text"
+        autoComplete="username"
+        inputMode="text"
+      />
       <TextInput
         label="Email"
         placeholder="Email"

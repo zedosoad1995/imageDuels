@@ -16,7 +16,7 @@ export const Login = () => {
   const { setLoggedIn } = useContext(UserContext);
 
   const [isLoading, setIsLoading] = useState(false);
-  const [email, setEmail] = useState("");
+  const [emailUsername, setEmailUsername] = useState("");
   const [password, setPassword] = useState("");
 
   const handleChange =
@@ -29,7 +29,7 @@ export const Login = () => {
     setIsLoading(true);
 
     try {
-      await login(email, password);
+      await login(emailUsername, password);
       setLoggedIn(true);
 
       navigate("/");
@@ -50,13 +50,13 @@ export const Login = () => {
       style={{ height: "100%" }}
     >
       <TextInput
-        label="Email"
-        placeholder="Email"
-        value={email}
-        onChange={handleChange(setEmail)}
-        type="email"
-        autoComplete="email"
-        inputMode="email"
+        label="Email or Username"
+        placeholder="Email or Username"
+        value={emailUsername}
+        onChange={handleChange(setEmailUsername)}
+        type="text"
+        autoComplete="username"
+        inputMode="text"
       />
       <PasswordInput
         label="Password"

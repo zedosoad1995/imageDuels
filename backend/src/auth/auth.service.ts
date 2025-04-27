@@ -3,6 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 import { UsersService } from 'src/users/users.service';
 import { LoginDto } from './dto/auth.dto';
 import { checkPassword } from 'src/common/helpers/password';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class AuthService {
@@ -11,8 +12,17 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async login({ email, password }: LoginDto) {
-    const user = await this.usersService.getOne({ email });
+  async login({ usernameOrEmail, password }: LoginDto) {
+    const whereQuery: Prisma.UserWhereUniqueInput =
+      {} as Prisma.UserWhereUniqueInput;
+
+    if (usernameOrEmail.includes('@')) {
+      whereQuery.email = usernameOrEmail;
+    } else {
+      whereQuery.username = usernameOrEmail;
+    }
+
+    const user = await this.usersService.getOne(whereQuery);
     if (!user) {
       throw new UnauthorizedException('Invalid Credentials');
     }

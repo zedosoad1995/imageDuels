@@ -9,7 +9,8 @@ const api: AxiosInstance = axios.create({
 api.interceptors.response.use(
   (response: AxiosResponse) => response.data,
   async (error: AxiosError) => {
-    if (error.response?.status === 401) {
+    
+    if (error.response?.status === 401 && !error.config?.skipLogoutOn401) {
       window.location.href = "/";
       await logout();
     }
