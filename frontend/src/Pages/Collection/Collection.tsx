@@ -1,6 +1,6 @@
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { useParams } from "react-router";
-import { Tabs, Text } from "@mantine/core";
+import { Group, Tabs, Text } from "@mantine/core";
 import { Images } from "./Components/Images/Images";
 import { About } from "./Components/About/About";
 import { Vote } from "./Components/Vote/Vote";
@@ -9,10 +9,13 @@ import {
   CollectionProvider,
 } from "../../Contexts/CollectionContext";
 import { UserContext } from "../../Contexts/UserContext";
+import { CopyButton } from "../../Components/CopyButton/CopyButton";
 
 export const CollectionChild = () => {
   const { collection, fetchCollection } = useContext(CollectionContext);
   const { loggedIn } = useContext(UserContext);
+
+  const [showSubtitle, setShowSubtitle] = useState(false);
 
   if (!collection) {
     return null;
@@ -23,7 +26,28 @@ export const CollectionChild = () => {
       <Text fw={600} size="lg">
         {collection.title}
       </Text>
-      <Tabs defaultValue={loggedIn ? "vote" : "images"}>
+      {showSubtitle && (
+        <>
+          {collection.mode === "PRIVATE" && (
+            <Group gap={4}>
+              <Text fw={200} size="xs" c="dimmed">
+                This collection is private. Click here to share
+              </Text>
+              <CopyButton copyValue={window.location.href} size="xs" />
+            </Group>
+          )}
+        </>
+      )}
+      <Tabs
+        defaultValue={loggedIn ? "vote" : "images"}
+        onChange={(value) => {
+          if (value === "images") {
+            setShowSubtitle(true);
+          } else {
+            setShowSubtitle(false);
+          }
+        }}
+      >
         <Tabs.List>
           <Tabs.Tab value="vote">Vote</Tabs.Tab>
           <Tabs.Tab value="images" onClick={fetchCollection}>
