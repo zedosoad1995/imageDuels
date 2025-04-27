@@ -107,12 +107,13 @@ export const Images = ({ collection }: Props) => {
         onChange={onFileChange}
         style={{ display: "none" }}
         multiple
-        accept=".jpg, .jpeg, .png, .webp"
+        accept=".jpg, .jpeg, .png, .webp, .svg"
       />
 
       <MasonryGrid numColumns={3} gap={4}>
         {collection.images.map(({ id, filepath, numVotes, percentile }) => (
           <ImageCard
+            key={id}
             filepath={filepath}
             imageId={id}
             numVotes={numVotes}
