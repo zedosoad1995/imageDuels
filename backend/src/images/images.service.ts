@@ -118,6 +118,10 @@ export class ImagesService {
 
     const image2 = sortedImages[randInt(Math.min(sortedImages.length - 1, 10))];
 
+    if (Math.random() < 0.5) {
+      return [image2, image1];
+    }
+
     return [image1, image2];
   }
 
