@@ -114,6 +114,7 @@ export const Images = ({ collection }: Props) => {
         {collection.images.map(({ id, filepath, numVotes, percentile }) => (
           <ImageCard
             key={id}
+            belongsToLoggedUser={collection.belongsToMe}
             filepath={filepath}
             imageId={id}
             numVotes={numVotes}

@@ -10,6 +10,7 @@ import classes from "./ImageCard.module.css";
 
 interface Props {
   filepath: string;
+  belongsToLoggedUser: boolean;
   percentile: number;
   numVotes: number;
   imageId: string;
@@ -17,6 +18,7 @@ interface Props {
 
 export const ImageCard = ({
   filepath,
+  belongsToLoggedUser,
   imageId,
   percentile,
   numVotes,
@@ -46,12 +48,14 @@ export const ImageCard = ({
 
   return (
     <div className={classes.root}>
-      <CloseButton
-        className={classes.closeButton}
-        variant="transparent"
-        color="white"
-        onClick={openDeleteModal}
-      />
+      {belongsToLoggedUser && (
+        <CloseButton
+          className={classes.closeButton}
+          variant="transparent"
+          color="white"
+          onClick={openDeleteModal}
+        />
+      )}
       <img
         src={getImageURL(filepath)}
         style={{ display: "block", width: "100%" }}
@@ -91,7 +95,7 @@ export const ImageCard = ({
           </Text>
         </Group>
       </Group>
-      <div className={classes.overlayTop} />
+      {belongsToLoggedUser && <div className={classes.overlayTop} />}
       <div className={classes.overlayBottom} />
     </div>
   );
