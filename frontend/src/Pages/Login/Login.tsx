@@ -1,5 +1,4 @@
 import { useContext, useState } from "react";
-import { login } from "../../Api/auth";
 import { useNavigate } from "react-router";
 import {
   Anchor,
@@ -13,7 +12,7 @@ import { UserContext } from "../../Contexts/UserContext";
 
 export const Login = () => {
   const navigate = useNavigate();
-  const { setLoggedIn } = useContext(UserContext);
+  const { login } = useContext(UserContext);
 
   const [isLoading, setIsLoading] = useState(false);
   const [emailUsername, setEmailUsername] = useState("");
@@ -30,7 +29,6 @@ export const Login = () => {
 
     try {
       await login(emailUsername, password);
-      setLoggedIn(true);
 
       navigate("/");
     } finally {

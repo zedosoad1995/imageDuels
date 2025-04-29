@@ -1,9 +1,10 @@
 import api from ".";
+import { IUser } from "../Types/user";
 
 export const login = (
   usernameOrEmail: string,
   password: string
-): Promise<void> => {
+): Promise<IUser> => {
   return api.post(
     "/auth/login",
     {

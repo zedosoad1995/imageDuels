@@ -98,9 +98,11 @@ export const Images = ({ collection }: Props) => {
 
   return (
     <>
-      <Button className={classes.uploadBtn} onClick={handleButtonClick}>
-        Upload images
-      </Button>
+      {collection.belongsToMe && (
+        <Button className={classes.uploadBtn} onClick={handleButtonClick}>
+          Upload images
+        </Button>
+      )}
       <input
         type="file"
         ref={inputRef}

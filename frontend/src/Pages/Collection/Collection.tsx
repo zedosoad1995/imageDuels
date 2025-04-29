@@ -18,6 +18,7 @@ export const CollectionChild = () => {
   const [showSubtitle, setShowSubtitle] = useState(false);
 
   if (!collection) {
+    // TODO: placeholder when not found
     return null;
   }
 

@@ -15,10 +15,16 @@ model User {
   email      String       @unique
   username   String       @unique
   password   String
+  role       RoleEnum     @default(REGULAR)
   Collection Collection[]
   duels      Duel[]
   createdAt  DateTime     @default(now())
   activeDuel Duel?        @relation(name: "activeDuel")
+}
+
+enum RoleEnum {
+  ADMIN
+  REGULAR
 }
 
 model Collection {

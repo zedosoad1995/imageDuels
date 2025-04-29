@@ -1,6 +1,7 @@
 import React, { createContext, useEffect, useState } from "react";
 import { IUser } from "../Types/user";
 import { getMe } from "../Api/users";
+import { login as loginAPI } from "../Api/auth";
 
 interface UserProviderProps {
   children: React.ReactNode;
@@ -11,6 +12,7 @@ interface UserContextProps {
   setUser: React.Dispatch<React.SetStateAction<IUser | null>>;
   loggedIn: boolean;
   setLoggedIn: React.Dispatch<React.SetStateAction<boolean>>;
+  login: (emailUsername: string, password: string) => Promise<void>;
 }
 
 export const UserContext = createContext<UserContextProps>({
@@ -18,6 +20,7 @@ export const UserContext = createContext<UserContextProps>({
   setUser: () => {},
   loggedIn: false,
   setLoggedIn: () => {},
+  login: async () => {},
 });
 
 export const UserProvider = ({ children }: UserProviderProps) => {
@@ -36,8 +39,22 @@ export const UserProvider = ({ children }: UserProviderProps) => {
       });
   }, []);
 
+  const login = async (emailUsername: string, password: string) => {
+    await loginAPI(emailUsername, password)
+      .then((user) => {
+        setUser(user);
+        setLoggedIn(true);
+      })
+      .catch(() => {
+        setUser(null);
+        setLoggedIn(false);
+      });
+  };
+
   return (
-    <UserContext.Provider value={{ user, setUser, loggedIn, setLoggedIn }}>
+    <UserContext.Provider
+      value={{ user, setUser, loggedIn, setLoggedIn, login }}
+    >
       {children}
     </UserContext.Provider>
   );

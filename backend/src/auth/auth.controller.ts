@@ -10,19 +10,20 @@ import { AuthService } from './auth.service';
 import { ZodValidationPipe } from 'src/common/pipes/zodValidation';
 import { LoginDto, LoginSchema } from './dto/auth.dto';
 import { Response } from 'express';
+import { getMeSchema } from 'src/users/dto/getMe.dto';
 
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('login')
-  @HttpCode(204)
+  @HttpCode(200)
   @UsePipes(new ZodValidationPipe(LoginSchema))
   async login(
     @Res({ passthrough: true }) res: Response,
     @Body() loginDto: LoginDto,
   ) {
-    const token = await this.authService.login(loginDto);
+    const { token, user } = await this.authService.login(loginDto);
 
     // TODO: do not forget to use NODE_ENV prod in production, otherwise it will not be secure
     res.cookie('token', token, {
@@ -30,6 +31,8 @@ export class AuthController {
       secure: process.env.NODE_ENV === 'prod',
       sameSite: 'strict',
     });
+
+    return getMeSchema.parse(user);
   }
 
   @Post('logout')
