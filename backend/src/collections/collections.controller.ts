@@ -39,7 +39,8 @@ import {
 } from './dto/editCollection.dto';
 import { unlink } from 'fs';
 import { generateRandomString } from 'src/common/helpers/random';
-import { UserId } from 'src/users/users.decorator';
+import { LoggedUser, UserId } from 'src/users/users.decorator';
+import { User } from '@prisma/client';
 
 const UPLOAD_FOLDER = './uploads';
 
@@ -53,14 +54,15 @@ export class CollectionsController {
 
   @Get('')
   async getMany(
-    @UserId() userId,
+    @LoggedUser() user: User | null,
     @Query('onlySelf', new DefaultValuePipe(false), ParseBoolPipe)
     onlySelf: boolean,
     @Query('orderBy', new DefaultValuePipe('new'))
     orderBy: IGetCollectionsOrderBy,
   ) {
     const collections = await this.collectionsService.getMany({
-      userId: onlySelf ? userId : undefined,
+      userId: onlySelf ? user?.id : undefined,
+      showAll: user?.role === 'ADMIN',
       orderBy,
     });
 

@@ -24,6 +24,7 @@ export const collectionResSchema = z.object({
 export const manyCollectionsResSchema = z.array(
   z.object({
     ...collectionSchema.shape,
+    createdBy: z.string(),
     totalImages: z.number(),
     totalVotes: z.number(),
     thumbnailImages: z.array(z.string()),

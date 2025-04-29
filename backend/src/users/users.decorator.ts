@@ -1,38 +1,29 @@
-import {
-  createParamDecorator,
-  ExecutionContext,
-  Logger,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { createParamDecorator, ExecutionContext } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { prisma } from 'src/common/helpers/prisma';
 
-const logger = new Logger('Users Decorators');
+// TODO: pass data to indicate if endpoint comes from auth guard, in this case can just reuse request.user
 
 export const LoggedUser = createParamDecorator(
   async (data: unknown, ctx: ExecutionContext) => {
     const request = ctx.switchToHttp().getRequest();
-    const user = request.user;
+    const token = request.cookies?.token;
 
-    if (!user?.id) {
-      logger.error(
-        `request.user should exist and have the field "id", but is: ${JSON.stringify(user)}`,
-      );
-      throw new UnauthorizedException();
+    try {
+      const payload = await new JwtService().verifyAsync(token, {
+        secret: process.env.JWT_KEY,
+      });
+
+      const loggedUser = await prisma.user.findUnique({
+        where: {
+          id: payload?.user?.id,
+        },
+      });
+
+      return loggedUser;
+    } catch {
+      return;
     }
-
-    const loggedUser = await prisma.user.findUnique({
-      where: {
-        id: user.id,
-      },
-    });
-
-    if (!loggedUser) {
-      logger.error(`User id does not exist: ${user.id}`);
-      throw new UnauthorizedException();
-    }
-
-    return loggedUser;
   },
 );
 

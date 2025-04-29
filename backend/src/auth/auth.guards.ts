@@ -6,7 +6,6 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { Request } from 'express';
 
 const logger = new Logger('Auth Guards');
 
@@ -16,7 +15,7 @@ export class AuthGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
-    const token = this.extractTokenFromCookie(request);
+    const token = request.cookies?.token;
     if (!token) {
       throw new UnauthorizedException('No token found in cookies');
     }
@@ -33,9 +32,5 @@ export class AuthGuard implements CanActivate {
     }
 
     return true;
-  }
-
-  private extractTokenFromCookie(request: Request): string | undefined {
-    return request.cookies?.token;
   }
 }

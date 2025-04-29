@@ -11,13 +11,13 @@ import { EditCollectionDto } from './dto/editCollection.dto';
 
 @Injectable()
 export class CollectionsService {
-  async getMany({ userId, orderBy }: IGetCollections = {}) {
+  async getMany({ userId, orderBy, showAll }: IGetCollections = {}) {
     const whereQuery: Prisma.CollectionWhereInput = {};
     const orderByQuery: Prisma.CollectionOrderByWithRelationInput = {};
 
     if (userId) {
       whereQuery.ownerId = userId;
-    } else {
+    } else if (!showAll) {
       whereQuery.mode = 'PUBLIC';
     }
 
@@ -43,6 +43,11 @@ export class CollectionsService {
           },
           take: 6,
         },
+        owner: {
+          select: {
+            username: true,
+          },
+        },
       },
       orderBy: orderByQuery,
     });
@@ -62,8 +67,9 @@ export class CollectionsService {
       {} as Record<string, number>,
     );
 
-    const res = collections.map(({ _count, images, ...collection }) => ({
+    const res = collections.map(({ _count, images, owner, ...collection }) => ({
       ...collection,
+      createdBy: owner.username,
       totalImages: _count.images,
       totalVotes: votesMap[collection.id] || 0,
       thumbnailImages: images.map(({ filepath }) => filepath),
