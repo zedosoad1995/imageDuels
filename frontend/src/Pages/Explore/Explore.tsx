@@ -1,13 +1,21 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { getCollections } from "../../Api/collections";
 import classes from "./Explore.module.css";
 import { useNavigate } from "react-router";
-import { Card, Stack, Text, Group, SegmentedControl } from "@mantine/core";
+import {
+  Card,
+  Stack,
+  Text,
+  Group,
+  SegmentedControl,
+  Chip,
+} from "@mantine/core";
 import {
   IGetCollections,
   IGetCollectionsOrderBy,
 } from "../../Types/collection";
 import { Image } from "../../Components/Image/Image";
+import { UserContext } from "../../Contexts/UserContext";
 
 const orderValues: { value: IGetCollectionsOrderBy; label: string }[] = [
   {
@@ -19,6 +27,7 @@ const orderValues: { value: IGetCollectionsOrderBy; label: string }[] = [
 
 export const Explore = () => {
   const navigate = useNavigate();
+  const { user } = useContext(UserContext);
 
   const [collections, setCollections] = useState<IGetCollections>([]);
   const [orderBy, setOrderBy] = useState<IGetCollectionsOrderBy>("new");
@@ -45,7 +54,15 @@ export const Explore = () => {
       />
       <Stack gap={12}>
         {collections.map(
-          ({ id, title, thumbnailImages, totalVotes, totalImages }) => (
+          ({
+            id,
+            title,
+            thumbnailImages,
+            totalVotes,
+            totalImages,
+            mode,
+            createdBy,
+          }) => (
             <Card
               key={id}
               className={classes.card}
@@ -53,9 +70,14 @@ export const Explore = () => {
               p="xs"
               withBorder
             >
-              <Text fw={700} mb={8}>
-                {title}
-              </Text>
+              <Group mb={8}>
+                <Text fw={700}>{title}</Text>
+                {user?.role === "ADMIN" && (
+                  <Chip size="xs" checked={false}>
+                    {mode.toLowerCase()}
+                  </Chip>
+                )}
+              </Group>
               <Group
                 justify="flex-start"
                 wrap="nowrap"
@@ -71,6 +93,12 @@ export const Explore = () => {
               </Group>
               <Text fw={300} size="xs" mt={8}>
                 {totalVotes} votes • {totalImages} images
+                {user?.role === "ADMIN" && (
+                  <>
+                    {" "}
+                    • by <i>{createdBy}</i>
+                  </>
+                )}
               </Text>
             </Card>
           )
