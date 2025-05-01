@@ -10,6 +10,7 @@ import { CollectionContext } from "../../../../Contexts/CollectionContext";
 import pLimit from "p-limit";
 import { MasonryGrid } from "../../../../Components/MasonryGrid/MasonryGrid";
 import { ImageCard } from "./Components/ImageCard";
+import { UserContext } from "../../../../Contexts/UserContext";
 
 const limit = pLimit(2);
 
@@ -21,6 +22,7 @@ export const Images = ({ collection }: Props) => {
   const { id } = useParams();
   const inputRef = useRef<HTMLInputElement>(null);
   const { fetchCollection } = useContext(CollectionContext);
+  const { user } = useContext(UserContext);
 
   const onFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files?.length || !id) return;
@@ -116,7 +118,7 @@ export const Images = ({ collection }: Props) => {
         {collection.images.map(({ id, filepath, numVotes, percentile }) => (
           <ImageCard
             key={id}
-            belongsToLoggedUser={collection.belongsToMe}
+            canDelete={collection.belongsToMe || user?.role === "ADMIN"}
             filepath={filepath}
             imageId={id}
             numVotes={numVotes}

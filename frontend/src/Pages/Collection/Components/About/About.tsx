@@ -13,6 +13,7 @@ import {
   EditCollectionType,
 } from "../../../../Schemas/Collection/editCollectionSchema";
 import { CollectionContext } from "../../../../Contexts/CollectionContext";
+import { UserContext } from "../../../../Contexts/UserContext";
 
 interface Props {
   collection: IGetCollection;
@@ -22,6 +23,7 @@ export const About = ({ collection }: Props) => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { setCollection } = useContext(CollectionContext);
+  const { user } = useContext(UserContext);
 
   const [isLoading, setIsLoading] = useState(false);
 
@@ -39,17 +41,6 @@ export const About = ({ collection }: Props) => {
       mode: collection.mode,
     },
   });
-
-  if (!collection.belongsToMe) {
-    return (
-      <>
-        {collection.question && <Text>Question: {collection.question}</Text>}
-        {collection.description && (
-          <Text>Description: {collection.description}</Text>
-        )}
-      </>
-    );
-  }
 
   const handleClickEdit = async () => {
     if (!id) {
@@ -94,6 +85,25 @@ export const About = ({ collection }: Props) => {
     navigate("/");
     notifications.show({ message: "Collection deleted" });
   };
+
+  if (!collection.belongsToMe) {
+    if (user?.role === "ADMIN") {
+      return (
+        <Button onClick={openDeleteModal} color="red">
+          Delete
+        </Button>
+      );
+    }
+
+    return (
+      <>
+        {collection.question && <Text>Question: {collection.question}</Text>}
+        {collection.description && (
+          <Text>Description: {collection.description}</Text>
+        )}
+      </>
+    );
+  }
 
   return (
     <Stack>

@@ -9,6 +9,8 @@ import {
 import { ImagesService } from './images.service';
 import { unlink } from 'fs';
 import { AuthGuard } from 'src/auth/auth.guards';
+import { User } from '@prisma/client';
+import { LoggedUser } from 'src/users/users.decorator';
 
 const UPLOAD_FOLDER = './uploads';
 
@@ -19,8 +21,12 @@ export class ImagesController {
 
   @Delete(':imageId')
   @HttpCode(204)
-  async deleteOne(@Request() req, @Param('imageId') imageId: string) {
-    const image = await this.imagesService.deleteOne(imageId, req.user.id);
+  async deleteOne(@LoggedUser() user: User, @Param('imageId') imageId: string) {
+    const image = await this.imagesService.deleteOne(
+      imageId,
+      user.id,
+      user.role === 'ADMIN',
+    );
 
     unlink(UPLOAD_FOLDER + '/' + image.filepath, (error) => {
       if (!error) return;

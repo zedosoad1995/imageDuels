@@ -125,13 +125,12 @@ export class ImagesService {
     return [image1, image2];
   }
 
-  async deleteOne(imageId: string, userId: string) {
-    // Also allow admin
+  async deleteOne(imageId: string, userId: string, isAdmin: boolean) {
     const image = await prisma.image.findUnique({
       where: {
         id: imageId,
         collection: {
-          ownerId: userId,
+          ownerId: isAdmin ? undefined : userId,
         },
       },
     });

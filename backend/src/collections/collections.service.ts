@@ -174,7 +174,13 @@ export class CollectionsService {
     });
   }
 
-  async deleteOne(collectionId: string, userId: string) {
+  async deleteOne(collectionId: string, userId: string, isAdmin: boolean) {
+    const whereQuery: Prisma.CollectionWhereUniqueInput = { id: collectionId };
+
+    if (!isAdmin) {
+      whereQuery.ownerId = userId;
+    }
+
     return prisma.collection.delete({
       select: {
         images: {
@@ -183,10 +189,7 @@ export class CollectionsService {
           },
         },
       },
-      where: {
-        id: collectionId,
-        ownerId: userId,
-      },
+      where: whereQuery,
     });
   }
 }

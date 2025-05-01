@@ -41,6 +41,7 @@ import { unlink } from 'fs';
 import { generateRandomString } from 'src/common/helpers/random';
 import { LoggedUser, UserId } from 'src/users/users.decorator';
 import { User } from '@prisma/client';
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 
 const UPLOAD_FOLDER = './uploads';
 
@@ -70,17 +71,23 @@ export class CollectionsController {
   }
 
   @Get(':collectionId')
-  async getOne(@UserId() userId, @Param('collectionId') collectionId: string) {
+  async getOne(
+    @LoggedUser() user: User | null,
+    @Param('collectionId') collectionId: string,
+  ) {
     const collection = await this.collectionsService.getOne(
       collectionId,
-      userId,
+      user?.id,
       {
         imagesSort: { rating: 'desc' },
       },
     );
 
-    // TODO: Make admin be able to see the collection
-    if (collection?.mode === 'PERSONAL' && collection?.ownerId !== userId) {
+    if (
+      user?.role !== 'ADMIN' &&
+      collection?.mode === 'PERSONAL' &&
+      collection?.ownerId !== user?.id
+    ) {
       throw new NotFoundException(
         `Collection id ${collectionId} does not exist`,
       );
@@ -156,11 +163,32 @@ export class CollectionsController {
   @UseGuards(AuthGuard)
   @Delete(':collectionId')
   @HttpCode(204)
-  async deleteOne(@Request() req, @Param('collectionId') collectionId: string) {
-    const collection = await this.collectionsService.deleteOne(
-      collectionId,
-      req.user.id,
-    );
+  async deleteOne(
+    @LoggedUser({ getTokenFromHeader: true }) loggedUser: User,
+    @Param('collectionId') collectionId: string,
+  ) {
+    let collection: {
+      images: {
+        filepath: string;
+      }[];
+    };
+
+    try {
+      collection = await this.collectionsService.deleteOne(
+        collectionId,
+        loggedUser.id,
+        loggedUser.role === 'ADMIN',
+      );
+    } catch (error) {
+      if (
+        error instanceof PrismaClientKnownRequestError &&
+        error.code === 'P2025'
+      ) {
+        throw new NotFoundException('Collection not found');
+      }
+
+      throw error;
+    }
 
     collection.images.forEach(({ filepath }) => {
       unlink(UPLOAD_FOLDER + '/' + filepath, (error) => {
