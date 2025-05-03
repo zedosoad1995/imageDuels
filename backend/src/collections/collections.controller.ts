@@ -110,12 +110,13 @@ export class CollectionsController {
   edit(
     @Param('collectionId') collectionId: string,
     @Body() editCollectionDto: EditCollectionDto,
-    @Request() req,
+    @LoggedUser({ getTokenFromHeader: true }) loggedUser: User,
   ) {
     return this.collectionsService.edit(
       collectionId,
       editCollectionDto,
-      req.user.id,
+      loggedUser.id,
+      loggedUser.role === 'ADMIN',
     );
   }
 

@@ -1,4 +1,11 @@
-import { Button, Stack, Text, Textarea, TextInput } from "@mantine/core";
+import {
+  Button,
+  Stack,
+  Switch,
+  Text,
+  Textarea,
+  TextInput,
+} from "@mantine/core";
 import { IGetCollection } from "../../../../Types/collection";
 import { ModeSelect } from "../../../../Components/ModeSelect/ModeSelect";
 import { useContext, useState } from "react";
@@ -39,6 +46,7 @@ export const About = ({ collection }: Props) => {
       description: collection.description ?? "",
       question: collection.question ?? "",
       mode: collection.mode,
+      isNSFW: collection.isNSFW,
     },
   });
 
@@ -47,13 +55,13 @@ export const About = ({ collection }: Props) => {
       return;
     }
 
-    const { title, description, mode, question } = getValues();
+    const { title, description, mode, question, isNSFW } = getValues();
 
     try {
       setIsLoading(true);
-      await editCollection(id, { title, description, mode, question });
+      await editCollection(id, { title, description, mode, question, isNSFW });
       setCollection((val) =>
-        val ? { ...val, title, description, mode, question } : undefined
+        val ? { ...val, title, description, mode, question, isNSFW } : undefined
       );
       notifications.show({ message: "Collection edited successfully" });
     } finally {
@@ -89,9 +97,12 @@ export const About = ({ collection }: Props) => {
   if (!collection.belongsToMe) {
     if (user?.role === "ADMIN") {
       return (
-        <Button onClick={openDeleteModal} color="red">
-          Delete
-        </Button>
+        <Stack>
+          <Switch label="NSWF content (+18)" {...register("isNSFW")} />
+          <Button onClick={openDeleteModal} color="red">
+            Delete
+          </Button>
+        </Stack>
       );
     }
 
@@ -130,6 +141,7 @@ export const About = ({ collection }: Props) => {
           <ModeSelect value={value} onChange={onChange} />
         )}
       />
+      <Switch label="NSWF content (+18)" {...register("isNSFW")} />
       <Button onClick={handleClickEdit} loading={isLoading} disabled={!isValid}>
         Edit
       </Button>

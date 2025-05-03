@@ -6,6 +6,7 @@ export interface ICollection {
   mode: CollectionModeType;
   question: string | null;
   description: string | null;
+  isNSFW: boolean;
   createdBy: string;
 }
 

@@ -7,6 +7,7 @@ export const editCollectionSchema = z.object({
   question: z.string().max(200),
   description: z.string(),
   mode: customEnum(["PERSONAL", "PRIVATE", "PUBLIC"] as CollectionModeType[]),
+  isNSFW: z.boolean(),
 });
 
 export type EditCollectionType = z.infer<typeof editCollectionSchema>;

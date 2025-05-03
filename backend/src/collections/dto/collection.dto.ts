@@ -6,6 +6,7 @@ const collectionSchema = z.object({
   question: z.string().nullable(),
   description: z.string().nullable(),
   mode: z.string(),
+  isNSFW: z.boolean(),
 });
 
 export const collectionResSchema = z.object({

@@ -9,6 +9,7 @@ import {
   Group,
   SegmentedControl,
   Chip,
+  Badge,
 } from "@mantine/core";
 import {
   IGetCollections,
@@ -73,9 +74,9 @@ export const Explore = () => {
               <Group mb={8}>
                 <Text fw={700}>{title}</Text>
                 {user?.role === "ADMIN" && (
-                  <Chip size="xs" checked={false}>
+                  <Badge size="xs" color="gray">
                     {mode.toLowerCase()}
-                  </Chip>
+                  </Badge>
                 )}
               </Group>
               <Group

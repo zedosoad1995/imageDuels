@@ -156,11 +156,12 @@ export class CollectionsService {
     collectionId: string,
     collectionBody: EditCollectionDto,
     userId: string,
+    isAdmin: boolean,
   ) {
     const foundCollection = await prisma.collection.findFirst({
       where: {
         id: collectionId,
-        ownerId: userId,
+        ownerId: isAdmin ? undefined : userId,
       },
     });
 
