@@ -21,6 +21,7 @@ import {
 } from "../../../../Schemas/Collection/editCollectionSchema";
 import { CollectionContext } from "../../../../Contexts/CollectionContext";
 import { UserContext } from "../../../../Contexts/UserContext";
+import classes from "./About.module.css";
 
 interface Props {
   collection: IGetCollection;
@@ -98,7 +99,25 @@ export const About = ({ collection }: Props) => {
     if (user?.role === "ADMIN") {
       return (
         <Stack>
-          <Switch label="NSWF content (+18)" {...register("isNSFW")} />
+          <Controller
+            name="isNSFW"
+            control={control}
+            render={({ field: { value, onChange } }) => (
+              <Switch
+                label="NSWF content (+18)"
+                checked={value}
+                onChange={onChange}
+                classNames={{ track: classes.nsfwSwitch }}
+              />
+            )}
+          />
+          <Button
+            onClick={handleClickEdit}
+            loading={isLoading}
+            disabled={!isValid}
+          >
+            Edit
+          </Button>
           <Button onClick={openDeleteModal} color="red">
             Delete
           </Button>
@@ -141,7 +160,19 @@ export const About = ({ collection }: Props) => {
           <ModeSelect value={value} onChange={onChange} />
         )}
       />
-      <Switch label="NSWF content (+18)" {...register("isNSFW")} />
+      <Controller
+        name="isNSFW"
+        control={control}
+        render={({ field: { value, onChange } }) => (
+          <Switch
+            label="NSWF content (+18)"
+            checked={value}
+            onChange={onChange}
+            classNames={{ track: classes.nsfwSwitch }}
+          />
+        )}
+      />
+
       <Button onClick={handleClickEdit} loading={isLoading} disabled={!isValid}>
         Edit
       </Button>

@@ -1,9 +1,10 @@
-import { Button, Stack, Textarea, TextInput } from "@mantine/core";
+import { Button, Stack, Switch, Textarea, TextInput } from "@mantine/core";
 import { useState } from "react";
 import { ModeSelect } from "../../Components/ModeSelect/ModeSelect";
 import { CollectionModeType } from "../../Types/collection";
 import { createCollection } from "../../Api/collections";
 import { useNavigate } from "react-router";
+import classes from "./CreateCollection.module.css";
 
 export const CreateCollection = () => {
   const navigate = useNavigate();
@@ -12,11 +13,18 @@ export const CreateCollection = () => {
   const [question, setQuestion] = useState("");
   const [description, setDescription] = useState("");
   const [mode, setMode] = useState<CollectionModeType>("PUBLIC");
+  const [isNSFW, setIsNSFW] = useState(false);
 
   const handleChange =
     (setValue: React.Dispatch<React.SetStateAction<string>>) =>
     (event: React.ChangeEvent<HTMLInputElement>) => {
       setValue(event.currentTarget.value);
+    };
+
+  const handleChangeSwitch =
+    (setValue: React.Dispatch<React.SetStateAction<boolean>>) =>
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      setValue(event.currentTarget.checked);
     };
 
   const handleChangeDescription = (
@@ -35,6 +43,7 @@ export const CreateCollection = () => {
       title,
       description,
       question,
+      isNSFW,
     });
 
     navigate(`/collections/${collection.id}`);
@@ -62,6 +71,12 @@ export const CreateCollection = () => {
         onChange={handleChangeDescription}
       />
       <ModeSelect value={mode} onChange={handleModeChange} />
+      <Switch
+        label="NSWF content (+18)"
+        checked={isNSFW}
+        onChange={handleChangeSwitch(setIsNSFW)}
+        classNames={{ track: classes.nsfwSwitch }}
+      />
       <Button onClick={handleClickCreate}>Create</Button>
     </Stack>
   );
