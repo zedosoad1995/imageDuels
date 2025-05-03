@@ -63,6 +63,7 @@ export class CollectionsController {
   ) {
     const collections = await this.collectionsService.getMany({
       userId: onlySelf ? user?.id : undefined,
+      showNSFW: user?.canSeeNSFW,
       showAll: user?.role === 'ADMIN',
       orderBy,
     });

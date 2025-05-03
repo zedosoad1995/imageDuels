@@ -4,4 +4,5 @@ export interface IGetCollections {
   userId?: string;
   orderBy?: IGetCollectionsOrderBy;
   showAll?: boolean;
+  showNSFW?: boolean;
 }

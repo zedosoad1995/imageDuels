@@ -8,6 +8,7 @@ export const createCollectionSchema = z
     question: z.string().max(200).optional(),
     description: z.string().optional(),
     mode: customEnum(Object.values(CollectionModeEnum)),
+    isNSFW: z.boolean(),
   })
   .strict();
 

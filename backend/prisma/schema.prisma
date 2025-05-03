@@ -16,6 +16,7 @@ model User {
   username   String       @unique
   password   String
   role       RoleEnum     @default(REGULAR)
+  canSeeNSFW Boolean      @default(false)
   Collection Collection[]
   duels      Duel[]
   createdAt  DateTime     @default(now())
@@ -33,6 +34,7 @@ model Collection {
   description String?
   question    String?
   mode        CollectionModeEnum
+  isNSFW      Boolean            @default(false)
   owner       User               @relation(fields: [ownerId], references: [id], onDelete: Cascade)
   ownerId     String
   createdAt   DateTime           @default(now())

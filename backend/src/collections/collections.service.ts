@@ -11,7 +11,7 @@ import { EditCollectionDto } from './dto/editCollection.dto';
 
 @Injectable()
 export class CollectionsService {
-  async getMany({ userId, orderBy, showAll }: IGetCollections = {}) {
+  async getMany({ userId, orderBy, showAll, showNSFW }: IGetCollections = {}) {
     const whereQuery: Prisma.CollectionWhereInput = {};
     const orderByQuery: Prisma.CollectionOrderByWithRelationInput = {};
 
@@ -19,6 +19,10 @@ export class CollectionsService {
       whereQuery.ownerId = userId;
     } else if (!showAll) {
       whereQuery.mode = 'PUBLIC';
+    }
+
+    if (!showNSFW) {
+      whereQuery.isNSFW = false;
     }
 
     if (orderBy === 'new') {

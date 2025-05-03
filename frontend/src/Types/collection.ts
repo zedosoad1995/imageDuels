@@ -37,6 +37,7 @@ export interface ICreateCollectionBody {
   mode: CollectionModeType;
   description: string | null;
   question: string | null;
+  isNSFW: boolean;
 }
 
 export type IEditCollectionBody = Partial<ICreateCollectionBody>;
