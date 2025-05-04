@@ -8,3 +8,7 @@ export const getMe = (): Promise<IUser> => {
 export const editMe = (body: IEditUserBody): Promise<IUser> => {
   return api.patch("/users/me", body);
 };
+
+export const deleteMe = (): Promise<void> => {
+  return api.delete("/users/me");
+};

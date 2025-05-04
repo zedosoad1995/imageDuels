@@ -49,6 +49,8 @@ export const CreateCollection = () => {
     navigate(`/collections/${collection.id}`);
   };
 
+  // TODO: Should NSFW switch be shown when user is safe for work?
+
   return (
     <Stack>
       <TextInput

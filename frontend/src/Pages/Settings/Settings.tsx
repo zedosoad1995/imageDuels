@@ -1,12 +1,15 @@
-import { Text } from "@mantine/core";
+import { Button, Stack, Text } from "@mantine/core";
 import { Switch } from "../../Components/Switch/Switch";
 import { useCallback, useContext, useState } from "react";
 import debounce from "lodash.debounce";
-import { editMe } from "../../Api/users";
+import { deleteMe, editMe } from "../../Api/users";
 import { UserContext } from "../../Contexts/UserContext";
+import { modals } from "@mantine/modals";
+import { useNavigate } from "react-router";
 
 export const Settings = () => {
-  const { user, setUser } = useContext(UserContext);
+  const navigate = useNavigate();
+  const { user, setUser, setLoggedIn } = useContext(UserContext);
 
   const [canSeeNSFW, setCanSeeNSFW] = useState(user?.canSeeNSFW as boolean);
 
@@ -32,16 +35,48 @@ export const Settings = () => {
       debouncedUpdateUser(event.currentTarget.checked);
     };
 
+  // TODO: when clicking NSFW on should a modal appear?
+
+  const openDeleteModal = () =>
+    modals.openConfirmModal({
+      title: "Delete Account",
+      centered: true,
+      children: (
+        <Text size="sm">
+          Are you sure you want to delete your account? This action is
+          irreversible.
+        </Text>
+      ),
+      labels: { confirm: "Delete Account", cancel: "Cancel" },
+      confirmProps: { color: "red" },
+      onConfirm: async () => {
+        await deleteMe();
+        setUser(null);
+        setLoggedIn(false);
+        navigate("/");
+        // TODO: when exception is thrown it should not close, and show a notification. Or not even close but show the notification
+      },
+    });
+
   return (
     <>
       <Text fw={600} size="lg" pb="sm">
         Settings
       </Text>
-      <Switch
-        label="Show mature content (I'm over 18)"
-        checked={canSeeNSFW}
-        onChange={handleChangeSwitch(setCanSeeNSFW)}
-      />
+      <Stack>
+        <Switch
+          label="Show mature content (I'm over 18)"
+          checked={canSeeNSFW}
+          onChange={handleChangeSwitch(setCanSeeNSFW)}
+        />
+        <Button
+          onClick={openDeleteModal}
+          color="red"
+          disabled={user?.role === "ADMIN"}
+        >
+          Delete Account
+        </Button>
+      </Stack>
     </>
   );
 };

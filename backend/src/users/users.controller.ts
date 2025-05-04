@@ -1,9 +1,11 @@
 import {
+  BadRequestException,
   Body,
   Controller,
+  Delete,
   Get,
+  HttpCode,
   NotFoundException,
-  Param,
   Patch,
   Post,
   UnauthorizedException,
@@ -14,9 +16,10 @@ import { UsersService } from './users.service';
 import { CreateUserDto, createUserSchema } from './dto/createUser.dto';
 import { ZodValidationPipe } from 'src/common/pipes/zodValidation';
 import { getMeSchema } from './dto/getMe.dto';
-import { UserId } from './users.decorator';
+import { LoggedUser, UserId } from './users.decorator';
 import { AuthGuard } from 'src/auth/auth.guards';
 import { EditUserDto, editUserSchema } from './dto/editUser.dto';
+import { User } from '@prisma/client';
 
 @Controller('users')
 export class UsersController {
@@ -58,5 +61,16 @@ export class UsersController {
     const user = await this.usersService.edit(editUserDto, loggedUserId);
 
     return getMeSchema.parse(user);
+  }
+
+  @UseGuards(AuthGuard)
+  @HttpCode(204)
+  @Delete('me')
+  async deleteMe(@LoggedUser({ getTokenFromHeader: true }) LoggedUser: User) {
+    if (LoggedUser.role === 'ADMIN') {
+      throw new BadRequestException('User cannot delete itself');
+    }
+
+    await this.usersService.deleteOne(LoggedUser.id);
   }
 }

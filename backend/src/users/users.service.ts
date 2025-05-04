@@ -50,4 +50,12 @@ export class UsersService {
       data: userEditBody,
     });
   }
+
+  async deleteOne(userId: string) {
+    return prisma.user.delete({
+      where: {
+        id: userId,
+      },
+    });
+  }
 }

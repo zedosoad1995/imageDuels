@@ -52,9 +52,11 @@ export const UserProvider = ({ children }: UserProviderProps) => {
         setUser(user);
         setLoggedIn(true);
       })
-      .catch(() => {
+      .catch((error) => {
         setUser(null);
         setLoggedIn(false);
+
+        throw error;
       });
   };
 
