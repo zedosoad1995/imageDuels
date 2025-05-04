@@ -1,6 +1,6 @@
 import { Text } from "@mantine/core";
 import { Switch } from "../../Components/Switch/Switch";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import debounce from "lodash.debounce";
 
 export const Settings = () => {

@@ -3,6 +3,7 @@ import { CreateUserDto } from './dto/createUser.dto';
 import { prisma } from 'src/common/helpers/prisma';
 import { hashPassword } from 'src/common/helpers/password';
 import { Prisma } from '@prisma/client';
+import { EditUserDto } from './dto/editUser.dto';
 
 @Injectable()
 export class UsersService {
@@ -38,6 +39,15 @@ export class UsersService {
         email: user.email,
         password: await hashPassword(user.password),
       },
+    });
+  }
+
+  async edit(userEditBody: EditUserDto, userId: string) {
+    return prisma.user.update({
+      where: {
+        id: userId,
+      },
+      data: userEditBody,
     });
   }
 }
