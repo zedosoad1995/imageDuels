@@ -1,10 +1,10 @@
-import { Button, Stack, Switch, Textarea, TextInput } from "@mantine/core";
+import { Button, Stack, Textarea, TextInput } from "@mantine/core";
 import { useState } from "react";
 import { ModeSelect } from "../../Components/ModeSelect/ModeSelect";
 import { CollectionModeType } from "../../Types/collection";
 import { createCollection } from "../../Api/collections";
 import { useNavigate } from "react-router";
-import classes from "./CreateCollection.module.css";
+import { Switch } from "../../Components/Switch/Switch";
 
 export const CreateCollection = () => {
   const navigate = useNavigate();
@@ -75,7 +75,6 @@ export const CreateCollection = () => {
         label="NSWF content (+18)"
         checked={isNSFW}
         onChange={handleChangeSwitch(setIsNSFW)}
-        classNames={{ track: classes.nsfwSwitch }}
       />
       <Button onClick={handleClickCreate}>Create</Button>
     </Stack>

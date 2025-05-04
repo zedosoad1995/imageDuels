@@ -1,11 +1,4 @@
-import {
-  Button,
-  Stack,
-  Switch,
-  Text,
-  Textarea,
-  TextInput,
-} from "@mantine/core";
+import { Button, Stack, Text, Textarea, TextInput } from "@mantine/core";
 import { IGetCollection } from "../../../../Types/collection";
 import { ModeSelect } from "../../../../Components/ModeSelect/ModeSelect";
 import { useContext, useState } from "react";
@@ -21,7 +14,7 @@ import {
 } from "../../../../Schemas/Collection/editCollectionSchema";
 import { CollectionContext } from "../../../../Contexts/CollectionContext";
 import { UserContext } from "../../../../Contexts/UserContext";
-import classes from "./About.module.css";
+import { Switch } from "../../../../Components/Switch/Switch";
 
 interface Props {
   collection: IGetCollection;
@@ -107,7 +100,6 @@ export const About = ({ collection }: Props) => {
                 label="NSWF content (+18)"
                 checked={value}
                 onChange={onChange}
-                classNames={{ track: classes.nsfwSwitch }}
               />
             )}
           />
@@ -168,7 +160,6 @@ export const About = ({ collection }: Props) => {
             label="NSWF content (+18)"
             checked={value}
             onChange={onChange}
-            classNames={{ track: classes.nsfwSwitch }}
           />
         )}
       />

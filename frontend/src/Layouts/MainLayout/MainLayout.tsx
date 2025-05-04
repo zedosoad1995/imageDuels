@@ -31,6 +31,10 @@ export const MainLayout = () => {
     navigate("/collections/me");
   };
 
+  const handleSettings = () => {
+    navigate("/settings");
+  };
+
   const handleClickLogout = async () => {
     await logout();
     setUser(null);
@@ -58,6 +62,9 @@ export const MainLayout = () => {
                 <Button onClick={handleClickCreate}>Create Collection</Button>
                 <Button onClick={handleClickMy} variant="subtle">
                   My Collections
+                </Button>
+                <Button onClick={handleSettings} variant="subtle">
+                  Settings
                 </Button>
                 <Button onClick={handleClickLogout} variant="subtle">
                   Logout

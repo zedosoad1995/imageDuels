@@ -15,6 +15,8 @@ import { Notifications } from "@mantine/notifications";
 import { ModalsProvider } from "@mantine/modals";
 import { MyCollections } from "./Pages/MyCollections/MyCollections";
 import { UserProvider } from "./Contexts/UserContext";
+import { Settings } from "./Pages/Settings/Settings";
+import { ProtectedLayout } from "./Layouts/ProtectedLayout/ProtectedLayout";
 
 const router = createBrowserRouter([
   {
@@ -33,12 +35,21 @@ const router = createBrowserRouter([
         Component: Explore,
       },
       {
-        path: "/collections/me",
-        Component: MyCollections,
-      },
-      {
-        path: "/collections/create",
-        Component: CreateCollection,
+        Component: ProtectedLayout,
+        children: [
+          {
+            path: "/collections/me",
+            Component: MyCollections,
+          },
+          {
+            path: "/collections/create",
+            Component: CreateCollection,
+          },
+          {
+            path: "/settings",
+            Component: Settings,
+          },
+        ],
       },
       {
         path: "/collections/:id",
@@ -58,12 +69,14 @@ const theme = createTheme({
 });
 
 createRoot(document.getElementById("root")!).render(
-  <MantineProvider theme={theme}>
-    <Notifications />
-    <ModalsProvider>
-      <UserProvider>
-        <RouterProvider router={router} />
-      </UserProvider>
-    </ModalsProvider>
-  </MantineProvider>
+  <StrictMode>
+    <MantineProvider theme={theme}>
+      <Notifications />
+      <ModalsProvider>
+        <UserProvider>
+          <RouterProvider router={router} />
+        </UserProvider>
+      </ModalsProvider>
+    </MantineProvider>
+  </StrictMode>
 );
