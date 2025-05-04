@@ -1,6 +1,10 @@
 import api from ".";
-import { IUser } from "../Types/user";
+import { IEditUserBody, IUser } from "../Types/user";
 
 export const getMe = (): Promise<IUser> => {
   return api.get("/users/me");
+};
+
+export const editMe = (body: IEditUserBody): Promise<IUser> => {
+  return api.patch("/users/me", body);
 };

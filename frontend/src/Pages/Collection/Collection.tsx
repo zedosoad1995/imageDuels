@@ -1,6 +1,6 @@
 import { useContext, useState } from "react";
 import { useParams } from "react-router";
-import { Group, Tabs, Text } from "@mantine/core";
+import { Badge, Group, Tabs, Text } from "@mantine/core";
 import { Images } from "./Components/Images/Images";
 import { About } from "./Components/About/About";
 import { Vote } from "./Components/Vote/Vote";
@@ -24,9 +24,16 @@ export const CollectionChild = () => {
 
   return (
     <>
-      <Text fw={600} size="lg">
-        {collection.title}
-      </Text>
+      <Group>
+        <Text fw={600} size="lg">
+          {collection.title}
+        </Text>
+        {collection.isNSFW && (
+          <Badge size="xs" color="red">
+            NSFW
+          </Badge>
+        )}
+      </Group>
       {showSubtitle && (
         <>
           {collection.mode === "PRIVATE" && (

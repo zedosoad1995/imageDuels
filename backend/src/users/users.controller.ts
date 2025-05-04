@@ -23,7 +23,7 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Get('me')
-  async getProfile(@UserId() userId) {
+  async getMe(@UserId() userId) {
     if (!userId) {
       throw new NotFoundException('User is not logged in');
     }
@@ -39,19 +39,24 @@ export class UsersController {
     return getMeSchema.parse(loggedUser);
   }
 
+  // TODO: Do NOT return password
   @Post()
   @UsePipes(new ZodValidationPipe(createUserSchema))
-  async createUser(@Body() createUserDto: CreateUserDto) {
-    return this.usersService.create(createUserDto);
+  async create(@Body() createUserDto: CreateUserDto) {
+    const user = await this.usersService.create(createUserDto);
+
+    return getMeSchema.parse(user);
   }
 
   @UseGuards(AuthGuard)
   @UsePipes(new ZodValidationPipe(editUserSchema))
   @Patch('me')
-  edit(
+  async edit(
     @Body() editUserDto: EditUserDto,
     @UserId({ getTokenFromHeader: true }) loggedUserId: string,
   ) {
-    return this.usersService.edit(editUserDto, loggedUserId);
+    const user = await this.usersService.edit(editUserDto, loggedUserId);
+
+    return getMeSchema.parse(user);
   }
 }

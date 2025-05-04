@@ -8,7 +8,6 @@ import {
   Text,
   Group,
   SegmentedControl,
-  Chip,
   Badge,
 } from "@mantine/core";
 import {
@@ -62,6 +61,7 @@ export const Explore = () => {
             totalVotes,
             totalImages,
             mode,
+            isNSFW,
             createdBy,
           }) => (
             <Card
@@ -76,6 +76,11 @@ export const Explore = () => {
                 {user?.role === "ADMIN" && (
                   <Badge size="xs" color="gray">
                     {mode.toLowerCase()}
+                  </Badge>
+                )}
+                {isNSFW && (
+                  <Badge size="xs" color="red">
+                    NSFW
                   </Badge>
                 )}
               </Group>

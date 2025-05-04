@@ -6,4 +6,5 @@ export const getMeSchema = z.object({
   id: z.string(),
   email: z.string(),
   role: customEnum(Object.values(RoleEnum)),
+  canSeeNSFW: z.boolean(),
 });
