@@ -80,7 +80,7 @@ export const Explore = () => {
                 )}
                 {isNSFW && (
                   <Badge size="xs" color="red">
-                    NSFW
+                    NSFW +18
                   </Badge>
                 )}
               </Group>
