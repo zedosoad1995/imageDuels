@@ -10,10 +10,12 @@ import {
 } from "../../Contexts/CollectionContext";
 import { UserContext } from "../../Contexts/UserContext";
 import { CopyButton } from "../../Components/CopyButton/CopyButton";
+import { usePage } from "../../Hooks/usePage";
 
 export const CollectionChild = () => {
   const { collection, fetchCollection } = useContext(CollectionContext);
   const { loggedIn } = useContext(UserContext);
+  usePage("explore");
 
   const [showSubtitle, setShowSubtitle] = useState(false);
 

@@ -5,9 +5,11 @@ import { CollectionModeType } from "../../Types/collection";
 import { createCollection } from "../../Api/collections";
 import { useNavigate } from "react-router";
 import { Switch } from "../../Components/Switch/Switch";
+import { usePage } from "../../Hooks/usePage";
 
 export const CreateCollection = () => {
   const navigate = useNavigate();
+  usePage("create-collection");
 
   const [title, setTitle] = useState("");
   const [question, setQuestion] = useState("");

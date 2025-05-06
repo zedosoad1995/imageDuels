@@ -6,7 +6,7 @@ import { Sidebar } from "./components/Sidebar/Sidebar";
 export const MainLayout = () => {
   return (
     <AppShell
-      navbar={{ width: 300, breakpoint: 1 }}
+      navbar={{ width: 280, breakpoint: 1 }}
       padding={{ sm: "lg", base: "sm" }}
     >
       <Sidebar />

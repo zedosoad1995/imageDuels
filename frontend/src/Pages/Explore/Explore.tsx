@@ -16,6 +16,7 @@ import {
 } from "../../Types/collection";
 import { Image } from "../../Components/Image/Image";
 import { UserContext } from "../../Contexts/UserContext";
+import { usePage } from "../../Hooks/usePage";
 
 const orderValues: { value: IGetCollectionsOrderBy; label: string }[] = [
   {
@@ -28,6 +29,7 @@ const orderValues: { value: IGetCollectionsOrderBy; label: string }[] = [
 export const Explore = () => {
   const navigate = useNavigate();
   const { user } = useContext(UserContext);
+  usePage("explore");
 
   const [collections, setCollections] = useState<IGetCollections>([]);
   const [orderBy, setOrderBy] = useState<IGetCollectionsOrderBy>("new");

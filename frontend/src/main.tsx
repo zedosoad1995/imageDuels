@@ -17,6 +17,7 @@ import { MyCollections } from "./Pages/MyCollections/MyCollections";
 import { UserProvider } from "./Contexts/UserContext";
 import { Settings } from "./Pages/Settings/Settings";
 import { ProtectedLayout } from "./Layouts/ProtectedLayout/ProtectedLayout";
+import { PageProvider } from "./Contexts/PageContext";
 
 const router = createBrowserRouter([
   {
@@ -73,9 +74,11 @@ createRoot(document.getElementById("root")!).render(
     <MantineProvider theme={theme}>
       <Notifications />
       <ModalsProvider>
-        <UserProvider>
-          <RouterProvider router={router} />
-        </UserProvider>
+        <PageProvider>
+          <UserProvider>
+            <RouterProvider router={router} />
+          </UserProvider>
+        </PageProvider>
       </ModalsProvider>
     </MantineProvider>
   </StrictMode>

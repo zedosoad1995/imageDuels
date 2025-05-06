@@ -3,8 +3,11 @@ import { getCollections } from "../../Api/collections";
 import { IGetCollections } from "../../Types/collection";
 import { Accordion } from "@mantine/core";
 import { CollectionsStack } from "./Components/CollectionsStack/CollectionsStack";
+import { usePage } from "../../Hooks/usePage";
 
 export const MyCollections = () => {
+  usePage("my-collections");
+
   const [collections, setCollections] = useState<IGetCollections>([]);
 
   useEffect(() => {

@@ -1,5 +1,5 @@
 .navbar {
-  width: 300px;
+  width: 280px;
   padding: var(--mantine-spacing-md);
   display: flex;
   flex-direction: column;
@@ -39,6 +39,18 @@
 
     & .linkIcon {
       color: var(--mantine-color-black);
+    }
+  }
+
+  &[data-active] {
+    &,
+    &:hover {
+      background-color: var(--mantine-color-blue-light);
+      color: var(--mantine-color-blue-light-color);
+
+      & .itemIcon {
+        color: var(--mantine-color-blue-light-color);
+      }
     }
   }
 }

@@ -12,10 +12,12 @@ import { useNavigate } from "react-router";
 import { useContext } from "react";
 import { UserContext } from "../../../../Contexts/UserContext";
 import { logout } from "../../../../Api/auth";
+import { usePage } from "../../../../Hooks/usePage";
 
 export const Sidebar = () => {
   const theme = useMantineTheme();
   const navigate = useNavigate();
+  const page = usePage();
 
   const { loggedIn, setUser, setLoggedIn } = useContext(UserContext);
 
@@ -63,16 +65,28 @@ export const Sidebar = () => {
             </Text>
           </UnstyledButton>
         </div>
-        <UnstyledButton className={classes.item} onClick={handleClickLogo}>
+        <UnstyledButton
+          className={classes.item}
+          onClick={handleClickLogo}
+          data-active={page === "explore" || undefined}
+        >
           <ExploreIcon className={classes.itemIcon} />
           <span>Explore</span>
         </UnstyledButton>
-        <UnstyledButton className={classes.item} onClick={handleClickCreate}>
+        <UnstyledButton
+          className={classes.item}
+          onClick={handleClickCreate}
+          data-active={page === "create-collection" || undefined}
+        >
           <AddIcon className={classes.itemIcon} />
           <span>Create Collection</span>
         </UnstyledButton>
         {loggedIn && (
-          <UnstyledButton className={classes.item} onClick={handleClickMy}>
+          <UnstyledButton
+            className={classes.item}
+            onClick={handleClickMy}
+            data-active={page === "my-collections" || undefined}
+          >
             <CollectionsIcon className={classes.itemIcon} />
             <span>My Collections</span>
           </UnstyledButton>
@@ -81,7 +95,11 @@ export const Sidebar = () => {
       <div className={classes.footer}>
         {loggedIn && (
           <>
-            <UnstyledButton className={classes.item} onClick={handleSettings}>
+            <UnstyledButton
+              className={classes.item}
+              onClick={handleSettings}
+              data-active={page === "settings" || undefined}
+            >
               <SettingsIcon className={classes.itemIcon} />
               <span>Settings</span>
             </UnstyledButton>

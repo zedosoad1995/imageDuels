@@ -6,10 +6,12 @@ import { deleteMe, editMe } from "../../Api/users";
 import { UserContext } from "../../Contexts/UserContext";
 import { modals } from "@mantine/modals";
 import { useNavigate } from "react-router";
+import { usePage } from "../../Hooks/usePage";
 
 export const Settings = () => {
   const navigate = useNavigate();
   const { user, setUser, setLoggedIn } = useContext(UserContext);
+  usePage("settings");
 
   const [canSeeNSFW, setCanSeeNSFW] = useState(user?.canSeeNSFW as boolean);
 
