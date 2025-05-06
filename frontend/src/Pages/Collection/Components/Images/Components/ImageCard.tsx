@@ -35,6 +35,7 @@ export const ImageCard = ({
   const openDeleteModal = () =>
     modals.openConfirmModal({
       title: "Delete image",
+      confirmProps: { color: "red" },
       centered: true,
       children: (
         <Text size="sm">

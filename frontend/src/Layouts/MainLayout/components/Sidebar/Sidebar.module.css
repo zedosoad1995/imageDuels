@@ -1,0 +1,56 @@
+.navbar {
+  width: 300px;
+  padding: var(--mantine-spacing-md);
+  display: flex;
+  flex-direction: column;
+}
+
+.navbarMain {
+  flex: 1;
+}
+
+.header {
+  padding-bottom: var(--mantine-spacing-md);
+  margin-bottom: calc(var(--mantine-spacing-md) * 1.5);
+  border-bottom: 1px solid var(--mantine-color-gray-3);
+}
+
+.logoBtn {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: var(--mantine-spacing-xs);
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  font-size: var(--mantine-font-size-sm);
+  color: var(--mantine-color-gray-7);
+  padding: var(--mantine-spacing-xs) var(--mantine-spacing-sm);
+  border-radius: var(--mantine-radius-sm);
+  font-weight: 500;
+  width: 100%;
+
+  &:hover {
+    background-color: var(--mantine-color-gray-0);
+    color: var(--mantine-color-black);
+
+    & .linkIcon {
+      color: var(--mantine-color-black);
+    }
+  }
+}
+
+.itemIcon {
+  color: var(--mantine-color-gray-6);
+  margin-right: var(--mantine-spacing-sm);
+  width: 25px;
+  height: 25px;
+}
+
+.footer {
+  border-top: 1px solid var(--mantine-color-gray-3);
+  padding-top: var(--mantine-spacing-md);
+}
