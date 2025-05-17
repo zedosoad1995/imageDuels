@@ -14,9 +14,9 @@ import {
   IGetCollections,
   IGetCollectionsOrderBy,
 } from "../../Types/collection";
-import { Image } from "../../Components/Image/Image";
 import { UserContext } from "../../Contexts/UserContext";
 import { usePage } from "../../Hooks/usePage";
+import { getImageURL } from "../../Utils/image";
 
 const orderValues: { value: IGetCollectionsOrderBy; label: string }[] = [
   {
@@ -92,11 +92,22 @@ export const Explore = () => {
                 style={{ overflow: "hidden" }}
               >
                 {thumbnailImages.map((filepath) => (
-                  <Card key={filepath} withBorder miw={150}>
-                    <Card.Section withBorder style={{ textAlign: "center" }}>
-                      <Image filepath={filepath} />
-                    </Card.Section>
-                  </Card>
+                  <div
+                    key={filepath}
+                    style={{
+                      borderRadius: 4,
+                      overflow: "hidden",
+                    }}
+                  >
+                    <img
+                      src={getImageURL(filepath)}
+                      style={{
+                        height: 180,
+                        minWidth: "100%",
+                        display: "block",
+                      }}
+                    />
+                  </div>
                 ))}
               </Group>
               <Text fw={300} size="xs" mt={8}>

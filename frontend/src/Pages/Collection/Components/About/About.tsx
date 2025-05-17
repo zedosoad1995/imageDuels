@@ -88,6 +88,8 @@ export const About = ({ collection }: Props) => {
     notifications.show({ message: "Collection deleted" });
   };
 
+  // The edit button is kinda lame, especially when changing the switch. Maybe change it
+
   if (!collection.belongsToMe) {
     if (user?.role === "ADMIN") {
       return (
