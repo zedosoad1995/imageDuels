@@ -42,11 +42,14 @@ export class UsersController {
     return getMeSchema.parse(loggedUser);
   }
 
-  // TODO: Do NOT return password
-  @Post()
+  @Patch('complete-registration')
+  @UseGuards(AuthGuard)
   @UsePipes(new ZodValidationPipe(createUserSchema))
-  async create(@Body() createUserDto: CreateUserDto) {
-    const user = await this.usersService.create(createUserDto);
+  async completeRegistration(
+    @Body() createUserDto: CreateUserDto,
+    @UserId({ getTokenFromHeader: true }) loggedUserId: string,
+  ) {
+    const user = await this.usersService.edit(createUserDto, loggedUserId);
 
     return getMeSchema.parse(user);
   }

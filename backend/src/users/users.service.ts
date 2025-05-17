@@ -1,12 +1,25 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
-import { CreateUserDto } from './dto/createUser.dto';
+import { Injectable } from '@nestjs/common';
 import { prisma } from 'src/common/helpers/prisma';
-import { hashPassword } from 'src/common/helpers/password';
 import { Prisma } from '@prisma/client';
 import { EditUserDto } from './dto/editUser.dto';
 
 @Injectable()
 export class UsersService {
+  async getOneByGoogleLogin({
+    googleId,
+    email,
+  }: {
+    googleId: string;
+    email: string;
+  }) {
+    return prisma.user.findUnique({
+      where: {
+        googleId,
+        email,
+      },
+    });
+  }
+
   async getOne(whereQuery: Prisma.UserWhereUniqueInput) {
     return prisma.user.findUnique({
       where: whereQuery,
@@ -23,26 +36,16 @@ export class UsersService {
     return !!existingUser;
   }
 
-  // TODO: maybe return the 2 errors, if both exist. Could also be done in call, but may not be necessary to optimize this
-  async create(user: CreateUserDto) {
-    if (await this.isEmailTaken(user.email)) {
-      throw new BadRequestException('Email already in use');
-    }
-
-    if (await this.isUsernameTaken(user.username)) {
-      throw new BadRequestException('Username already in use');
-    }
-
+  async createIncompleteGoogleProfile(data: {
+    googleId: string;
+    email: string;
+  }) {
     return prisma.user.create({
-      data: {
-        username: user.username,
-        email: user.email,
-        password: await hashPassword(user.password),
-      },
+      data,
     });
   }
 
-  async edit(userEditBody: EditUserDto, userId: string) {
+  async edit(userEditBody: Prisma.UserUpdateInput, userId: string) {
     return prisma.user.update({
       where: {
         id: userId,

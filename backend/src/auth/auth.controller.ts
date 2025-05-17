@@ -1,39 +1,35 @@
 import {
   Body,
   Controller,
+  Get,
   HttpCode,
   Post,
+  Req,
   Res,
+  UseGuards,
   UsePipes,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { ZodValidationPipe } from 'src/common/pipes/zodValidation';
 import { LoginDto, LoginSchema } from './dto/auth.dto';
-import { Response } from 'express';
+import { Request, Response } from 'express';
 import { getMeSchema } from 'src/users/dto/getMe.dto';
+import { AuthGuard } from '@nestjs/passport';
+import { UsersService } from 'src/users/users.service';
+
+interface GoogleRequest extends Request {
+  user: {
+    id: string;
+    email: string;
+  };
+}
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
-
-  @Post('login')
-  @HttpCode(200)
-  @UsePipes(new ZodValidationPipe(LoginSchema))
-  async login(
-    @Res({ passthrough: true }) res: Response,
-    @Body() loginDto: LoginDto,
-  ) {
-    const { token, user } = await this.authService.login(loginDto);
-
-    // TODO: do not forget to use NODE_ENV prod in production, otherwise it will not be secure
-    res.cookie('token', token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'prod',
-      sameSite: 'strict',
-    });
-
-    return getMeSchema.parse(user);
-  }
+  constructor(
+    private readonly authService: AuthService,
+    private readonly usersService: UsersService,
+  ) {}
 
   @Post('logout')
   @HttpCode(204)
@@ -45,5 +41,40 @@ export class AuthController {
       secure: process.env.NODE_ENV === 'prod',
       sameSite: 'strict',
     });
+  }
+
+  @Get('google')
+  @UseGuards(AuthGuard('google'))
+  googleLogin() {
+    // starts OAuth flow
+  }
+
+  @Get('google/callback')
+  @UseGuards(AuthGuard('google'))
+  async googleCallback(@Req() req: GoogleRequest, @Res() res: Response) {
+    const googleUser = req.user;
+
+    let user = await this.usersService.getOneByGoogleLogin({
+      googleId: googleUser.id,
+      email: googleUser.email,
+    });
+
+    if (!user) {
+      user = await this.usersService.createIncompleteGoogleProfile({
+        googleId: googleUser.id,
+        email: googleUser.email,
+      });
+    }
+
+    const token = await this.authService.generateJWT(user);
+
+    // TODO: do not forget to use NODE_ENV prod in production, otherwise it will not be secure
+    res.cookie('token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'prod',
+      sameSite: 'strict',
+    });
+
+    return getMeSchema.parse(user);
   }
 }

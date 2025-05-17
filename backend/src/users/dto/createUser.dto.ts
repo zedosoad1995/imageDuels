@@ -6,9 +6,8 @@ export const createUserSchema = z
       .string()
       .regex(/^[^\s@]+$/, "Username cannot contain spaces or '@'")
       .trim()
-      .min(1),
-    email: z.string().email(),
-    password: z.string().min(6).max(100),
+      .min(1)
+      .max(20),
   })
   .strict();
 
