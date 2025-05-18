@@ -1,5 +1,4 @@
 import {
-  Body,
   Controller,
   Get,
   HttpCode,
@@ -11,9 +10,8 @@ import {
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { ZodValidationPipe } from 'src/common/pipes/zodValidation';
-import { LoginDto, LoginSchema } from './dto/auth.dto';
+import { LoginSchema } from './dto/auth.dto';
 import { Request, Response } from 'express';
-import { getMeSchema } from 'src/users/dto/getMe.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { UsersService } from 'src/users/users.service';
 
@@ -75,6 +73,6 @@ export class AuthController {
       sameSite: 'strict',
     });
 
-    return getMeSchema.parse(user);
+    return res.redirect(process.env.FRONTEND_URL as string);
   }
 }

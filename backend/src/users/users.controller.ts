@@ -7,13 +7,15 @@ import {
   HttpCode,
   NotFoundException,
   Patch,
-  Post,
   UnauthorizedException,
   UseGuards,
   UsePipes,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { CreateUserDto, createUserSchema } from './dto/createUser.dto';
+import {
+  CompleteRegistrationDto,
+  completeRegistrationSchema,
+} from './dto/completeRegistration.dto';
 import { ZodValidationPipe } from 'src/common/pipes/zodValidation';
 import { getMeSchema } from './dto/getMe.dto';
 import { LoggedUser, UserId } from './users.decorator';
@@ -44,12 +46,15 @@ export class UsersController {
 
   @Patch('complete-registration')
   @UseGuards(AuthGuard)
-  @UsePipes(new ZodValidationPipe(createUserSchema))
+  @UsePipes(new ZodValidationPipe(completeRegistrationSchema))
   async completeRegistration(
-    @Body() createUserDto: CreateUserDto,
+    @Body() completeRegistrationDto: CompleteRegistrationDto,
     @UserId({ getTokenFromHeader: true }) loggedUserId: string,
   ) {
-    const user = await this.usersService.edit(createUserDto, loggedUserId);
+    const user = await this.usersService.edit(
+      { ...completeRegistrationDto, isProfileCompleted: true },
+      loggedUserId,
+    );
 
     return getMeSchema.parse(user);
   }

@@ -1,7 +1,7 @@
 import React, { createContext, useEffect, useState } from "react";
 import { IUser } from "../Types/user";
 import { getMe } from "../Api/users";
-import { login as loginAPI } from "../Api/auth";
+import { loginGoogle as loginAPI } from "../Api/auth";
 
 interface UserProviderProps {
   children: React.ReactNode;
@@ -13,7 +13,7 @@ interface UserContextProps {
   loggedIn: boolean;
   isFetchingLoggedUser: boolean;
   setLoggedIn: React.Dispatch<React.SetStateAction<boolean>>;
-  login: (emailUsername: string, password: string) => Promise<void>;
+  login: () => Promise<void>;
 }
 
 export const UserContext = createContext<UserContextProps>({
@@ -46,18 +46,8 @@ export const UserProvider = ({ children }: UserProviderProps) => {
       });
   }, []);
 
-  const login = async (emailUsername: string, password: string) => {
-    await loginAPI(emailUsername, password)
-      .then((user) => {
-        setUser(user);
-        setLoggedIn(true);
-      })
-      .catch((error) => {
-        setUser(null);
-        setLoggedIn(false);
-
-        throw error;
-      });
+  const login = () => {
+    loginAPI();
   };
 
   return (

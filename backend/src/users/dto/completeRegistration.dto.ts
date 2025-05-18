@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-export const createUserSchema = z
+export const completeRegistrationSchema = z
   .object({
     username: z
       .string()
@@ -11,4 +11,6 @@ export const createUserSchema = z
   })
   .strict();
 
-export type CreateUserDto = z.infer<typeof createUserSchema>;
+export type CompleteRegistrationDto = z.infer<
+  typeof completeRegistrationSchema
+>;

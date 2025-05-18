@@ -1,18 +1,8 @@
 import api from ".";
-import { IUser } from "../Types/user";
 
-export const login = (
-  usernameOrEmail: string,
-  password: string
-): Promise<IUser> => {
-  return api.post(
-    "/auth/login",
-    {
-      usernameOrEmail,
-      password,
-    },
-    { skipLogoutOn401: true }
-  );
+export const loginGoogle = () => {
+  // TODO: maybe open another window?
+  window.location.href = import.meta.env.VITE_API_URL + "/auth/google";
 };
 
 // TODO: This returns password, do not include password (nor id?)
