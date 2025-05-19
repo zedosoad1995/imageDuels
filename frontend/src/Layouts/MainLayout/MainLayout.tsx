@@ -2,19 +2,67 @@ import { AppShell, Button, Modal, Stack, TextInput } from "@mantine/core";
 import { Outlet, useNavigate } from "react-router";
 import classes from "./MainLayout.module.css";
 import { Sidebar } from "./components/Sidebar/Sidebar";
-import { useContext, useState } from "react";
+import { useCallback, useContext, useState } from "react";
 import { UserContext } from "../../Contexts/UserContext";
+import debounce from "lodash.debounce";
+import { checkUsername, completeRegistration } from "../../Api/users";
+import { register } from "../../Api/auth";
 
 export const MainLayout = () => {
-  const { user, logout } = useContext(UserContext);
+  const { user, logout, setUser } = useContext(UserContext);
 
   const navigate = useNavigate();
 
-  const [] = useState();
+  const [username, setUsername] = useState("");
+  const [isUniqueUsername, setIsUniqueUsername] = useState(false);
+  const [usernameError, setUsernameError] = useState("");
 
   const handleCloseSetupModal = async () => {
     await logout();
     navigate("/");
+  };
+
+  const handleUsernameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const newUsername = event.currentTarget.value.trim();
+
+    if (newUsername.length < 3) {
+      setUsernameError("must have at least 3 character");
+    } else if (newUsername.length > 20) {
+      setUsernameError("can have at most 20 characters");
+    } else if (!/^[^\s]+$/.test(username)) {
+      setUsernameError("cannot have white spaces");
+    } else {
+      setUsernameError("");
+      setIsUniqueUsername(false);
+      debouncedUpdateUser(newUsername);
+    }
+
+    setUsername(newUsername);
+  };
+
+  const debouncedUpdateUser = useCallback(
+    debounce(
+      async (username: string) => {
+        const { exists } = await checkUsername(username);
+        if (exists) {
+          setUsernameError("username already exists");
+          setIsUniqueUsername(false);
+        } else {
+          setIsUniqueUsername(true);
+        }
+      },
+      500,
+      {
+        leading: true,
+        trailing: true,
+      }
+    ),
+    []
+  );
+
+  const handleRegister = async () => {
+    const completedUser = await completeRegistration(username);
+    setUser(completedUser);
   };
 
   return (
@@ -42,8 +90,17 @@ export const MainLayout = () => {
             type="text"
             autoComplete="username"
             inputMode="text"
+            value={username}
+            onChange={handleUsernameChange}
+            error={usernameError}
           />
-          <Button loaderProps={{ type: "dots" }}>Complete setup</Button>
+          <Button
+            loaderProps={{ type: "dots" }}
+            disabled={!!usernameError || !isUniqueUsername}
+            onClick={handleRegister}
+          >
+            Complete setup
+          </Button>
         </Stack>
       </Modal>
     </>

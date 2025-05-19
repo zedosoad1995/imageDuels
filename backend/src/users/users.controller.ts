@@ -7,6 +7,7 @@ import {
   HttpCode,
   NotFoundException,
   Patch,
+  Query,
   UnauthorizedException,
   UseGuards,
   UsePipes,
@@ -42,6 +43,29 @@ export class UsersController {
     }
 
     return getMeSchema.parse(loggedUser);
+  }
+
+  @Get('check-username')
+  async checkUsername(@Query('username') username?: string) {
+    if (!username) {
+      throw new NotFoundException(
+        "query 'username' is required and cannot be empty",
+      );
+    }
+
+    if (username.length < 3) {
+      throw new NotFoundException('username must have at least 3 character');
+    }
+
+    if (username.length > 20) {
+      throw new NotFoundException('username can have at most 20 characters');
+    }
+
+    if (!/^[^\s]+$/.test(username)) {
+      throw new NotFoundException('username cannot have white spaces');
+    }
+
+    return { exists: await this.usersService.isUsernameTaken(username) };
   }
 
   @Patch('complete-registration')
