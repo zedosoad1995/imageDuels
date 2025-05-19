@@ -10,7 +10,7 @@ import { usePage } from "../../Hooks/usePage";
 
 export const Settings = () => {
   const navigate = useNavigate();
-  const { user, setUser, setLoggedIn } = useContext(UserContext);
+  const { user, setUser } = useContext(UserContext);
   usePage("settings");
 
   const [canSeeNSFW, setCanSeeNSFW] = useState(user?.canSeeNSFW as boolean);
@@ -54,7 +54,6 @@ export const Settings = () => {
       onConfirm: async () => {
         await deleteMe();
         setUser(null);
-        setLoggedIn(false);
         navigate("/");
         // TODO: when exception is thrown it should not close, and show a notification. Or not even close but show the notification
       },

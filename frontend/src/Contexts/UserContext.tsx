@@ -1,7 +1,7 @@
-import React, { createContext, useEffect, useState } from "react";
+import React, { createContext, useEffect, useMemo, useState } from "react";
 import { IUser } from "../Types/user";
 import { getMe } from "../Api/users";
-import { loginGoogle as loginAPI } from "../Api/auth";
+import { logout as logoutAPI } from "../Api/auth";
 
 interface UserProviderProps {
   children: React.ReactNode;
@@ -12,8 +12,7 @@ interface UserContextProps {
   setUser: React.Dispatch<React.SetStateAction<IUser | null>>;
   loggedIn: boolean;
   isFetchingLoggedUser: boolean;
-  setLoggedIn: React.Dispatch<React.SetStateAction<boolean>>;
-  login: () => Promise<void>;
+  logout: () => Promise<void>;
 }
 
 export const UserContext = createContext<UserContextProps>({
@@ -21,13 +20,11 @@ export const UserContext = createContext<UserContextProps>({
   setUser: () => {},
   loggedIn: false,
   isFetchingLoggedUser: false,
-  setLoggedIn: () => {},
-  login: async () => {},
+  logout: async () => {},
 });
 
 export const UserProvider = ({ children }: UserProviderProps) => {
   const [user, setUser] = useState<IUser | null>(null);
-  const [loggedIn, setLoggedIn] = useState(false);
   const [isFetchingLoggedUser, setIsFetchingLoggedUser] = useState(false);
 
   useEffect(() => {
@@ -35,20 +32,21 @@ export const UserProvider = ({ children }: UserProviderProps) => {
     getMe()
       .then((user) => {
         setUser(user);
-        setLoggedIn(true);
       })
       .catch(() => {
         setUser(null);
-        setLoggedIn(false);
       })
       .finally(() => {
         setIsFetchingLoggedUser(false);
       });
   }, []);
 
-  const login = () => {
-    loginAPI();
+  const logout = async () => {
+    await logoutAPI();
+    setUser(null);
   };
+
+  const loggedIn = useMemo(() => !!user, [user]);
 
   return (
     <UserContext.Provider
@@ -57,8 +55,7 @@ export const UserProvider = ({ children }: UserProviderProps) => {
         setUser,
         loggedIn,
         isFetchingLoggedUser,
-        setLoggedIn,
-        login,
+        logout,
       }}
     >
       {children}

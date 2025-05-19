@@ -1,12 +1,10 @@
-import { useContext, useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router";
 import { Anchor, Container, Stack, Text, Title } from "@mantine/core";
-import { UserContext } from "../../Contexts/UserContext";
 import { GoogleButton } from "../../Components/GoogleButton/GoogleButton";
 
 export const Login = () => {
   const navigate = useNavigate();
-  const { login } = useContext(UserContext);
 
   const [isLoading, setIsLoading] = useState(false);
 
@@ -14,7 +12,8 @@ export const Login = () => {
     setIsLoading(true);
 
     try {
-      login();
+      // TODO: maybe open another window?
+      window.location.href = import.meta.env.VITE_API_URL + "/auth/google";
     } finally {
       setIsLoading(false);
     }

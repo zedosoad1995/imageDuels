@@ -3,6 +3,7 @@ export interface IUser {
   email: string;
   role: "REGULAR" | "ADMIN";
   canSeeNSFW: boolean;
+  isProfileCompleted: boolean;
 }
 
 export interface IEditUserBody {

@@ -11,7 +11,6 @@ import SignUpIcon from "../../../../assets/svgs/sign-up.svg?react";
 import { useNavigate } from "react-router";
 import { useContext } from "react";
 import { UserContext } from "../../../../Contexts/UserContext";
-import { logout } from "../../../../Api/auth";
 import { usePage } from "../../../../Hooks/usePage";
 
 export const Sidebar = () => {
@@ -19,7 +18,7 @@ export const Sidebar = () => {
   const navigate = useNavigate();
   const page = usePage();
 
-  const { loggedIn, setUser, setLoggedIn } = useContext(UserContext);
+  const { loggedIn, logout } = useContext(UserContext);
 
   const handleClickLogo = () => {
     navigate("/");
@@ -40,8 +39,6 @@ export const Sidebar = () => {
 
   const handleClickLogout = async () => {
     await logout();
-    setUser(null);
-    setLoggedIn(false);
     navigate("/");
   };
 

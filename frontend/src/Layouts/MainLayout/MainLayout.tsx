@@ -1,19 +1,51 @@
-import { AppShell } from "@mantine/core";
-import { Outlet } from "react-router";
+import { AppShell, Button, Modal, Stack, TextInput } from "@mantine/core";
+import { Outlet, useNavigate } from "react-router";
 import classes from "./MainLayout.module.css";
 import { Sidebar } from "./components/Sidebar/Sidebar";
+import { useContext, useState } from "react";
+import { UserContext } from "../../Contexts/UserContext";
 
 export const MainLayout = () => {
-  return (
-    <AppShell
-      navbar={{ width: 280, breakpoint: 1 }}
-      padding={{ sm: "lg", base: "sm" }}
-    >
-      <Sidebar />
+  const { user, logout } = useContext(UserContext);
 
-      <AppShell.Main className={classes.main}>
-        <Outlet />
-      </AppShell.Main>
-    </AppShell>
+  const navigate = useNavigate();
+
+  const [] = useState();
+
+  const handleCloseSetupModal = async () => {
+    await logout();
+    navigate("/");
+  };
+
+  return (
+    <>
+      <AppShell
+        navbar={{ width: 280, breakpoint: 1 }}
+        padding={{ sm: "lg", base: "sm" }}
+      >
+        <Sidebar />
+
+        <AppShell.Main className={classes.main}>
+          <Outlet />
+        </AppShell.Main>
+      </AppShell>
+      <Modal
+        opened={!!user && !user.isProfileCompleted}
+        onClose={handleCloseSetupModal}
+        title="Complete Setup"
+        centered
+      >
+        <Stack gap="md">
+          <TextInput
+            label="Username"
+            placeholder="Username"
+            type="text"
+            autoComplete="username"
+            inputMode="text"
+          />
+          <Button loaderProps={{ type: "dots" }}>Complete setup</Button>
+        </Stack>
+      </Modal>
+    </>
   );
 };
