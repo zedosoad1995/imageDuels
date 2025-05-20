@@ -6,8 +6,12 @@ import { prisma } from 'src/common/helpers/prisma';
 
 export const LoggedUser = createParamDecorator(
   async (
-    { getTokenFromHeader }: { getTokenFromHeader: boolean } = {
+    {
+      getTokenFromHeader,
+      fetchUser,
+    }: { getTokenFromHeader?: boolean; fetchUser?: boolean } = {
       getTokenFromHeader: false,
+      fetchUser: false,
     },
     ctx: ExecutionContext,
   ) => {
@@ -15,12 +19,16 @@ export const LoggedUser = createParamDecorator(
 
     if (getTokenFromHeader) {
       try {
-        const loggedUser = await prisma.user.findUnique({
-          where: {
-            id: request.user?.id,
-          },
-        });
-        return loggedUser;
+        if (fetchUser) {
+          const loggedUser = await prisma.user.findUnique({
+            where: {
+              id: request.user?.id,
+            },
+          });
+          return loggedUser;
+        }
+
+        return request.user;
       } catch {
         return;
       }
@@ -58,7 +66,8 @@ export const UserId = createParamDecorator(
       });
 
       return payload?.user?.id;
-    } catch {
+    } catch (err) {
+      console.error(err);
       return;
     }
   },

@@ -8,12 +8,13 @@ import {
   UseGuards,
   UsePipes,
 } from '@nestjs/common';
-import { AuthGuard } from 'src/auth/auth.guards';
+import { AuthGuard } from 'src/auth/auth.guard';
 import { ZodValidationPipe } from 'src/common/pipes/zodValidation';
 import { VoteDto, voteSchema } from './dto/vote.dto';
 import { DuelsService } from './duels.service';
+import { ProfileCompletedGuard } from 'src/users/guards/profileCompleted.guard';
 
-@UseGuards(AuthGuard)
+@UseGuards(AuthGuard(true), ProfileCompletedGuard)
 @Controller('duels')
 export class DuelsController {
   constructor(private readonly duelsService: DuelsService) {}

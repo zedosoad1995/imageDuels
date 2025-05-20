@@ -6,7 +6,6 @@ import { useCallback, useContext, useState } from "react";
 import { UserContext } from "../../Contexts/UserContext";
 import debounce from "lodash.debounce";
 import { checkUsername, completeRegistration } from "../../Api/users";
-import { register } from "../../Api/auth";
 
 export const MainLayout = () => {
   const { user, logout, setUser } = useContext(UserContext);

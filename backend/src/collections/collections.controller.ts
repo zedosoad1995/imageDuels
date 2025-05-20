@@ -18,7 +18,7 @@ import {
   Patch,
 } from '@nestjs/common';
 import { CollectionsService } from './collections.service';
-import { AuthGuard } from 'src/auth/auth.guards';
+import { AuthGuard } from 'src/auth/auth.guard';
 import {
   CreateCollectionDto,
   createCollectionSchema,
@@ -42,6 +42,7 @@ import { generateRandomString } from 'src/common/helpers/random';
 import { LoggedUser, UserId } from 'src/users/users.decorator';
 import { User } from '@prisma/client';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
+import { ProfileCompletedGuard } from 'src/users/guards/profileCompleted.guard';
 
 const UPLOAD_FOLDER = './uploads';
 
@@ -55,7 +56,7 @@ export class CollectionsController {
 
   @Get('')
   async getMany(
-    @LoggedUser() user: User | null,
+    @LoggedUser({ fetchUser: true }) user: User | null,
     @Query('onlySelf', new DefaultValuePipe(false), ParseBoolPipe)
     onlySelf: boolean,
     @Query('orderBy', new DefaultValuePipe('new'))
@@ -73,7 +74,7 @@ export class CollectionsController {
 
   @Get(':collectionId')
   async getOne(
-    @LoggedUser() user: User | null,
+    @LoggedUser({ fetchUser: true }) user: User | null,
     @Param('collectionId') collectionId: string,
   ) {
     const collection = await this.collectionsService.getOne(
@@ -97,14 +98,14 @@ export class CollectionsController {
     return collectionResSchema.parse(collection);
   }
 
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard(true), ProfileCompletedGuard)
   @UsePipes(new ZodValidationPipe(createCollectionSchema))
   @Post('')
   create(@Body() createCollectionDto: CreateCollectionDto, @Request() req) {
     return this.collectionsService.create(createCollectionDto, req.user.id);
   }
 
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard(true), ProfileCompletedGuard)
   @UsePipes(new ZodValidationPipe(editCollectionSchema))
   @Patch(':collectionId')
   edit(
@@ -120,7 +121,7 @@ export class CollectionsController {
     );
   }
 
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard(true), ProfileCompletedGuard)
   @Post(':collectionId/add-image')
   @UseInterceptors(
     FileInterceptor('image', {
@@ -162,7 +163,7 @@ export class CollectionsController {
     return { duelId, image1: image1.filepath, image2: image2.filepath };
   }
 
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard(true), ProfileCompletedGuard)
   @Delete(':collectionId')
   @HttpCode(204)
   async deleteOne(

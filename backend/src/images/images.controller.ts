@@ -8,20 +8,24 @@ import {
 } from '@nestjs/common';
 import { ImagesService } from './images.service';
 import { unlink } from 'fs';
-import { AuthGuard } from 'src/auth/auth.guards';
+import { AuthGuard } from 'src/auth/auth.guard';
 import { User } from '@prisma/client';
 import { LoggedUser } from 'src/users/users.decorator';
+import { ProfileCompletedGuard } from 'src/users/guards/profileCompleted.guard';
 
 const UPLOAD_FOLDER = './uploads';
 
-@UseGuards(AuthGuard)
+@UseGuards(AuthGuard(true), ProfileCompletedGuard)
 @Controller('images')
 export class ImagesController {
   constructor(private readonly imagesService: ImagesService) {}
 
   @Delete(':imageId')
   @HttpCode(204)
-  async deleteOne(@LoggedUser() user: User, @Param('imageId') imageId: string) {
+  async deleteOne(
+    @LoggedUser({ fetchUser: true }) user: User,
+    @Param('imageId') imageId: string,
+  ) {
     const image = await this.imagesService.deleteOne(
       imageId,
       user.id,
