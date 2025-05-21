@@ -36,6 +36,7 @@ model Collection {
   question    String?
   mode        CollectionModeEnum
   isNSFW      Boolean            @default(false)
+  isLive      Boolean            @default(false)
   owner       User               @relation(fields: [ownerId], references: [id], onDelete: Cascade)
   ownerId     String
   createdAt   DateTime           @default(now())

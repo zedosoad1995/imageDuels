@@ -7,6 +7,8 @@ const collectionSchema = z.object({
   description: z.string().nullable(),
   mode: z.string(),
   isNSFW: z.boolean(),
+  isLive: z.boolean(),
+  isValid: z.boolean(),
 });
 
 export const collectionResSchema = z.object({

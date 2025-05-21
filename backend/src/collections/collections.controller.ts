@@ -65,7 +65,7 @@ export class CollectionsController {
     const collections = await this.collectionsService.getMany({
       userId: onlySelf ? user?.id : undefined,
       showNSFW: user?.canSeeNSFW,
-      showAll: user?.role === 'ADMIN',
+      showAllModes: user?.role === 'ADMIN',
       orderBy,
     });
 
@@ -85,10 +85,24 @@ export class CollectionsController {
       },
     );
 
-    if (
+    const isPersonalFromOtherUser =
       user?.role !== 'ADMIN' &&
-      collection?.mode === 'PERSONAL' &&
-      collection?.ownerId !== user?.id
+      collection.mode === 'PERSONAL' &&
+      collection.ownerId !== user?.id;
+
+    const isReadyToBeSeenByOthers =
+      user?.role !== 'ADMIN' &&
+      collection.ownerId !== user?.id &&
+      collection.isLive &&
+      this.collectionsService.isValid(collection.images.length);
+
+    const isNSFWAndUserIsAGoodBoy =
+      (!user || !user?.canSeeNSFW) && collection.isNSFW;
+
+    if (
+      isPersonalFromOtherUser ||
+      !isReadyToBeSeenByOthers ||
+      isNSFWAndUserIsAGoodBoy
     ) {
       throw new NotFoundException(
         `Collection id ${collectionId} does not exist`,

@@ -11,14 +11,15 @@ import { EditCollectionDto } from './dto/editCollection.dto';
 
 @Injectable()
 export class CollectionsService {
-  async getMany({ userId, orderBy, showAll, showNSFW }: IGetCollections = {}) {
+  async getMany({ userId, orderBy, showAllModes, showNSFW }: IGetCollections) {
     const whereQuery: Prisma.CollectionWhereInput = {};
     const orderByQuery: Prisma.CollectionOrderByWithRelationInput = {};
 
     if (userId) {
       whereQuery.ownerId = userId;
-    } else if (!showAll) {
+    } else if (!showAllModes) {
       whereQuery.mode = 'PUBLIC';
+      whereQuery.isLive = true;
     }
 
     if (!showNSFW) {
@@ -77,6 +78,7 @@ export class CollectionsService {
       totalImages: _count.images,
       totalVotes: votesMap[collection.id] || 0,
       thumbnailImages: images.map(({ filepath }) => filepath),
+      isValid: this.isValid(_count.images),
     }));
 
     if (orderBy === 'popular') {
@@ -128,6 +130,10 @@ export class CollectionsService {
     };
 
     return transformedCollection;
+  }
+
+  isValid(numImages: number) {
+    return numImages >= 2;
   }
 
   async create(collection: CreateCollectionDto, userId: string) {
