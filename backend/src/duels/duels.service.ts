@@ -44,7 +44,7 @@ export class DuelsService {
     });
 
     if (!duel) {
-      throw new NotFoundException(`Duel id ${duelId} not found`);
+      throw new NotFoundException(`Duel not found`);
     }
 
     const image1 = duel.image1;
@@ -59,7 +59,7 @@ export class DuelsService {
 
     const collection = image1.collection;
     if (collection.mode === 'PERSONAL' && collection.ownerId !== userId) {
-      throw new NotFoundException(`Duel id ${duelId} not found`);
+      throw new NotFoundException(`Duel not found`);
     }
 
     return [image1, image2];

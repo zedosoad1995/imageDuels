@@ -1,6 +1,6 @@
 import { useContext, useState } from "react";
 import { useParams } from "react-router";
-import { Badge, Group, Tabs, Text } from "@mantine/core";
+import { Badge, Group, Tabs, Text, Tooltip } from "@mantine/core";
 import { Images } from "./Components/Images/Images";
 import { About } from "./Components/About/About";
 import { Vote } from "./Components/Vote/Vote";
@@ -11,9 +11,11 @@ import {
 import { UserContext } from "../../Contexts/UserContext";
 import { CopyButton } from "../../Components/CopyButton/CopyButton";
 import { usePage } from "../../Hooks/usePage";
+import { editCollection } from "../../Api/collections";
 
 export const CollectionChild = () => {
-  const { collection, fetchCollection } = useContext(CollectionContext);
+  const { collection, fetchCollection, setCollection } =
+    useContext(CollectionContext);
   const { loggedIn } = useContext(UserContext);
   usePage("explore");
 
@@ -23,6 +25,13 @@ export const CollectionChild = () => {
     // TODO: placeholder when not found
     return null;
   }
+
+  const handleClickOffline = async () => {
+    await editCollection(collection.id, {
+      isLive: true,
+    });
+    await fetchCollection();
+  };
 
   return (
     <>
@@ -34,6 +43,25 @@ export const CollectionChild = () => {
           <Badge size="xs" color="red">
             NSFW
           </Badge>
+        )}
+        {!collection.isValid && (
+          <Tooltip label="You must upload at least 2 images">
+            <Badge size="xs" color="gray">
+              Invalid
+            </Badge>
+          </Tooltip>
+        )}
+        {!collection.isLive && collection.isValid && (
+          <Tooltip label="Click here, to go Live!">
+            <Badge
+              size="xs"
+              color="gray"
+              style={{ cursor: "pointer" }}
+              onClick={handleClickOffline}
+            >
+              Offline
+            </Badge>
+          </Tooltip>
         )}
       </Group>
       {showSubtitle && (

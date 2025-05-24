@@ -1,11 +1,4 @@
-import {
-  Controller,
-  Delete,
-  HttpCode,
-  Param,
-  Request,
-  UseGuards,
-} from '@nestjs/common';
+import { Controller, Delete, HttpCode, Param, UseGuards } from '@nestjs/common';
 import { ImagesService } from './images.service';
 import { unlink } from 'fs';
 import { AuthGuard } from 'src/auth/auth.guard';

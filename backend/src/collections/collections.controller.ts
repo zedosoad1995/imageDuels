@@ -90,18 +90,24 @@ export class CollectionsController {
       collection.mode === 'PERSONAL' &&
       collection.ownerId !== user?.id;
 
-    const isReadyToBeSeenByOthers =
+    const isNotReadyToBeSeenByOthers =
       user?.role !== 'ADMIN' &&
       collection.ownerId !== user?.id &&
-      collection.isLive &&
-      this.collectionsService.isValid(collection.images.length);
+      (!collection.isLive ||
+        !this.collectionsService.isValid(collection.images.length));
 
     const isNSFWAndUserIsAGoodBoy =
       (!user || !user?.canSeeNSFW) && collection.isNSFW;
 
+    console.log(
+      isPersonalFromOtherUser,
+      isNotReadyToBeSeenByOthers,
+      isNSFWAndUserIsAGoodBoy,
+    );
+
     if (
       isPersonalFromOtherUser ||
-      !isReadyToBeSeenByOthers ||
+      isNotReadyToBeSeenByOthers ||
       isNSFWAndUserIsAGoodBoy
     ) {
       throw new NotFoundException(
@@ -109,7 +115,10 @@ export class CollectionsController {
       );
     }
 
-    return collectionResSchema.parse(collection);
+    return collectionResSchema.parse({
+      ...collection,
+      isValid: this.collectionsService.isValid(collection.images.length),
+    });
   }
 
   @UseGuards(AuthGuard(true), ProfileCompletedGuard)

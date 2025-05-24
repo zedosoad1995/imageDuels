@@ -7,6 +7,8 @@ export interface ICollection {
   question: string | null;
   description: string | null;
   isNSFW: boolean;
+  isLive: boolean;
+  isValid: boolean;
   createdBy: string;
 }
 
@@ -39,6 +41,7 @@ export interface ICreateCollectionBody {
   description: string | null;
   question: string | null;
   isNSFW: boolean;
+  isLive: boolean;
 }
 
 export type IEditCollectionBody = Partial<ICreateCollectionBody>;

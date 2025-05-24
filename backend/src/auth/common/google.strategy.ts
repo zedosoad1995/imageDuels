@@ -19,4 +19,8 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
       email: profile.emails?.[0].value,
     };
   }
+
+  authorizationParams(options: any) {
+    return Object.assign(options, { prompt: 'select_account' });
+  }
 }

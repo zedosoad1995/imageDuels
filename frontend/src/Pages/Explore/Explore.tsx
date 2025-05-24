@@ -90,6 +90,7 @@ export const Explore = () => {
                 justify="flex-start"
                 wrap="nowrap"
                 style={{ overflow: "hidden" }}
+                gap={2}
               >
                 {thumbnailImages.map((filepath) => (
                   <div

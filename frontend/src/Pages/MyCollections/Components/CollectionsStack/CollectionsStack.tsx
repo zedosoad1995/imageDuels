@@ -1,4 +1,4 @@
-import { Card, Group, Stack, Text } from "@mantine/core";
+import { Badge, Card, Group, Stack, Text } from "@mantine/core";
 import { Image } from "../../../../Components/Image/Image";
 import { IGetCollections } from "../../../../Types/collection";
 import classes from "./CollectionsStack.module.css";
@@ -18,7 +18,16 @@ export const CollectionsStack = ({ collections }: Props) => {
   return (
     <Stack gap={12}>
       {collections.map(
-        ({ id, title, thumbnailImages, totalVotes, totalImages }) => (
+        ({
+          id,
+          title,
+          thumbnailImages,
+          totalVotes,
+          totalImages,
+          isNSFW,
+          isLive,
+          isValid,
+        }) => (
           <Card
             key={id}
             className={classes.card}
@@ -26,9 +35,24 @@ export const CollectionsStack = ({ collections }: Props) => {
             p="xs"
             withBorder
           >
-            <Text fw={700} mb={8}>
-              {title}
-            </Text>
+            <Group mb={8}>
+              <Text fw={700}>{title}</Text>
+              {isNSFW && (
+                <Badge size="xs" color="red">
+                  NSFW
+                </Badge>
+              )}
+              {!isValid && (
+                <Badge size="xs" color="gray">
+                  Invalid
+                </Badge>
+              )}
+              {!isLive && isValid && (
+                <Badge size="xs" color="gray">
+                  Offline
+                </Badge>
+              )}
+            </Group>
             <Group
               justify="flex-start"
               wrap="nowrap"
