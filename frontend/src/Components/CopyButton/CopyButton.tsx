@@ -1,6 +1,5 @@
 import {
   ActionIcon,
-  ActionIconProps,
   CopyButton as MantineCopyButton,
   Tooltip,
 } from "@mantine/core";

@@ -99,12 +99,6 @@ export class CollectionsController {
     const isNSFWAndUserIsAGoodBoy =
       (!user || !user?.canSeeNSFW) && collection.isNSFW;
 
-    console.log(
-      isPersonalFromOtherUser,
-      isNotReadyToBeSeenByOthers,
-      isNSFWAndUserIsAGoodBoy,
-    );
-
     if (
       isPersonalFromOtherUser ||
       isNotReadyToBeSeenByOthers ||
