@@ -16,7 +16,7 @@ import {
 } from "../../Types/collection";
 import { UserContext } from "../../Contexts/UserContext";
 import { usePage } from "../../Hooks/usePage";
-import { getImageURL } from "../../Utils/image";
+import { Collage } from "./Components/Collage/Collage";
 
 const orderValues: { value: IGetCollectionsOrderBy; label: string }[] = [
   {
@@ -65,63 +65,41 @@ export const Explore = () => {
             mode,
             isNSFW,
             createdBy,
-          }) => (
-            <Card
-              key={id}
-              className={classes.card}
-              onClick={handleClickCollection(id)}
-              p="xs"
-              withBorder
-            >
-              <Group mb={8}>
-                <Text fw={700}>{title}</Text>
-                {user?.role === "ADMIN" && (
-                  <Badge size="xs" color="gray">
-                    {mode.toLowerCase()}
-                  </Badge>
-                )}
-                {isNSFW && (
-                  <Badge size="xs" color="red">
-                    NSFW +18
-                  </Badge>
-                )}
-              </Group>
-              <Group
-                justify="flex-start"
-                wrap="nowrap"
-                style={{ overflow: "hidden" }}
-                gap={2}
+          }) => {
+            return (
+              <Card
+                key={id}
+                className={classes.card}
+                onClick={handleClickCollection(id)}
+                p="xs"
+                withBorder
               >
-                {thumbnailImages.map((filepath) => (
-                  <div
-                    key={filepath}
-                    style={{
-                      borderRadius: 4,
-                      overflow: "hidden",
-                    }}
-                  >
-                    <img
-                      src={getImageURL(filepath)}
-                      style={{
-                        height: 180,
-                        minWidth: "100%",
-                        display: "block",
-                      }}
-                    />
-                  </div>
-                ))}
-              </Group>
-              <Text fw={300} size="xs" mt={8}>
-                {totalVotes} votes • {totalImages} images
-                {user?.role === "ADMIN" && (
-                  <>
-                    {" "}
-                    • by <i>{createdBy}</i>
-                  </>
-                )}
-              </Text>
-            </Card>
-          )
+                <Group mb={8}>
+                  <Text fw={700}>{title}</Text>
+                  {user?.role === "ADMIN" && (
+                    <Badge size="xs" color="gray">
+                      {mode.toLowerCase()}
+                    </Badge>
+                  )}
+                  {isNSFW && (
+                    <Badge size="xs" color="red">
+                      NSFW +18
+                    </Badge>
+                  )}
+                </Group>
+                <Collage height={220} images={thumbnailImages} />
+                <Text fw={300} size="xs" mt={8}>
+                  {totalVotes} votes • {totalImages} images
+                  {user?.role === "ADMIN" && (
+                    <>
+                      {" "}
+                      • by <i>{createdBy}</i>
+                    </>
+                  )}
+                </Text>
+              </Card>
+            );
+          }
         )}
       </Stack>
     </>
