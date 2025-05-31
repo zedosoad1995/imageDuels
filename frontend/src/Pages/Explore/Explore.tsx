@@ -1,15 +1,7 @@
 import { useContext, useEffect, useState } from "react";
 import { getCollections } from "../../Api/collections";
-import classes from "./Explore.module.css";
 import { useNavigate } from "react-router";
-import {
-  Card,
-  Stack,
-  Text,
-  Group,
-  SegmentedControl,
-  Badge,
-} from "@mantine/core";
+import { Text, Group, SegmentedControl, Badge, Grid } from "@mantine/core";
 import {
   IGetCollections,
   IGetCollectionsOrderBy,
@@ -54,7 +46,7 @@ export const Explore = () => {
         value={orderBy}
         onChange={handleChangeOrderBy}
       />
-      <Stack gap={12}>
+      <Grid>
         {collections.map(
           ({
             id,
@@ -67,14 +59,14 @@ export const Explore = () => {
             createdBy,
           }) => {
             return (
-              <Card
+              <Grid.Col
                 key={id}
-                className={classes.card}
+                span={{ base: 12, xs: 6, lg: 4 }}
+                className="collectionExploreBase"
                 onClick={handleClickCollection(id)}
-                p="xs"
-                withBorder
               >
-                <Group mb={8}>
+                <Collage images={thumbnailImages} />
+                <Group mt={2} pl={0} gap={8}>
                   <Text fw={700}>{title}</Text>
                   {user?.role === "ADMIN" && (
                     <Badge size="xs" color="gray">
@@ -87,8 +79,7 @@ export const Explore = () => {
                     </Badge>
                   )}
                 </Group>
-                <Collage height={220} images={thumbnailImages} />
-                <Text fw={300} size="xs" mt={8}>
+                <Text fw={300} size="xs" pl={0}>
                   {totalVotes} votes • {totalImages} images
                   {user?.role === "ADMIN" && (
                     <>
@@ -97,11 +88,11 @@ export const Explore = () => {
                     </>
                   )}
                 </Text>
-              </Card>
+              </Grid.Col>
             );
           }
         )}
-      </Stack>
+      </Grid>
     </>
   );
 };

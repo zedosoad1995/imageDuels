@@ -1,0 +1,38 @@
+.base {
+  position: relative;
+  width: 100%;
+  padding-top: calc((100% - 1px) * 2 / 3);
+
+  .overlay {
+    display: none;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    z-index: 10;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .images {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    display: flex;
+    overflow: hidden;
+    border-radius: 8px;
+    gap: 1px !important;
+  }
+}
+
+:global(.collectionExploreBase:hover) .base .overlay {
+  display: block;
+  background-color: #00000050;
+}
+
+:global(.collectionExploreBase:hover) {
+  cursor: pointer;
+}
