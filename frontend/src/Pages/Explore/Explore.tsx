@@ -61,7 +61,7 @@ export const Explore = () => {
             return (
               <Grid.Col
                 key={id}
-                span={{ base: 12, xs: 6, lg: 4 }}
+                span={{ base: 12, xs: 6, lg: 4, xl: 3 }}
                 className="collectionExploreBase"
                 onClick={handleClickCollection(id)}
               >

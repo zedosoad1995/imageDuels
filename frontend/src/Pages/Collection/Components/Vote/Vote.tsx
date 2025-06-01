@@ -5,9 +5,9 @@ import { useNavigate, useParams } from "react-router";
 import classes from "./Vote.module.css";
 import { vote, VoteOutcome } from "../../../../Api/duels";
 import { IGetCollection } from "../../../../Types/collection";
-import { Image } from "../../../../Components/Image/Image";
 import { UserContext } from "../../../../Contexts/UserContext";
 import { modals } from "@mantine/modals";
+import { getImageURL } from "../../../../Utils/image";
 
 interface Props {
   collection: IGetCollection;
@@ -97,18 +97,82 @@ export const Vote = ({ collection }: Props) => {
           withBorder
           className={classes.imageCard}
           onClick={handleVote("WIN")}
+          bg="#FAFAFA"
+          radius={12}
         >
-          <Card.Section withBorder style={{ textAlign: "center" }}>
-            <Image filepath={image1} />
+          <Card.Section
+            withBorder
+            style={{
+              display: "flex",
+              aspectRatio: "1 / 1",
+              position: "relative",
+            }}
+          >
+            <img
+              style={{
+                position: "absolute",
+                inset: 0,
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+                filter: "blur(40px) brightness(1.2)",
+                opacity: 0.4,
+                transform: "scale(1.1)",
+              }}
+              src={getImageURL(image1)}
+            />
+            <img
+              style={{
+                position: "absolute",
+                inset: 0,
+                width: "100%",
+                height: "100%",
+                objectFit: "contain",
+                zIndex: 1,
+              }}
+              src={getImageURL(image1)}
+            />
           </Card.Section>
         </Card>
         <Card
           withBorder
           className={classes.imageCard}
           onClick={handleVote("LOSS")}
+          bg="#FAFAFA"
+          radius={12}
         >
-          <Card.Section withBorder style={{ textAlign: "center" }}>
-            <Image filepath={image2} />
+          <Card.Section
+            withBorder
+            style={{
+              display: "flex",
+              aspectRatio: "1 / 1",
+              position: "relative",
+            }}
+          >
+            <img
+              style={{
+                position: "absolute",
+                inset: 0,
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+                filter: "blur(40px) brightness(1.2)",
+                opacity: 0.4,
+                transform: "scale(1.1)",
+              }}
+              src={getImageURL(image2)}
+            />
+            <img
+              style={{
+                position: "absolute",
+                inset: 0,
+                width: "100%",
+                height: "100%",
+                objectFit: "contain",
+                zIndex: 1,
+              }}
+              src={getImageURL(image2)}
+            />
           </Card.Section>
         </Card>
       </Flex>

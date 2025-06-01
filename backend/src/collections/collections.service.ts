@@ -46,7 +46,7 @@ export class CollectionsService {
           orderBy: {
             rating: 'desc',
           },
-          take: 6,
+          take: 3,
         },
         owner: {
           select: {
