@@ -56,8 +56,8 @@ export const Sidebar = () => {
       <div className={classes.navbarMain}>
         <div className={classes.header}>
           <UnstyledButton className={classes.logoBtn} onClick={handleClickLogo}>
-            <Logo height={33} color={theme.colors.blue[6]} />
-            <Text size="xl" fw={700}>
+            <Logo height={22} color={theme.colors.blue[6]} />
+            <Text size="l" fw={700}>
               IMAGE DUELS
             </Text>
           </UnstyledButton>

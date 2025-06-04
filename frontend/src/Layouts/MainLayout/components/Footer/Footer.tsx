@@ -1,0 +1,77 @@
+import { AppShell, Button, Menu } from "@mantine/core";
+import ExploreIcon from "../../../../assets/svgs/explore.svg?react";
+import CollectionsIcon from "../../../../assets/svgs/collections.svg?react";
+import AddIcon from "../../../../assets/svgs/add-box.svg?react";
+import AccountIcon from "../../../../assets/svgs/account.svg?react";
+import classes from "./Footer.module.css";
+import { usePage } from "../../../../Hooks/usePage";
+import { useContext } from "react";
+import { UserContext } from "../../../../Contexts/UserContext";
+import { useNavigate } from "react-router";
+
+export const Footer = () => {
+  const page = usePage();
+  const { loggedIn, logout } = useContext(UserContext);
+  const navigate = useNavigate();
+
+  const handleClickLogout = async () => {
+    await logout();
+    navigate("/");
+  };
+
+  return (
+    <AppShell.Footer className={classes.base}>
+      <Button
+        variant={page === "explore" ? "light" : "subtle"}
+        className={classes.item}
+        onClick={() => navigate("/")}
+      >
+        <ExploreIcon className={classes.itemIcon} />
+      </Button>
+      <Button
+        variant={page === "create-collection" ? "light" : "subtle"}
+        className={classes.item}
+        onClick={() => navigate("/collections/create")}
+      >
+        <AddIcon className={classes.itemIcon} />
+      </Button>
+      {loggedIn && (
+        <Button
+          variant={page === "my-collections" ? "light" : "subtle"}
+          className={classes.item}
+          onClick={() => navigate("/collections/me")}
+        >
+          <CollectionsIcon className={classes.itemIcon} />
+        </Button>
+      )}
+      <Menu shadow="md" width={150} position="top-start">
+        <Menu.Target>
+          <Button
+            variant={page === "settings" ? "light" : "subtle"}
+            className={classes.item}
+          >
+            <AccountIcon className={classes.itemIcon} />
+          </Button>
+        </Menu.Target>
+        <Menu.Dropdown>
+          {!loggedIn && (
+            <>
+              <Menu.Item onClick={() => navigate("/login")}>Login</Menu.Item>
+              <Menu.Item onClick={() => navigate("/register")}>
+                Sign Up
+              </Menu.Item>
+            </>
+          )}
+          {loggedIn && (
+            <>
+              <Menu.Item onClick={() => navigate("/settings")}>
+                Settings
+              </Menu.Item>
+              <Menu.Item onClick={handleClickLogout}>Logout</Menu.Item>
+            </>
+          )}
+        </Menu.Dropdown>
+      </Menu>
+    </AppShell.Footer>
+  );
+};

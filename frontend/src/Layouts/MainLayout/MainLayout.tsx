@@ -6,9 +6,12 @@ import { useCallback, useContext, useState } from "react";
 import { UserContext } from "../../Contexts/UserContext";
 import debounce from "lodash.debounce";
 import { checkUsername, completeRegistration } from "../../Api/users";
+import { useMediaQuery } from "@mantine/hooks";
+import { Footer } from "./components/Footer/Footer";
 
 export const MainLayout = () => {
   const { user, logout, setUser } = useContext(UserContext);
+  const isLaptopOrTablet = useMediaQuery("(min-width: 800px)");
 
   const navigate = useNavigate();
 
@@ -64,17 +67,58 @@ export const MainLayout = () => {
     setUser(completedUser);
   };
 
+  // TODO: whem resizing and it changes layout, it makes new api calls
+
+  if (isLaptopOrTablet) {
+    return (
+      <>
+        <AppShell
+          navbar={{ width: 220, breakpoint: 1 }}
+          padding={{ sm: "lg", base: "sm" }}
+        >
+          <Sidebar />
+
+          <AppShell.Main className={classes.main}>
+            <Outlet />
+          </AppShell.Main>
+        </AppShell>
+        <Modal
+          opened={!!user && !user.isProfileCompleted}
+          onClose={handleCloseSetupModal}
+          title="Complete Setup"
+          centered
+        >
+          <Stack gap="md">
+            <TextInput
+              label="Username"
+              placeholder="Username"
+              type="text"
+              autoComplete="username"
+              inputMode="text"
+              value={username}
+              onChange={handleUsernameChange}
+              error={usernameError}
+            />
+            <Button
+              loaderProps={{ type: "dots" }}
+              disabled={!!usernameError || !isUniqueUsername}
+              onClick={handleRegister}
+            >
+              Complete setup
+            </Button>
+          </Stack>
+        </Modal>
+      </>
+    );
+  }
+
   return (
     <>
-      <AppShell
-        navbar={{ width: 280, breakpoint: 1 }}
-        padding={{ sm: "lg", base: "sm" }}
-      >
-        <Sidebar />
-
+      <AppShell padding="xs" pb={50 + 10}>
         <AppShell.Main className={classes.main}>
           <Outlet />
         </AppShell.Main>
+        <Footer />
       </AppShell>
       <Modal
         opened={!!user && !user.isProfileCompleted}
