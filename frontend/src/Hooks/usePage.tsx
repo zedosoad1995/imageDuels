@@ -1,7 +1,12 @@
 import { useContext, useEffect } from "react";
 import { PageContext } from "../Contexts/PageContext";
 
-type PageName = "explore" | "create-collection" | "my-collections" | "settings";
+type PageName =
+  | "explore"
+  | "create-collection"
+  | "my-collections"
+  | "settings"
+  | "collection";
 
 export const usePage = (name?: PageName) => {
   const { page, setPage } = useContext(PageContext);

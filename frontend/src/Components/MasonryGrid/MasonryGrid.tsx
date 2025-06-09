@@ -1,16 +1,42 @@
-import React, { useEffect, useRef, useState } from "react";
+import { useViewportSize } from "@mantine/hooks";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 
 interface Props {
   children: React.ReactNode;
-  numColumns: number;
+  numColumns: number | { base: number; [k: number]: number };
   gap?: number;
 }
 
 export const MasonryGrid = ({ children, numColumns, gap }: Props) => {
+  const { width: screenWidth } = useViewportSize();
+
   const containerRef = useRef<HTMLDivElement | null>(null);
   const elementsRef = useRef<(HTMLDivElement | null)[]>([]);
 
   const [columns, setColumns] = useState<React.ReactNode[][]>([]);
+
+  const realNumCols = useMemo(() => {
+    if (typeof numColumns === "number") {
+      return numColumns;
+    }
+
+    const { base, ...numColsObj } = numColumns;
+
+    const colSizes = Object.keys(numColsObj)
+      .map(Number)
+      .sort((a, b) => b - a);
+
+    if (!colSizes.length || screenWidth < colSizes[colSizes.length - 1]) {
+      return base;
+    }
+
+    const colSizeMin = colSizes.find((s) => screenWidth >= s);
+    if (!colSizeMin) {
+      return base;
+    }
+
+    return numColsObj[colSizeMin];
+  }, [numColumns, screenWidth]);
 
   useEffect(() => {
     if (React.Children.count(children) < elementsRef.current.length) {
@@ -38,9 +64,9 @@ export const MasonryGrid = ({ children, numColumns, gap }: Props) => {
         return;
       }
 
-      const heightCols = Array(numColumns).fill(0);
+      const heightCols = Array(realNumCols).fill(0);
       const cols: React.ReactNode[][] = Array.from(
-        { length: numColumns },
+        { length: realNumCols },
         () => []
       );
 
@@ -65,7 +91,7 @@ export const MasonryGrid = ({ children, numColumns, gap }: Props) => {
     return () => {
       observer.disconnect();
     };
-  }, [children]);
+  }, [children, realNumCols]);
 
   return (
     <div
@@ -96,7 +122,7 @@ export const MasonryGrid = ({ children, numColumns, gap }: Props) => {
             flexDirection: "row",
           }}
         >
-          {Array(numColumns)
+          {Array(realNumCols)
             .fill(undefined)
             .map((_, colIndex) => (
               <div

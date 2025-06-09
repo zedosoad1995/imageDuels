@@ -29,7 +29,7 @@ export const CollectionChild = () => {
   const { collection, fetchCollection, setCollection } =
     useContext(CollectionContext);
   const { loggedIn } = useContext(UserContext);
-  usePage("explore");
+  usePage("collection");
 
   const [showSubtitle, setShowSubtitle] = useState(false);
 

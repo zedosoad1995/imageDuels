@@ -114,7 +114,7 @@ export const Images = ({ collection }: Props) => {
         accept=".jpg, .jpeg, .png, .webp, .svg"
       />
 
-      <MasonryGrid numColumns={3} gap={4}>
+      <MasonryGrid numColumns={{ base: 1, 600: 2, 1200: 3 }} gap={4}>
         {collection.images.map(({ id, filepath, numVotes, percentile }) => (
           <ImageCard
             key={id}

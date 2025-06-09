@@ -73,7 +73,7 @@ export const MainLayout = () => {
     return (
       <>
         <AppShell
-          navbar={{ width: 220, breakpoint: 1 }}
+          navbar={{ width: 60, breakpoint: 1 }}
           padding={{ sm: "lg", base: "sm" }}
         >
           <Sidebar />

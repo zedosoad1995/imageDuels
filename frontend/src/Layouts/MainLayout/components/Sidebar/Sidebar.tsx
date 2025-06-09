@@ -54,21 +54,17 @@ export const Sidebar = () => {
   return (
     <AppShell.Navbar className={classes.navbar}>
       <div className={classes.navbarMain}>
-        <div className={classes.header}>
+        {/* <div className={classes.header}>
           <UnstyledButton className={classes.logoBtn} onClick={handleClickLogo}>
             <Logo height={22} color={theme.colors.blue[6]} />
-            <Text size="l" fw={700}>
-              IMAGE DUELS
-            </Text>
           </UnstyledButton>
-        </div>
+        </div> */}
         <UnstyledButton
           className={classes.item}
           onClick={handleClickLogo}
           data-active={page === "explore" || undefined}
         >
           <ExploreIcon className={classes.itemIcon} />
-          <span>Explore</span>
         </UnstyledButton>
         <UnstyledButton
           className={classes.item}
@@ -76,7 +72,6 @@ export const Sidebar = () => {
           data-active={page === "create-collection" || undefined}
         >
           <AddIcon className={classes.itemIcon} />
-          <span>Create Collection</span>
         </UnstyledButton>
         {loggedIn && (
           <UnstyledButton
@@ -85,7 +80,6 @@ export const Sidebar = () => {
             data-active={page === "my-collections" || undefined}
           >
             <CollectionsIcon className={classes.itemIcon} />
-            <span>My Collections</span>
           </UnstyledButton>
         )}
       </div>
@@ -98,14 +92,12 @@ export const Sidebar = () => {
               data-active={page === "settings" || undefined}
             >
               <SettingsIcon className={classes.itemIcon} />
-              <span>Settings</span>
             </UnstyledButton>
             <UnstyledButton
               className={classes.item}
               onClick={handleClickLogout}
             >
               <LogoutIcon className={classes.itemIcon} />
-              <span>Logout</span>
             </UnstyledButton>
           </>
         )}
@@ -113,11 +105,9 @@ export const Sidebar = () => {
           <>
             <UnstyledButton className={classes.item} onClick={handleLogin}>
               <LoginIcon className={classes.itemIcon} />
-              <span>Log In</span>
             </UnstyledButton>
             <UnstyledButton className={classes.item} onClick={handleSignUp}>
               <SignUpIcon className={classes.itemIcon} />
-              <span>Sign Up</span>
             </UnstyledButton>
           </>
         )}
