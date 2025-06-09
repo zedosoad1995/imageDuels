@@ -1,4 +1,4 @@
-import { AppShell, Button, Menu } from "@mantine/core";
+import { AppShell, Button, Menu, Tooltip } from "@mantine/core";
 import ExploreIcon from "../../../../assets/svgs/explore.svg?react";
 import CollectionsIcon from "../../../../assets/svgs/collections.svg?react";
 import AddIcon from "../../../../assets/svgs/add-box.svg?react";
@@ -21,37 +21,51 @@ export const Footer = () => {
 
   return (
     <AppShell.Footer className={classes.base}>
-      <Button
-        variant={page === "explore" ? "light" : "subtle"}
-        className={classes.item}
-        onClick={() => navigate("/")}
-      >
-        <ExploreIcon className={classes.itemIcon} />
-      </Button>
-      <Button
-        variant={page === "create-collection" ? "light" : "subtle"}
-        className={classes.item}
-        onClick={() => navigate("/collections/create")}
-      >
-        <AddIcon className={classes.itemIcon} />
-      </Button>
-      {loggedIn && (
+      <Tooltip position="top" label="Explore">
         <Button
-          variant={page === "my-collections" ? "light" : "subtle"}
+          variant={page === "explore" ? "light" : "subtle"}
           className={classes.item}
-          onClick={() => navigate("/collections/me")}
+          onClick={() => navigate("/")}
         >
-          <CollectionsIcon className={classes.itemIcon} />
+          <ExploreIcon className={classes.itemIcon} />
         </Button>
+      </Tooltip>
+
+      <Tooltip position="top" label="Create Collection">
+        <Button
+          variant={page === "create-collection" ? "light" : "subtle"}
+          className={classes.item}
+          onClick={() => navigate("/collections/create")}
+        >
+          <AddIcon className={classes.itemIcon} />
+        </Button>
+      </Tooltip>
+
+      {loggedIn && (
+        <Tooltip position="top" label="My Collections">
+          <Button
+            variant={page === "my-collections" ? "light" : "subtle"}
+            className={classes.item}
+            onClick={() => navigate("/collections/me")}
+          >
+            <CollectionsIcon className={classes.itemIcon} />
+          </Button>
+        </Tooltip>
       )}
       <Menu shadow="md" width={150} position="top-start">
         <Menu.Target>
-          <Button
-            variant={page === "settings" ? "light" : "subtle"}
-            className={classes.item}
-          >
-            <AccountIcon className={classes.itemIcon} />
-          </Button>
+          <Tooltip position="top" label="Account">
+            <Button
+              variant={
+                ["settings", "login", "register"].includes(page as string)
+                  ? "light"
+                  : "subtle"
+              }
+              className={classes.item}
+            >
+              <AccountIcon className={classes.itemIcon} />
+            </Button>
+          </Tooltip>
         </Menu.Target>
         <Menu.Dropdown>
           {!loggedIn && (

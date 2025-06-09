@@ -2,9 +2,11 @@ import { useState } from "react";
 import { useNavigate } from "react-router";
 import { Anchor, Container, Stack, Text, Title } from "@mantine/core";
 import { GoogleButton } from "../../Components/GoogleButton/GoogleButton";
+import { usePage } from "../../Hooks/usePage";
 
 export const Login = () => {
   const navigate = useNavigate();
+  usePage("login");
 
   const [isLoading, setIsLoading] = useState(false);
 

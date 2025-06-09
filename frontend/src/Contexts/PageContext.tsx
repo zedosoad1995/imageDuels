@@ -1,6 +1,12 @@
 import React, { createContext, useState } from "react";
 
-type PageName = "explore" | "create-collection" | "my-collections" | "settings";
+export type PageName =
+  | "explore"
+  | "create-collection"
+  | "my-collections"
+  | "settings"
+  | "login"
+  | "register";
 
 interface PageProviderProps {
   children: React.ReactNode;

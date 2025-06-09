@@ -1,6 +1,5 @@
-import { AppShell, Text, UnstyledButton, useMantineTheme } from "@mantine/core";
+import { AppShell, Tooltip, UnstyledButton } from "@mantine/core";
 import classes from "./Sidebar.module.css";
-import Logo from "../../../../assets/svgs/logo.svg?react";
 import ExploreIcon from "../../../../assets/svgs/explore.svg?react";
 import CollectionsIcon from "../../../../assets/svgs/collections.svg?react";
 import AddIcon from "../../../../assets/svgs/add-box.svg?react";
@@ -14,7 +13,6 @@ import { UserContext } from "../../../../Contexts/UserContext";
 import { usePage } from "../../../../Hooks/usePage";
 
 export const Sidebar = () => {
-  const theme = useMantineTheme();
   const navigate = useNavigate();
   const page = usePage();
 
@@ -54,61 +52,73 @@ export const Sidebar = () => {
   return (
     <AppShell.Navbar className={classes.navbar}>
       <div className={classes.navbarMain}>
-        {/* <div className={classes.header}>
-          <UnstyledButton className={classes.logoBtn} onClick={handleClickLogo}>
-            <Logo height={22} color={theme.colors.blue[6]} />
-          </UnstyledButton>
-        </div> */}
-        <UnstyledButton
-          className={classes.item}
-          onClick={handleClickLogo}
-          data-active={page === "explore" || undefined}
-        >
-          <ExploreIcon className={classes.itemIcon} />
-        </UnstyledButton>
-        <UnstyledButton
-          className={classes.item}
-          onClick={handleClickCreate}
-          data-active={page === "create-collection" || undefined}
-        >
-          <AddIcon className={classes.itemIcon} />
-        </UnstyledButton>
-        {loggedIn && (
+        <Tooltip position="right" label="Explore">
           <UnstyledButton
             className={classes.item}
-            onClick={handleClickMy}
-            data-active={page === "my-collections" || undefined}
+            onClick={handleClickLogo}
+            data-active={page === "explore" || undefined}
           >
-            <CollectionsIcon className={classes.itemIcon} />
+            <ExploreIcon className={classes.itemIcon} />
           </UnstyledButton>
+        </Tooltip>
+
+        <Tooltip position="right" label="Create Collection">
+          <UnstyledButton
+            className={classes.item}
+            onClick={handleClickCreate}
+            data-active={page === "create-collection" || undefined}
+          >
+            <AddIcon className={classes.itemIcon} />
+          </UnstyledButton>
+        </Tooltip>
+        {loggedIn && (
+          <Tooltip position="right" label="My Collections">
+            <UnstyledButton
+              className={classes.item}
+              onClick={handleClickMy}
+              data-active={page === "my-collections" || undefined}
+            >
+              <CollectionsIcon className={classes.itemIcon} />
+            </UnstyledButton>
+          </Tooltip>
         )}
       </div>
       <div className={classes.footer}>
         {loggedIn && (
           <>
-            <UnstyledButton
-              className={classes.item}
-              onClick={handleSettings}
-              data-active={page === "settings" || undefined}
-            >
-              <SettingsIcon className={classes.itemIcon} />
-            </UnstyledButton>
-            <UnstyledButton
-              className={classes.item}
-              onClick={handleClickLogout}
-            >
-              <LogoutIcon className={classes.itemIcon} />
-            </UnstyledButton>
+            <Tooltip position="right" label="Settings">
+              <UnstyledButton
+                className={classes.item}
+                onClick={handleSettings}
+                data-active={page === "settings" || undefined}
+              >
+                <SettingsIcon className={classes.itemIcon} />
+              </UnstyledButton>
+            </Tooltip>
+
+            <Tooltip position="right" label="Logout">
+              <UnstyledButton
+                className={classes.item}
+                onClick={handleClickLogout}
+              >
+                <LogoutIcon className={classes.itemIcon} />
+              </UnstyledButton>
+            </Tooltip>
           </>
         )}
         {!loggedIn && (
           <>
-            <UnstyledButton className={classes.item} onClick={handleLogin}>
-              <LoginIcon className={classes.itemIcon} />
-            </UnstyledButton>
-            <UnstyledButton className={classes.item} onClick={handleSignUp}>
-              <SignUpIcon className={classes.itemIcon} />
-            </UnstyledButton>
+            <Tooltip position="right" label="Login">
+              <UnstyledButton className={classes.item} onClick={handleLogin}>
+                <LoginIcon className={classes.itemIcon} />
+              </UnstyledButton>
+            </Tooltip>
+
+            <Tooltip position="right" label="Sign Up">
+              <UnstyledButton className={classes.item} onClick={handleSignUp}>
+                <SignUpIcon className={classes.itemIcon} />
+              </UnstyledButton>
+            </Tooltip>
           </>
         )}
       </div>
