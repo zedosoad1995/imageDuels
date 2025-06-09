@@ -2,8 +2,9 @@ import { useEffect, useMemo, useState } from "react";
 import { getCollections } from "../../Api/collections";
 import { IGetCollections } from "../../Types/collection";
 import { Accordion } from "@mantine/core";
-import { CollectionsStack } from "./Components/CollectionsStack/CollectionsStack";
+import { CollectionsGrid } from "./Components/CollectionsGrid/CollectionsStack";
 import { usePage } from "../../Hooks/usePage";
+import classes from "./MyCollections.module.css";
 
 export const MyCollections = () => {
   usePage("my-collections");
@@ -42,31 +43,41 @@ export const MyCollections = () => {
   );
 
   return (
-    <Accordion multiple defaultValue={["public", "private", "personal"]}>
+    <Accordion
+      multiple
+      defaultValue={["public", "private", "personal"]}
+      variant="contained"
+    >
       <Accordion.Item value="public">
-        <Accordion.Control>
+        <Accordion.Control
+          classNames={{ label: classes.collectionsSectionLabel }}
+        >
           Public Collections ({publicCollections.length})
         </Accordion.Control>
         <Accordion.Panel>
-          <CollectionsStack collections={publicCollections} />
+          <CollectionsGrid collections={publicCollections} />
         </Accordion.Panel>
       </Accordion.Item>
 
       <Accordion.Item value="private">
-        <Accordion.Control>
+        <Accordion.Control
+          classNames={{ label: classes.collectionsSectionLabel }}
+        >
           Private Collections ({privateCollections.length})
         </Accordion.Control>
         <Accordion.Panel>
-          <CollectionsStack collections={privateCollections} />
+          <CollectionsGrid collections={privateCollections} />
         </Accordion.Panel>
       </Accordion.Item>
 
       <Accordion.Item value="personal">
-        <Accordion.Control>
+        <Accordion.Control
+          classNames={{ label: classes.collectionsSectionLabel }}
+        >
           Personal Collections ({personalCollections.length})
         </Accordion.Control>
         <Accordion.Panel>
-          <CollectionsStack collections={personalCollections} />
+          <CollectionsGrid collections={personalCollections} />
         </Accordion.Panel>
       </Accordion.Item>
     </Accordion>

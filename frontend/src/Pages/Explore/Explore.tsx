@@ -8,7 +8,7 @@ import {
 } from "../../Types/collection";
 import { UserContext } from "../../Contexts/UserContext";
 import { usePage } from "../../Hooks/usePage";
-import { Collage } from "./Components/Collage/Collage";
+import { Collage } from "../../Components/Collage/Collage";
 
 const orderValues: { value: IGetCollectionsOrderBy; label: string }[] = [
   {

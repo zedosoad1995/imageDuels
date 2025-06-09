@@ -1,4 +1,4 @@
-import { getImageURL } from "../../../../Utils/image";
+import { getImageURL } from "../../Utils/image";
 import classes from "./Collage.module.css";
 
 interface Props {
