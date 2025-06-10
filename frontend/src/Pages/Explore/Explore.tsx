@@ -1,7 +1,14 @@
-import { useContext, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useState } from "react";
 import { getCollections } from "../../Api/collections";
 import { useNavigate } from "react-router";
-import { Text, Group, SegmentedControl, Badge, Grid } from "@mantine/core";
+import {
+  Text,
+  Group,
+  SegmentedControl,
+  Badge,
+  Grid,
+  TextInput,
+} from "@mantine/core";
 import {
   IGetCollections,
   IGetCollectionsOrderBy,
@@ -9,6 +16,8 @@ import {
 import { UserContext } from "../../Contexts/UserContext";
 import { usePage } from "../../Hooks/usePage";
 import { Collage } from "../../Components/Collage/Collage";
+import SearchIcon from "../../assets/svgs/search.svg?react";
+import debounce from "lodash.debounce";
 
 const orderValues: { value: IGetCollectionsOrderBy; label: string }[] = [
   {
@@ -25,10 +34,14 @@ export const Explore = () => {
 
   const [collections, setCollections] = useState<IGetCollections>([]);
   const [orderBy, setOrderBy] = useState<IGetCollectionsOrderBy>("new");
+  const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
 
   useEffect(() => {
-    getCollections({ orderBy }).then(setCollections);
-  }, [orderBy]);
+    getCollections({ orderBy, search: debouncedSearch || undefined }).then(
+      setCollections
+    );
+  }, [orderBy, debouncedSearch]);
 
   const handleClickCollection = (id: string) => () => {
     navigate(`/collections/${id}`);
@@ -38,14 +51,43 @@ export const Explore = () => {
     setOrderBy(value as IGetCollectionsOrderBy);
   };
 
+  const debouncedUpdateSearch = useCallback(
+    debounce(
+      async (text: string) => {
+        setDebouncedSearch(text);
+      },
+      300,
+      {
+        leading: true,
+        trailing: true,
+      }
+    ),
+    []
+  );
+
+  const handleChangeSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
+    debouncedUpdateSearch(event.currentTarget.value);
+    setSearch(event.currentTarget.value);
+  };
+
   return (
     <>
-      <SegmentedControl
-        mb={16}
-        data={orderValues}
-        value={orderBy}
-        onChange={handleChangeOrderBy}
-      />
+      <Group mb={16}>
+        <SegmentedControl
+          data={orderValues}
+          value={orderBy}
+          onChange={handleChangeOrderBy}
+        />
+        <TextInput
+          radius="md"
+          size="md"
+          placeholder="Search"
+          leftSection={<SearchIcon size={18} stroke={1.5} />}
+          style={{ flex: 1 }}
+          value={search}
+          onChange={handleChangeSearch}
+        />
+      </Group>
       <Grid>
         {collections.map(
           ({

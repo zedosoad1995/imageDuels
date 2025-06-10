@@ -61,12 +61,15 @@ export class CollectionsController {
     onlySelf: boolean,
     @Query('orderBy', new DefaultValuePipe('new'))
     orderBy: IGetCollectionsOrderBy,
+    @Query('search')
+    search: string | undefined,
   ) {
     const collections = await this.collectionsService.getMany({
       userId: onlySelf ? user?.id : undefined,
       showNSFW: user?.canSeeNSFW,
       showAllModes: user?.role === 'ADMIN',
       orderBy,
+      search,
     });
 
     return manyCollectionsResSchema.parse(collections);

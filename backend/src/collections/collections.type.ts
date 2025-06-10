@@ -5,4 +5,5 @@ export interface IGetCollections {
   orderBy?: IGetCollectionsOrderBy;
   showAllModes?: boolean;
   showNSFW?: boolean;
+  search?: string;
 }

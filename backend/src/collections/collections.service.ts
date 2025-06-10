@@ -8,10 +8,17 @@ import { CreateCollectionDto } from './dto/createCollection.dto';
 import { Prisma } from '@prisma/client';
 import { IGetCollections } from './collections.type';
 import { EditCollectionDto } from './dto/editCollection.dto';
+const Fuse = require('fuse.js');
 
 @Injectable()
 export class CollectionsService {
-  async getMany({ userId, orderBy, showAllModes, showNSFW }: IGetCollections) {
+  async getMany({
+    userId,
+    orderBy,
+    showAllModes,
+    showNSFW,
+    search,
+  }: IGetCollections) {
     const whereQuery: Prisma.CollectionWhereInput = {};
     const orderByQuery: Prisma.CollectionOrderByWithRelationInput = {};
 
@@ -30,7 +37,7 @@ export class CollectionsService {
       orderByQuery.createdAt = 'desc';
     }
 
-    const collections = await prisma.collection.findMany({
+    let collections = await prisma.collection.findMany({
       where: whereQuery,
       include: {
         _count: {
@@ -56,6 +63,22 @@ export class CollectionsService {
       },
       orderBy: orderByQuery,
     });
+
+    if (search) {
+      const fuse = new Fuse(collections, {
+        keys: [
+          'title',
+          'question',
+          'description',
+          {
+            name: 'owner.username',
+            weight: 0.5,
+          },
+        ],
+      });
+
+      collections = fuse.search(search).map(({ item }) => item);
+    }
 
     const sumRes = await prisma.image.groupBy({
       by: ['collectionId'],

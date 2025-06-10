@@ -17,6 +17,7 @@ export type IGetCollectionsOrderBy = "new" | "popular";
 export interface IGetCollectionsQuery {
   onlySelf?: boolean;
   orderBy?: IGetCollectionsOrderBy;
+  search?: string;
 }
 
 export type IGetCollections = (ICollection & {
