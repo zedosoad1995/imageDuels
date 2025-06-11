@@ -1,11 +1,11 @@
 import { CloseButton, Group, Text } from "@mantine/core";
 import { useContext } from "react";
 import { modals } from "@mantine/modals";
-import { CollectionContext } from "../../../../../Contexts/CollectionContext";
-import { deleteImage } from "../../../../../Api/images";
-import { getImageURL } from "../../../../../Utils/image";
-import VotingIcon from "../../../../../assets/svgs/ballot.svg?react";
-import ScoreIcon from "../../../../../assets/svgs/leaderboard.svg?react";
+import { CollectionContext } from "../../../../../../Contexts/CollectionContext";
+import { deleteImage } from "../../../../../../Api/images";
+import { getImageURL } from "../../../../../../Utils/image";
+import VotingIcon from "../../../../../../assets/svgs/ballot.svg?react";
+import ScoreIcon from "../../../../../../assets/svgs/leaderboard.svg?react";
 import classes from "./ImageCard.module.css";
 
 interface Props {

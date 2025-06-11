@@ -58,7 +58,6 @@ export const Explore = () => {
       },
       300,
       {
-        leading: true,
         trailing: true,
       }
     ),

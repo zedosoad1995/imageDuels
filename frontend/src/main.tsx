@@ -10,6 +10,7 @@ import { createTheme, MantineProvider } from "@mantine/core";
 import { MainLayout } from "./Layouts/MainLayout/MainLayout";
 import "./index.css";
 import "@mantine/notifications/styles.css";
+import "@mantine/carousel/styles.css";
 import { CreateCollection } from "./Pages/CreateCollection/CreateCollection";
 import { Notifications } from "@mantine/notifications";
 import { ModalsProvider } from "@mantine/modals";

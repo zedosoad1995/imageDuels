@@ -9,8 +9,9 @@ import { notifications } from "@mantine/notifications";
 import { CollectionContext } from "../../../../Contexts/CollectionContext";
 import pLimit from "p-limit";
 import { MasonryGrid } from "../../../../Components/MasonryGrid/MasonryGrid";
-import { ImageCard } from "./Components/ImageCard";
+import { ImageCard } from "./Components/ImageCard/ImageCard";
 import { UserContext } from "../../../../Contexts/UserContext";
+import { ImageFullScreenModal } from "./Components/ImageFullscreenModal/ImageFullscreenModal";
 
 const limit = pLimit(2);
 
@@ -126,6 +127,11 @@ export const Images = ({ collection }: Props) => {
           />
         ))}
       </MasonryGrid>
+      <ImageFullScreenModal
+        currIndex={0}
+        images={collection.images.map(({ filepath }) => filepath)}
+        isOpen
+      />
     </>
   );
 };

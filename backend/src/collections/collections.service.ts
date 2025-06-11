@@ -64,7 +64,7 @@ export class CollectionsService {
       orderBy: orderByQuery,
     });
 
-    if (search) {
+    if (search?.trim()) {
       const fuse = new Fuse(collections, {
         keys: [
           'title',
@@ -77,7 +77,7 @@ export class CollectionsService {
         ],
       });
 
-      collections = fuse.search(search).map(({ item }) => item);
+      collections = fuse.search(search.trim()).map(({ item }) => item);
     }
 
     const sumRes = await prisma.image.groupBy({
