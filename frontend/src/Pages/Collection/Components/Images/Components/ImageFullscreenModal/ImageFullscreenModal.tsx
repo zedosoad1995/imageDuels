@@ -1,29 +1,46 @@
-import { Modal, Text } from "@mantine/core";
+import { Text } from "@mantine/core";
 import { Carousel } from "@mantine/carousel";
 import { getImageURL } from "../../../../../../Utils/image";
+import { useEffect } from "react";
 
 interface Props {
   images: string[];
-  currIndex: number;
+  currIndex: number | undefined;
   isOpen: boolean;
+  onClose: () => void;
 }
 
-export const ImageFullScreenModal = ({ currIndex, images, isOpen }: Props) => {
+export const ImageFullScreenModal = ({
+  currIndex,
+  images,
+  isOpen,
+  onClose,
+}: Props) => {
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isOpen]);
+
+  if (currIndex === undefined || !isOpen) {
+    return null;
+  }
+
   return (
-    <Modal
-      fullScreen
-      opened={isOpen}
-      onClose={() => {}}
-      withCloseButton={false}
-      padding={0}
-      centered
-      styles={{
-        body: {
-          display: "flex",
-          flexDirection: "column",
-          height: "100vh",
-          justifyContent: "center",
-        },
+    <div
+      style={{
+        position: "fixed",
+        inset: 0,
+        zIndex: 1000,
+        background: "rgba(255, 255, 255, 0.9)",
+        backdropFilter: "blur(10px) saturate(1.8)",
+        WebkitBackdropFilter: "blur(10px) saturate(1.8)",
+        overflow: "hidden",
       }}
     >
       <Carousel
@@ -39,39 +56,66 @@ export const ImageFullScreenModal = ({ currIndex, images, isOpen }: Props) => {
       >
         {images.map((img, i) => (
           <Carousel.Slide
-            key={i}
             style={{
-              textAlign: "center",
-              height: "100vh",
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
-              minHeight: 0,
+              position: "relative",
             }}
+            key={i}
           >
             <div
+              onClick={onClose}
               style={{
-                flex: 1,
-                minHeight: 0,
+                position: "absolute",
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                cursor: "pointer",
+              }}
+            />
+            <div
+              style={{
+                textAlign: "center",
+                height: "100vh",
                 display: "flex",
+                flexDirection: "column",
                 alignItems: "center",
-                justifyContent: "center",
+                minHeight: 0,
+                minWidth: 0,
+                zIndex: 1,
               }}
             >
-              <img
-                src={getImageURL(img)}
+              <div
                 style={{
-                  margin: "0 auto",
-                  objectFit: "contain",
-                  maxHeight: "100%",
-                  maxWidth: "100%",
+                  flex: 1,
+                  minHeight: 0,
+                  minWidth: 0,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
                 }}
-              />
+              >
+                <img
+                  src={getImageURL(img)}
+                  style={{
+                    margin: "0 auto",
+                    objectFit: "contain",
+                    maxHeight: "calc(100vh - 30px)",
+                    maxWidth: "100%",
+                    zIndex: 1,
+                    display: "block",
+                  }}
+                />
+              </div>
+              <div style={{ textAlign: "center", zIndex: 1, height: 25 }}>
+                <Text>lala</Text>
+              </div>
             </div>
-            <Text mt="sm">lala</Text>
           </Carousel.Slide>
         ))}
       </Carousel>
-    </Modal>
+    </div>
   );
 };

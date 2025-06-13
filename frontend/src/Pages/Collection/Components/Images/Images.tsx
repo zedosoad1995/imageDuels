@@ -1,4 +1,4 @@
-import { useContext, useRef } from "react";
+import { useContext, useRef, useState } from "react";
 import { useParams } from "react-router";
 import { addImageToCollection } from "../../../../Api/collections";
 import imageCompression, { Options } from "browser-image-compression";
@@ -24,6 +24,9 @@ export const Images = ({ collection }: Props) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const { fetchCollection } = useContext(CollectionContext);
   const { user } = useContext(UserContext);
+
+  const [isOpenImgView, setIsOpenImgView] = useState(false);
+  const [clickedImageIdx, setClickedImageIdx] = useState<number>();
 
   const onFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files?.length || !id) return;
@@ -99,6 +102,11 @@ export const Images = ({ collection }: Props) => {
     inputRef.current?.click();
   };
 
+  const handleImageClick = (index: number) => () => {
+    setIsOpenImgView(true);
+    setClickedImageIdx(index);
+  };
+
   return (
     <>
       {collection.belongsToMe && (
@@ -116,21 +124,25 @@ export const Images = ({ collection }: Props) => {
       />
 
       <MasonryGrid numColumns={{ base: 1, 600: 2, 1200: 3 }} gap={4}>
-        {collection.images.map(({ id, filepath, numVotes, percentile }) => (
-          <ImageCard
-            key={id}
-            canDelete={collection.belongsToMe || user?.role === "ADMIN"}
-            filepath={filepath}
-            imageId={id}
-            numVotes={numVotes}
-            percentile={percentile}
-          />
-        ))}
+        {collection.images.map(
+          ({ id, filepath, numVotes, percentile }, index) => (
+            <ImageCard
+              key={id}
+              canDelete={collection.belongsToMe || user?.role === "ADMIN"}
+              filepath={filepath}
+              imageId={id}
+              numVotes={numVotes}
+              percentile={percentile}
+              onClick={handleImageClick(index)}
+            />
+          )
+        )}
       </MasonryGrid>
       <ImageFullScreenModal
-        currIndex={0}
+        currIndex={clickedImageIdx}
         images={collection.images.map(({ filepath }) => filepath)}
-        isOpen
+        isOpen={isOpenImgView}
+        onClose={() => setIsOpenImgView(false)}
       />
     </>
   );

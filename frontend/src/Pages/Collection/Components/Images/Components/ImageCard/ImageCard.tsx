@@ -14,6 +14,7 @@ interface Props {
   percentile: number;
   numVotes: number;
   imageId: string;
+  onClick: () => void;
 }
 
 export const ImageCard = ({
@@ -22,6 +23,7 @@ export const ImageCard = ({
   imageId,
   percentile,
   numVotes,
+  onClick,
 }: Props) => {
   const { fetchCollection } = useContext(CollectionContext);
 
@@ -59,7 +61,8 @@ export const ImageCard = ({
       )}
       <img
         src={getImageURL(filepath)}
-        style={{ display: "block", width: "100%" }}
+        style={{ display: "block", width: "100%", cursor: "pointer" }}
+        onClick={onClick}
       />
       <Group
         px={8}
