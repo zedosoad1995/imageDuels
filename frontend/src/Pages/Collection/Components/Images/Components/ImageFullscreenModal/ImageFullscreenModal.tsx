@@ -1,7 +1,9 @@
 import { Text } from "@mantine/core";
 import { Carousel } from "@mantine/carousel";
 import { getImageURL } from "../../../../../../Utils/image";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { useHotkeys } from "@mantine/hooks";
+import { EmblaCarouselType } from "embla-carousel";
 
 interface Props {
   images: string[];
@@ -16,6 +18,13 @@ export const ImageFullScreenModal = ({
   isOpen,
   onClose,
 }: Props) => {
+  const [embla, setEmbla] = useState<EmblaCarouselType | null>(null);
+
+  useHotkeys([
+    ["ArrowLeft", () => embla?.scrollPrev()],
+    ["ArrowRight", () => embla?.scrollNext()],
+  ]);
+
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = "hidden";
@@ -45,6 +54,7 @@ export const ImageFullScreenModal = ({
     >
       <Carousel
         slideSize="100%"
+        getEmblaApi={setEmbla}
         emblaOptions={{
           align: "center",
         }}

@@ -12,6 +12,7 @@ import { MasonryGrid } from "../../../../Components/MasonryGrid/MasonryGrid";
 import { ImageCard } from "./Components/ImageCard/ImageCard";
 import { UserContext } from "../../../../Contexts/UserContext";
 import { ImageFullScreenModal } from "./Components/ImageFullscreenModal/ImageFullscreenModal";
+import { ImageUploadModal } from "./Components/ImageUploadModal/ImageUploadModal";
 
 const limit = pLimit(2);
 
@@ -25,77 +26,92 @@ export const Images = ({ collection }: Props) => {
   const { fetchCollection } = useContext(CollectionContext);
   const { user } = useContext(UserContext);
 
+  const [isOpenImgUploadModal, setIsOpenImgUploadModal] = useState(false);
+  const [totalImagesToUpload, setTotalImagesToUpload] = useState(0);
+  const [totalImagesUploaded, setTotalImagesUploaded] = useState(0);
+
   const [isOpenImgView, setIsOpenImgView] = useState(false);
   const [clickedImageIdx, setClickedImageIdx] = useState<number>();
 
   const onFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files?.length || !id) return;
 
-    const files = Array.from(e.target.files);
+    try {
+      setIsOpenImgUploadModal(true);
+      setTotalImagesToUpload(e.target.files.length);
+      setTotalImagesUploaded(0);
 
-    // TODO: Improve this, maybe allow to reload or repeat, look for efficiency, test a lot, etc.
-    // TODO: limit number of files that can be uploaded (151), also be aware of how many files there are already, but the real validation should be in the backend
-    // TODO: Should it update only at the end, or progressively?
+      const files = Array.from(e.target.files);
 
-    const res = await Promise.allSettled(
-      files.map((file) =>
-        limit(async () => {
-          if (file.size > 1 * 1024 * 1024) {
-            const options: Options = {
-              maxSizeMB: 1,
-              maxWidthOrHeight: 1920,
-              useWebWorker: true,
-            };
-            file = await imageCompression(file, options);
+      // TODO: Improve this, maybe allow to reload or repeat, look for efficiency, test a lot, etc.
+      // TODO: limit number of files that can be uploaded (151), also be aware of how many files there are already, but the real validation should be in the backend
+      // TODO: Should it update only at the end, or progressively?
+
+      const res = await Promise.allSettled(
+        files.map((file) =>
+          limit(async () => {
+            if (file.size > 1 * 1024 * 1024) {
+              const options: Options = {
+                maxSizeMB: 1,
+                maxWidthOrHeight: 1920,
+                useWebWorker: true,
+              };
+              file = await imageCompression(file, options);
+            }
+
+            await addImageToCollection(id, file);
+            setTotalImagesUploaded((val) => val + 1);
+          })
+        )
+      );
+
+      fetchCollection();
+
+      const { numSuccess, numFailures } = res.reduce(
+        (acc, val) => {
+          if (val.status === "fulfilled") {
+            acc.numSuccess += 1;
+          } else {
+            acc.numFailures += 1;
           }
 
-          return addImageToCollection(id, file);
-        })
-      )
-    );
+          return acc;
+        },
+        { numSuccess: 0, numFailures: 0 }
+      );
 
-    fetchCollection();
+      setTotalImagesUploaded(numSuccess);
 
-    const { numSuccess, numFailures } = res.reduce(
-      (acc, val) => {
-        if (val.status === "fulfilled") {
-          acc.numSuccess += 1;
-        } else {
-          acc.numFailures += 1;
+      if (numSuccess + numFailures === 0) return;
+
+      if (numSuccess + numFailures === 1) {
+        if (numSuccess) {
+          return notifications.show({
+            message: "Image successfully uploaded",
+          });
         }
 
-        return acc;
-      },
-      { numSuccess: 0, numFailures: 0 }
-    );
-
-    if (numSuccess + numFailures === 0) return;
-
-    if (numSuccess + numFailures === 1) {
-      if (numSuccess) {
         return notifications.show({
-          message: "Image successfully uploaded",
+          message: "Image could not be uploaded",
+          color: "red",
         });
       }
 
-      return notifications.show({
-        message: "Image could not be uploaded",
-        color: "red",
-      });
-    }
+      if (numFailures > 0) {
+        return notifications.show({
+          message: `${numSuccess}/${
+            numSuccess + numFailures
+          } images were uploaded (${numFailures} images failed to upload)`,
+          color: "red",
+        });
+      }
 
-    if (numFailures > 0) {
-      return notifications.show({
-        message: `${numSuccess}/${
-          numSuccess + numFailures
-        } images were uploaded (${numFailures} images failed to upload)`,
-        color: "red",
+      notifications.show({
+        message: `All ${numSuccess} images successfully uploaded`,
       });
+    } finally {
+      setIsOpenImgUploadModal(false);
     }
-
-    notifications.show({
-      message: `All ${numSuccess} images successfully uploaded`,
-    });
   };
 
   const handleButtonClick = () => {
@@ -143,6 +159,12 @@ export const Images = ({ collection }: Props) => {
         images={collection.images.map(({ filepath }) => filepath)}
         isOpen={isOpenImgView}
         onClose={() => setIsOpenImgView(false)}
+      />
+      <ImageUploadModal
+        isOpen={isOpenImgUploadModal}
+        onClose={() => setIsOpenImgUploadModal(false)}
+        numUploadedImages={totalImagesUploaded}
+        totalImages={totalImagesToUpload}
       />
     </>
   );

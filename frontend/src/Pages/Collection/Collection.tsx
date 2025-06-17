@@ -18,7 +18,6 @@ import {
 } from "../../Contexts/CollectionContext";
 import { UserContext } from "../../Contexts/UserContext";
 import { CopyButton } from "../../Components/CopyButton/CopyButton";
-import { usePage } from "../../Hooks/usePage";
 import { editCollection } from "../../Api/collections";
 import MoreHorizontalIcon from "../../assets/svgs/more-horizontal.svg?react";
 import PauseIcon from "../../assets/svgs/pause.svg?react";
@@ -29,7 +28,6 @@ export const CollectionChild = () => {
   const { collection, fetchCollection, setCollection } =
     useContext(CollectionContext);
   const { loggedIn } = useContext(UserContext);
-  usePage("collection");
 
   const [showSubtitle, setShowSubtitle] = useState(false);
 
@@ -126,6 +124,7 @@ export const CollectionChild = () => {
       )}
       <Tabs
         defaultValue={loggedIn ? "vote" : "images"}
+        keepMounted={false}
         onChange={(value) => {
           if (value === "images") {
             setShowSubtitle(true);
