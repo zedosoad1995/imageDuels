@@ -13,6 +13,7 @@ import { ImageCard } from "./Components/ImageCard/ImageCard";
 import { UserContext } from "../../../../Contexts/UserContext";
 import { ImageFullScreenModal } from "./Components/ImageFullscreenModal/ImageFullscreenModal";
 import { ImageUploadModal } from "./Components/ImageUploadModal/ImageUploadModal";
+import { ImageUploadErrorModal } from "./Components/ImageUploadErrorModal/ImageUploadErrorModal";
 
 const limit = pLimit(2);
 
@@ -33,37 +34,76 @@ export const Images = ({ collection }: Props) => {
   const [isOpenImgView, setIsOpenImgView] = useState(false);
   const [clickedImageIdx, setClickedImageIdx] = useState<number>();
 
+  const [isOpenImgUploadFailureModal, setIsOpenImgUploadFailureModal] =
+    useState(false);
+  const [failedUploadedImages, setFailedUploadedImages] = useState<File[]>([]);
+
   const onFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files?.length || !id) return;
 
+    const files = Array.from(e.target.files);
+
+    try {
+      onImagesUpload(files, id);
+    } finally {
+      e.currentTarget.value = "";
+    }
+  };
+
+  const onRetryFailedImagesUpload = async () => {
+    if (!failedUploadedImages.length || !id) return;
+
+    setIsOpenImgUploadFailureModal(false);
+
+    onImagesUpload(failedUploadedImages, id);
+  };
+
+  const onImagesUpload = async (files: File[], id: string) => {
+    if (files.length > 100) {
+      return notifications.show({
+        message: `Max 100 images — you tried to upload ${files.length} at once`,
+        color: "red",
+        autoClose: 8000,
+      });
+    }
+
     try {
       setIsOpenImgUploadModal(true);
-      setTotalImagesToUpload(e.target.files.length);
+      setTotalImagesToUpload(files.length);
       setTotalImagesUploaded(0);
 
-      const files = Array.from(e.target.files);
-
-      // TODO: Improve this, maybe allow to reload or repeat, look for efficiency, test a lot, etc.
-      // TODO: limit number of files that can be uploaded (151), also be aware of how many files there are already, but the real validation should be in the backend
-      // TODO: Should it update only at the end, or progressively?
+      const failedImagesUploadedTemp: File[] = [];
 
       const res = await Promise.allSettled(
         files.map((file) =>
           limit(async () => {
-            if (file.size > 1 * 1024 * 1024) {
-              const options: Options = {
-                maxSizeMB: 1,
-                maxWidthOrHeight: 1920,
-                useWebWorker: true,
-              };
-              file = await imageCompression(file, options);
-            }
+            try {
+              if (file.size > 1 * 1024 * 1024) {
+                const options: Options = {
+                  maxSizeMB: 1,
+                  maxWidthOrHeight: 1920,
+                  useWebWorker: true,
+                };
+                file = await imageCompression(file, options);
+              }
 
-            await addImageToCollection(id, file);
-            setTotalImagesUploaded((val) => val + 1);
+              await addImageToCollection(id, file);
+              setTotalImagesUploaded((val) => val + 1);
+
+              return file;
+            } catch (err) {
+              failedImagesUploadedTemp.push(file);
+
+              throw err;
+            }
           })
         )
       );
+
+      if (failedImagesUploadedTemp.length) {
+        setFailedUploadedImages(failedImagesUploadedTemp);
+        setIsOpenImgUploadFailureModal(true);
+      }
 
       fetchCollection();
 
@@ -165,6 +205,12 @@ export const Images = ({ collection }: Props) => {
         onClose={() => setIsOpenImgUploadModal(false)}
         numUploadedImages={totalImagesUploaded}
         totalImages={totalImagesToUpload}
+      />
+      <ImageUploadErrorModal
+        isOpen={isOpenImgUploadFailureModal}
+        onClose={() => setIsOpenImgUploadFailureModal(false)}
+        failedImages={failedUploadedImages}
+        onRetry={onRetryFailedImagesUpload}
       />
     </>
   );

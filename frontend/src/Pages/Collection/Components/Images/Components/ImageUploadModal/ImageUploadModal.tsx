@@ -17,9 +17,8 @@ export const ImageUploadModal = ({
     <Modal
       opened={isOpen}
       onClose={onClose}
-      title={`Uploading...`}
+      title={`Uploading Images...`}
       centered
-      size="xs"
       styles={{ title: { fontWeight: 600 }, content: { flex: "none" } }}
     >
       <RingProgress
@@ -37,7 +36,6 @@ export const ImageUploadModal = ({
         }
         size={208}
         thickness={16}
-        transitionDuration={100}
         style={{ margin: "auto" }}
         roundCaps
       />
