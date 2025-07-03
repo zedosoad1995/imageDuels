@@ -168,11 +168,7 @@ export const ImageFullScreenModal = ({
               >
                 <Tooltip
                   zIndex={1000000}
-                  label={`Score: ${(percentile * 100).toFixed(
-                    1
-                  )}% (Better than ${(percentile * 100).toFixed(
-                    1
-                  )}% of the images)`}
+                  label={`Score: ${(percentile * 100).toFixed(1)}%`}
                   events={{ hover: true, focus: false, touch: true }}
                 >
                   <Group gap={4} style={{ cursor: "pointer" }}>

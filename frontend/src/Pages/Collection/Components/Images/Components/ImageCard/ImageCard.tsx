@@ -1,4 +1,4 @@
-import { CloseButton, Group, Text } from "@mantine/core";
+import { CloseButton, Group, Text, Tooltip } from "@mantine/core";
 import { useContext } from "react";
 import { modals } from "@mantine/modals";
 import { CollectionContext } from "../../../../../../Contexts/CollectionContext";
@@ -75,29 +75,39 @@ export const ImageCard = ({
           width: "100%",
         }}
       >
-        <Group gap={4}>
-          <ScoreIcon height={16} fill="white" />
-          <Text
-            fw={600}
-            style={{
-              color: "white",
-            }}
-          >
-            {(percentile * 100).toFixed(1)}%
-          </Text>
-        </Group>
+        <Tooltip
+          label={`Score: ${(percentile * 100).toFixed(1)}%`}
+          events={{ hover: true, focus: false, touch: true }}
+        >
+          <Group gap={4} style={{ cursor: "pointer" }}>
+            <ScoreIcon height={16} fill="white" />
+            <Text
+              fw={600}
+              style={{
+                color: "white",
+              }}
+            >
+              {(percentile * 100).toFixed(1)}%
+            </Text>
+          </Group>
+        </Tooltip>
 
-        <Group gap={4}>
-          <VotingIcon height={16} fill="white" />
-          <Text
-            fw={600}
-            style={{
-              color: "white",
-            }}
-          >
-            {numVotes}
-          </Text>
-        </Group>
+        <Tooltip
+          label={`${numVotes} votes`}
+          events={{ hover: true, focus: false, touch: true }}
+        >
+          <Group gap={4} style={{ cursor: "pointer" }}>
+            <VotingIcon height={16} fill="white" />
+            <Text
+              fw={600}
+              style={{
+                color: "white",
+              }}
+            >
+              {numVotes}
+            </Text>
+          </Group>
+        </Tooltip>
       </Group>
       {canDelete && <div className={classes.overlayTop} />}
       <div className={classes.overlayBottom} />
