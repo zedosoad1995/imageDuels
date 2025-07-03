@@ -1,0 +1,7 @@
+.closeButton {
+  opacity: 0.85;
+
+  &:hover {
+    opacity: 1;
+  }
+}

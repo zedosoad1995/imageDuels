@@ -6,7 +6,6 @@ import AddIcon from "../../../../assets/svgs/add-box.svg?react";
 import SettingsIcon from "../../../../assets/svgs/settings.svg?react";
 import LogoutIcon from "../../../../assets/svgs/logout.svg?react";
 import LoginIcon from "../../../../assets/svgs/account.svg?react";
-import SignUpIcon from "../../../../assets/svgs/sign-up.svg?react";
 import { useNavigate } from "react-router";
 import { useContext } from "react";
 import { UserContext } from "../../../../Contexts/UserContext";
@@ -41,16 +40,24 @@ export const Sidebar = () => {
   };
 
   const handleLogin = () => {
-    // TODO: Login and register will hide side bar
     navigate("/login");
-  };
-
-  const handleSignUp = () => {
-    navigate("/register");
   };
 
   return (
     <AppShell.Navbar className={classes.navbar}>
+      <div
+        style={{
+          marginBottom: 16,
+          marginTop: 8,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <UnstyledButton onClick={handleClickLogo}>
+          <img src="/my-logo.svg" style={{ width: 30, display: "block" }} />
+        </UnstyledButton>
+      </div>
       <div className={classes.navbarMain}>
         <Tooltip position="right" label="Explore">
           <UnstyledButton
@@ -111,12 +118,6 @@ export const Sidebar = () => {
             <Tooltip position="right" label="Login">
               <UnstyledButton className={classes.item} onClick={handleLogin}>
                 <LoginIcon className={classes.itemIcon} />
-              </UnstyledButton>
-            </Tooltip>
-
-            <Tooltip position="right" label="Sign Up">
-              <UnstyledButton className={classes.item} onClick={handleSignUp}>
-                <SignUpIcon className={classes.itemIcon} />
               </UnstyledButton>
             </Tooltip>
           </>

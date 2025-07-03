@@ -196,7 +196,7 @@ export const Images = ({ collection }: Props) => {
       </MasonryGrid>
       <ImageFullScreenModal
         currIndex={clickedImageIdx}
-        images={collection.images.map(({ filepath }) => filepath)}
+        images={collection.images}
         isOpen={isOpenImgView}
         onClose={() => setIsOpenImgView(false)}
       />
