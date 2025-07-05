@@ -21,7 +21,6 @@ model User {
   Collection         Collection[]
   duels              Duel[]
   createdAt          DateTime     @default(now())
-  activeDuel         Duel?        @relation(name: "activeDuel")
 }
 
 enum RoleEnum {
@@ -70,18 +69,14 @@ model Duel {
   image1       Image            @relation("image1Relation", fields: [image1Id], references: [id], onDelete: Cascade)
   image2       Image            @relation("image2Relation", fields: [image2Id], references: [id], onDelete: Cascade)
   voter        User             @relation(fields: [voterId], references: [id], onDelete: Cascade)
-  activeUser   User?            @relation(name: "activeDuel", fields: [activeUserId], references: [id], onDelete: Cascade)
-  outcome      DuelOutcomeEnum?
-  isFinished   Boolean          @default(false)
+  outcome      DuelOutcomeEnum
   image1Id     String
   image2Id     String
   voterId      String
-  activeUserId String?          @unique
   createdAt    DateTime         @default(now())
 }
 
 enum DuelOutcomeEnum {
   WIN
-  SKIP
   LOSS
 }

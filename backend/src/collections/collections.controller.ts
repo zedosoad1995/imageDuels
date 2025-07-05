@@ -169,18 +169,13 @@ export class CollectionsController {
     const [image1, image2] =
       await this.imagesService.getMatchImages(collectionId);
 
-    let duelId: string | undefined;
+    let token: string | undefined;
 
     if (userId) {
-      const { id } = await this.duelsService.create(
-        image1.id,
-        image2.id,
-        userId,
-      );
-      duelId = id;
+      token = await this.duelsService.generateToken(image1.id, image2.id);
     }
 
-    return { duelId, image1: image1.filepath, image2: image2.filepath };
+    return { token, image1: image1.filepath, image2: image2.filepath };
   }
 
   @UseGuards(AuthGuard(true), ProfileCompletedGuard)

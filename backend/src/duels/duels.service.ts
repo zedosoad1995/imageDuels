@@ -36,40 +36,24 @@ export class DuelsService {
     }
   }
 
-  create(image1: string, image2: string, userId: string) {
-    return prisma.duel.upsert({
-      create: {
-        image1Id: image1,
-        image2Id: image2,
-        activeUserId: userId,
-        voterId: userId,
-      },
-      update: {
-        image1Id: image1,
-        image2Id: image2,
-      },
-      where: {
-        activeUserId: userId,
-        isFinished: false,
-      },
+  async generateToken(imgId1: string, imgId2: string) {
+    return this.jwtService.signAsync({
+      image1: imgId1,
+      image2: imgId2,
     });
   }
 
-  async updateVote(
+  async createVote(
     outcome: DuelOutcomeEnum,
     image1: Image,
     image2: Image,
     userId: string,
   ) {
     await prisma.$transaction(async (ctx) => {
-      // TODO: remove activeUserId, isFinished, SKIP from outcome
-
       const queries: any[] = [
         ctx.duel.create({
           data: {
             outcome,
-            isFinished: true,
-            activeUserId: null,
             image1Id: image1.id,
             image2Id: image2.id,
             voterId: userId,

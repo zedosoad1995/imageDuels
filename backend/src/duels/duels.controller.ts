@@ -1,12 +1,9 @@
 import {
-  BadRequestException,
   Body,
   Controller,
   Get,
   HttpCode,
-  Param,
   Post,
-  Request,
   UseGuards,
   UsePipes,
 } from '@nestjs/common';
@@ -19,7 +16,7 @@ import { ImagesService } from 'src/images/images.service';
 import { CollectionsService } from 'src/collections/collections.service';
 import { User } from '@prisma/client';
 import { LoggedUser, UserId } from 'src/users/users.decorator';
-import { JwtService, TokenExpiredError } from '@nestjs/jwt';
+import { JwtService } from '@nestjs/jwt';
 
 @UseGuards(AuthGuard(true), ProfileCompletedGuard)
 @Controller('duels')
@@ -41,12 +38,9 @@ export class DuelsController {
     const duels = await this.imagesService.getBulkMatchesImages(collectionIds);
 
     const tokens = await Promise.all(
-      duels.map(([img1, img2]) => {
-        return this.jwtService.signAsync({
-          image1: img1.id,
-          image2: img2.id,
-        });
-      }),
+      duels.map(([img1, img2]) =>
+        this.duelsService.generateToken(img1.id, img2.id),
+      ),
     );
 
     return duels.map((duel, index) => ({
@@ -60,7 +54,6 @@ export class DuelsController {
   @HttpCode(204)
   @Post('vote')
   async vote(
-    @Request() req,
     @Body() voteDto: VoteDto,
     @UserId({ getTokenFromHeader: true }) userId: string,
   ) {
@@ -70,6 +63,6 @@ export class DuelsController {
       voteDto.token,
     );
 
-    await this.duelsService.updateVote(voteDto.outcome, image1, image2, userId);
+    await this.duelsService.createVote(voteDto.outcome, image1, image2, userId);
   }
 }
