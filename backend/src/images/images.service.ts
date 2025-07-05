@@ -32,6 +32,10 @@ export class ImagesService {
     });
   }
 
+  async getBulkMatchesImages(collectionIds: string[]) {
+    return Promise.all(collectionIds.map(this.getMatchImages));
+  }
+
   async getMatchImages(
     collectionId: string,
   ): Promise<

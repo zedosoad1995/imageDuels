@@ -111,6 +111,35 @@ export class CollectionsService {
     return res;
   }
 
+  async getManyIdsForUserFeed({
+    userId,
+    showNSFW,
+  }: {
+    userId: string;
+    showNSFW: boolean;
+  }) {
+    const whereQuery: Prisma.CollectionWhereInput = {};
+
+    if (userId) {
+      whereQuery.ownerId = { not: userId };
+      whereQuery.mode = 'PUBLIC';
+      whereQuery.isLive = true;
+    }
+
+    if (!showNSFW) {
+      whereQuery.isNSFW = false;
+    }
+
+    const collections = await prisma.collection.findMany({
+      select: {
+        id: true,
+      },
+      where: whereQuery,
+    });
+
+    return collections.map(({ id }) => id);
+  }
+
   async getOne(
     collectionId: string,
     userId: string | undefined,
