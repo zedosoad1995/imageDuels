@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Get,
@@ -17,8 +18,8 @@ import { ProfileCompletedGuard } from 'src/users/guards/profileCompleted.guard';
 import { ImagesService } from 'src/images/images.service';
 import { CollectionsService } from 'src/collections/collections.service';
 import { User } from '@prisma/client';
-import { LoggedUser } from 'src/users/users.decorator';
-import { JwtService } from '@nestjs/jwt';
+import { LoggedUser, UserId } from 'src/users/users.decorator';
+import { JwtService, TokenExpiredError } from '@nestjs/jwt';
 
 @UseGuards(AuthGuard(true), ProfileCompletedGuard)
 @Controller('duels')
@@ -42,8 +43,8 @@ export class DuelsController {
     const tokens = await Promise.all(
       duels.map(([img1, img2]) => {
         return this.jwtService.signAsync({
-          image1: img1.filepath,
-          image2: img2.filepath,
+          image1: img1.id,
+          image2: img2.id,
         });
       }),
     );
@@ -57,17 +58,18 @@ export class DuelsController {
 
   @UsePipes(new ZodValidationPipe(voteSchema))
   @HttpCode(204)
-  @Post(':duelId/vote')
+  @Post('vote')
   async vote(
     @Request() req,
-    @Param('duelId') duelId: string,
     @Body() voteDto: VoteDto,
+    @UserId({ getTokenFromHeader: true }) userId: string,
   ) {
-    const [image1, image2] = await this.duelsService.getDuelImages(
-      duelId,
-      req.user.id,
+    // TODO: SKIP. No reason to keep it. Simple do not call this endpoint when it is to skip.
+
+    const [image1, image2] = await this.duelsService.getDuelImagesFromToken(
+      voteDto.token,
     );
 
-    await this.duelsService.updateVote(duelId, voteDto.outcome, image1, image2);
+    await this.duelsService.updateVote(voteDto.outcome, image1, image2, userId);
   }
 }

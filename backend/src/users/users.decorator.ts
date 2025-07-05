@@ -2,8 +2,7 @@ import { createParamDecorator, ExecutionContext } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { prisma } from 'src/common/helpers/prisma';
 
-// TODO: pass data to indicate if endpoint comes from auth guard, in this case can just reuse request.user
-
+// TODO: if this is working. getTokenFromHeader necessary?
 export const LoggedUser = createParamDecorator(
   async (
     {
@@ -56,8 +55,18 @@ export const LoggedUser = createParamDecorator(
 );
 
 export const UserId = createParamDecorator(
-  async (data: unknown, ctx: ExecutionContext): Promise<string | undefined> => {
+  async (
+    { getTokenFromHeader }: { getTokenFromHeader?: boolean } = {
+      getTokenFromHeader: false,
+    },
+    ctx: ExecutionContext,
+  ): Promise<string | undefined> => {
     const request = ctx.switchToHttp().getRequest();
+
+    if (getTokenFromHeader) {
+      return request.user.id;
+    }
+
     const token = request.cookies?.token;
 
     try {

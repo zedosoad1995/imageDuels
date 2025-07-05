@@ -1,68 +1,39 @@
-import {
-  Injectable,
-  InternalServerErrorException,
-  Logger,
-  NotFoundException,
-} from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
+import { JwtService, TokenExpiredError } from '@nestjs/jwt';
 import { DuelOutcomeEnum, Image } from '@prisma/client';
 import { prisma } from 'src/common/helpers/prisma';
 import { Glicko2Service } from 'src/providers/rating/glicko2/glicko2.service';
 
-const logger = new Logger('Duels Service');
-
 @Injectable()
 export class DuelsService {
-  constructor(private readonly glicko2: Glicko2Service) {}
+  constructor(
+    private readonly glicko2: Glicko2Service,
+    private jwtService: JwtService,
+  ) {}
 
-  async getDuelImages(duelId: string, userId: string) {
-    const duel = await prisma.duel.findUnique({
-      where: {
-        id: duelId,
-      },
-      include: {
-        image1: {
-          include: {
-            collection: {
-              select: {
-                id: true,
-                mode: true,
-                ownerId: true,
-              },
-            },
-          },
-        },
-        image2: {
-          include: {
-            collection: {
-              select: {
-                id: true,
-              },
-            },
-          },
-        },
-      },
-    });
+  async getDuelImagesFromToken(token: string) {
+    try {
+      const payload = await this.jwtService.verifyAsync(token, {
+        secret: process.env.DUELS_JWT_KEY,
+      });
 
-    if (!duel) {
-      throw new NotFoundException(`Duel not found`);
+      if (!payload.image1 || !payload.image2) {
+        throw '';
+      }
+
+      return [payload.image1, payload.image2];
+    } catch (error) {
+      if (error instanceof TokenExpiredError) {
+        throw new BadRequestException({
+          message: 'Duel expired',
+          code: 'DUEL_EXPIRED',
+        });
+      }
+
+      throw new BadRequestException({
+        message: 'Invalid token',
+      });
     }
-
-    const image1 = duel.image1;
-    const image2 = duel.image2;
-
-    if (image1.collection.id !== image2.collection.id) {
-      logger.error(
-        `Duel with 2 images (${image1.id}, ${image2.id}) belonging to different collections (${image1.collection.id}, ${image2.collection.id})`,
-      );
-      throw new InternalServerErrorException();
-    }
-
-    const collection = image1.collection;
-    if (collection.mode === 'PERSONAL' && collection.ownerId !== userId) {
-      throw new NotFoundException(`Duel not found`);
-    }
-
-    return [image1, image2];
   }
 
   create(image1: string, image2: string, userId: string) {
@@ -85,62 +56,58 @@ export class DuelsService {
   }
 
   async updateVote(
-    duelId: string,
     outcome: DuelOutcomeEnum,
     image1: Image,
     image2: Image,
+    userId: string,
   ) {
     await prisma.$transaction(async (ctx) => {
+      // TODO: remove activeUserId, isFinished, SKIP from outcome
+
       const queries: any[] = [
-        ctx.duel.update({
+        ctx.duel.create({
           data: {
             outcome,
             isFinished: true,
             activeUserId: null,
-          },
-          where: {
-            id: duelId,
-            isFinished: false,
-            NOT: {
-              activeUserId: null,
-            },
+            image1Id: image1.id,
+            image2Id: image2.id,
+            voterId: userId,
           },
         }),
       ];
 
-      if (outcome !== 'SKIP') {
-        const [image1Params, image2Params] = this.glicko2.calculateNewRatings(
-          image1,
-          image2,
-          outcome === 'WIN',
-        );
+      const [image1Params, image2Params] = this.glicko2.calculateNewRatings(
+        image1,
+        image2,
+        outcome === 'WIN',
+      );
 
-        queries.push(
-          ctx.image.update({
-            data: {
-              numVotes: image1.numVotes + 1,
-              ...image1Params,
-            },
-            where: {
-              id: image1.id,
-              version: image1.version,
-            },
-          }),
-        );
+      queries.push(
+        ctx.image.update({
+          data: {
+            numVotes: image1.numVotes + 1,
+            ...image1Params,
+          },
+          where: {
+            id: image1.id,
+            version: image1.version,
+          },
+        }),
+      );
 
-        queries.push(
-          ctx.image.update({
-            data: {
-              numVotes: image2.numVotes + 1,
-              ...image2Params,
-            },
-            where: {
-              id: image2.id,
-              version: image2.version,
-            },
-          }),
-        );
-      }
+      queries.push(
+        ctx.image.update({
+          data: {
+            numVotes: image2.numVotes + 1,
+            ...image2Params,
+          },
+          where: {
+            id: image2.id,
+            version: image2.version,
+          },
+        }),
+      );
 
       return Promise.all(queries);
     });

@@ -5,6 +5,7 @@ import { z } from 'zod';
 export const voteSchema = z
   .object({
     outcome: customEnum(Object.values(DuelOutcomeEnum)),
+    token: z.string(),
   })
   .strict();
 
