@@ -1,16 +1,18 @@
 import { useContext, useEffect, useState } from "react";
 import { feed, vote, VoteOutcome } from "../../Api/duels";
 import { getImageURL } from "../../Utils/image";
-import { Card, Flex, Stack, Text } from "@mantine/core";
+import { Card, Divider, Flex, Stack, Text } from "@mantine/core";
 import classes from "./Feed.module.css";
 import { UserContext } from "../../Contexts/UserContext";
 import { modals } from "@mantine/modals";
 import { useNavigate } from "react-router";
 import { getDuel } from "../../Api/collections";
+import { useMediaQuery } from "@mantine/hooks";
 
 export const Feed = () => {
   const { loggedIn } = useContext(UserContext);
   const navigate = useNavigate();
+  const isLaptopOrTablet = useMediaQuery("(min-width: 650px)");
 
   const [duels, setDuels] = useState<
     | {
@@ -18,6 +20,7 @@ export const Feed = () => {
         image1: string;
         image2: string;
         collectionId: string;
+        collectionName: string;
       }[]
     | null
   >(null);
@@ -26,6 +29,10 @@ export const Feed = () => {
     feed().then(setDuels);
   }, []);
 
+  const handleClickCollection = (collectionId: string) => () => {
+    navigate(`/collections/${collectionId}`);
+  };
+
   const handleVote =
     (
       outcome: VoteOutcome,
@@ -33,7 +40,9 @@ export const Feed = () => {
       collectionId: string,
       index: number
     ) =>
-    async () => {
+    async (event: React.MouseEvent<HTMLDivElement>) => {
+      event.stopPropagation();
+
       if (!loggedIn) {
         openSignUpModal();
       }
@@ -49,7 +58,15 @@ export const Feed = () => {
           if (!duels) return duels;
 
           return duels.map((duel, indexMap) =>
-            index === indexMap ? { token, image1, image2, collectionId } : duel
+            index === indexMap
+              ? {
+                  token,
+                  image1,
+                  image2,
+                  collectionId,
+                  collectionName: duel.collectionName,
+                }
+              : duel
           );
         });
       });
@@ -67,94 +84,122 @@ export const Feed = () => {
       },
     });
 
+  const verticalPadding = isLaptopOrTablet ? 32 : 16;
+
   return (
-    <Stack>
-      {duels?.map(({ image1, image2, token, collectionId }, index) => (
-        <Flex gap={8}>
-          <Card
-            withBorder
-            className={classes.imageCard}
-            onClick={handleVote("WIN", token, collectionId, index)}
-            bg="#FAFAFA"
-            radius={12}
-          >
-            <Card.Section
-              withBorder
-              style={{
-                display: "flex",
-                aspectRatio: "1 / 1",
-                position: "relative",
-              }}
+    <Stack gap={0}>
+      {duels?.map(
+        ({ image1, image2, token, collectionId, collectionName }, index) => (
+          <>
+            <div
+              style={{ cursor: "pointer" }}
+              onClick={handleClickCollection(collectionId)}
             >
-              <img
+              <div
                 style={{
-                  position: "absolute",
-                  inset: 0,
-                  width: "100%",
-                  height: "100%",
-                  objectFit: "cover",
-                  filter: "blur(40px) brightness(1.2)",
-                  opacity: 0.4,
-                  transform: "scale(1.1)",
+                  marginBottom:
+                    index === duels.length - 1 ? 0 : verticalPadding,
+                  marginTop: index === 0 ? 0 : verticalPadding,
                 }}
-                src={getImageURL(image1)}
-              />
-              <img
-                style={{
-                  position: "absolute",
-                  inset: 0,
-                  width: "100%",
-                  height: "100%",
-                  objectFit: "contain",
-                  zIndex: 1,
-                }}
-                src={getImageURL(image1)}
-              />
-            </Card.Section>
-          </Card>
-          <Card
-            withBorder
-            className={classes.imageCard}
-            onClick={handleVote("LOSS", token, collectionId, index)}
-            bg="#FAFAFA"
-            radius={12}
-          >
-            <Card.Section
-              withBorder
-              style={{
-                display: "flex",
-                aspectRatio: "1 / 1",
-                position: "relative",
-              }}
-            >
-              <img
-                style={{
-                  position: "absolute",
-                  inset: 0,
-                  width: "100%",
-                  height: "100%",
-                  objectFit: "cover",
-                  filter: "blur(40px) brightness(1.2)",
-                  opacity: 0.4,
-                  transform: "scale(1.1)",
-                }}
-                src={getImageURL(image2)}
-              />
-              <img
-                style={{
-                  position: "absolute",
-                  inset: 0,
-                  width: "100%",
-                  height: "100%",
-                  objectFit: "contain",
-                  zIndex: 1,
-                }}
-                src={getImageURL(image2)}
-              />
-            </Card.Section>
-          </Card>
-        </Flex>
-      ))}
+              >
+                <Text
+                  mb={isLaptopOrTablet ? 8 : 4}
+                  size={isLaptopOrTablet ? "xl" : "l"}
+                  fw={600}
+                  lh={1}
+                >
+                  {collectionName}
+                </Text>
+                <Flex gap={8}>
+                  <Card
+                    withBorder
+                    className={classes.imageCard}
+                    onClick={handleVote("WIN", token, collectionId, index)}
+                    bg="#FAFAFA"
+                    radius={12}
+                  >
+                    <Card.Section
+                      withBorder
+                      style={{
+                        display: "flex",
+                        aspectRatio: "1 / 1",
+                        position: "relative",
+                      }}
+                    >
+                      <img
+                        style={{
+                          position: "absolute",
+                          inset: 0,
+                          width: "100%",
+                          height: "100%",
+                          objectFit: "cover",
+                          filter: "blur(40px) brightness(1.2)",
+                          opacity: 0.4,
+                          transform: "scale(1.1)",
+                        }}
+                        src={getImageURL(image1)}
+                      />
+                      <img
+                        style={{
+                          position: "absolute",
+                          inset: 0,
+                          width: "100%",
+                          height: "100%",
+                          objectFit: "contain",
+                          zIndex: 1,
+                        }}
+                        src={getImageURL(image1)}
+                      />
+                    </Card.Section>
+                  </Card>
+                  <Card
+                    withBorder
+                    className={classes.imageCard}
+                    onClick={handleVote("LOSS", token, collectionId, index)}
+                    bg="#FAFAFA"
+                    radius={12}
+                  >
+                    <Card.Section
+                      withBorder
+                      style={{
+                        display: "flex",
+                        aspectRatio: "1 / 1",
+                        position: "relative",
+                      }}
+                    >
+                      <img
+                        style={{
+                          position: "absolute",
+                          inset: 0,
+                          width: "100%",
+                          height: "100%",
+                          objectFit: "cover",
+                          filter: "blur(40px) brightness(1.2)",
+                          opacity: 0.4,
+                          transform: "scale(1.1)",
+                        }}
+                        src={getImageURL(image2)}
+                      />
+                      <img
+                        style={{
+                          position: "absolute",
+                          inset: 0,
+                          width: "100%",
+                          height: "100%",
+                          objectFit: "contain",
+                          zIndex: 1,
+                        }}
+                        src={getImageURL(image2)}
+                      />
+                    </Card.Section>
+                  </Card>
+                </Flex>
+              </div>
+            </div>
+            {index < duels.length - 1 && <Divider />}
+          </>
+        )
+      )}
     </Stack>
   );
 };

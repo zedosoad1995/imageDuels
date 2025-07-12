@@ -8,6 +8,7 @@ export const feed = (): Promise<
     image1: string;
     image2: string;
     collectionId: string;
+    collectionName: string;
   }[]
 > => {
   return api.get("/duels/feed");

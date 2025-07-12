@@ -111,7 +111,7 @@ export class CollectionsService {
     return res;
   }
 
-  async getManyIdsForUserFeed({
+  async getManyForUserFeed({
     userId,
     showNSFW,
   }: {
@@ -133,11 +133,12 @@ export class CollectionsService {
     const collections = await prisma.collection.findMany({
       select: {
         id: true,
+        title: true,
       },
       where: whereQuery,
     });
 
-    return collections.map(({ id }) => id);
+    return collections;
   }
 
   async getOne(

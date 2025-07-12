@@ -40,8 +40,8 @@ export class ImagesService {
     collectionId: string,
   ): Promise<
     [
-      Pick<Image, 'id' | 'filepath' | 'numVotes' | 'collectionId'>,
-      Pick<Image, 'id' | 'filepath' | 'numVotes' | 'collectionId'>,
+      Pick<Image, 'id' | 'filepath' | 'numVotes'>,
+      Pick<Image, 'id' | 'filepath' | 'numVotes'>,
     ]
   > {
     const images = await prisma.image.findMany({
@@ -104,8 +104,8 @@ export class ImagesService {
       collectionId: string;
     }[],
   ): [
-    Pick<Image, 'id' | 'filepath' | 'numVotes' | 'rating' | 'collectionId'>,
-    Pick<Image, 'id' | 'filepath' | 'numVotes' | 'rating' | 'collectionId'>,
+    Pick<Image, 'id' | 'filepath' | 'numVotes' | 'rating'>,
+    Pick<Image, 'id' | 'filepath' | 'numVotes' | 'rating'>,
   ] {
     let image1: {
       id: string;

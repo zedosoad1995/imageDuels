@@ -28,12 +28,14 @@ export class DuelsController {
 
   @Get('feed')
   async feed(@LoggedUser() user: User) {
-    const collectionIds = await this.collectionService.getManyIdsForUserFeed({
+    const collections = await this.collectionService.getManyForUserFeed({
       userId: user.id,
       showNSFW: user.canSeeNSFW,
     });
 
-    const duels = await this.imagesService.getBulkMatchesImages(collectionIds);
+    const duels = await this.imagesService.getBulkMatchesImages(
+      collections.map(({ id }) => id),
+    );
 
     const tokens = await Promise.all(
       duels.map(([img1, img2]) =>
@@ -45,7 +47,8 @@ export class DuelsController {
       image1: duel[0].filepath,
       image2: duel[1].filepath,
       token: tokens[index],
-      collectionId: duel[0].collectionId,
+      collectionId: collections[index].id,
+      collectionName: collections[index].title,
     }));
   }
 
