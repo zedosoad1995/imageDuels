@@ -45,6 +45,7 @@ export class DuelsController {
       image1: duel[0].filepath,
       image2: duel[1].filepath,
       token: tokens[index],
+      collectionId: duel[0].collectionId,
     }));
   }
 

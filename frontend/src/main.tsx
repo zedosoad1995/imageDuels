@@ -19,6 +19,7 @@ import { UserProvider } from "./Contexts/UserContext";
 import { Settings } from "./Pages/Settings/Settings";
 import { ProtectedLayout } from "./Layouts/ProtectedLayout/ProtectedLayout";
 import { PageProvider } from "./Contexts/PageContext";
+import { Feed } from "./Pages/Feed/Feed";
 
 const router = createBrowserRouter([
   {
@@ -34,7 +35,7 @@ const router = createBrowserRouter([
       },
       {
         path: "/",
-        Component: Explore,
+        Component: Feed,
       },
       {
         Component: ProtectedLayout,

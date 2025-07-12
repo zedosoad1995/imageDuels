@@ -33,15 +33,15 @@ export class ImagesService {
   }
 
   async getBulkMatchesImages(collectionIds: string[]) {
-    return Promise.all(collectionIds.map(this.getMatchImages));
+    return Promise.all(collectionIds.map((id) => this.getMatchImages(id)));
   }
 
   async getMatchImages(
     collectionId: string,
   ): Promise<
     [
-      Pick<Image, 'id' | 'filepath' | 'numVotes'>,
-      Pick<Image, 'id' | 'filepath' | 'numVotes'>,
+      Pick<Image, 'id' | 'filepath' | 'numVotes' | 'collectionId'>,
+      Pick<Image, 'id' | 'filepath' | 'numVotes' | 'collectionId'>,
     ]
   > {
     const images = await prisma.image.findMany({
@@ -53,6 +53,7 @@ export class ImagesService {
         filepath: true,
         numVotes: true,
         rating: true,
+        collectionId: true,
       },
     });
 
@@ -100,16 +101,18 @@ export class ImagesService {
       filepath: string;
       numVotes: number;
       rating: number;
+      collectionId: string;
     }[],
   ): [
-    Pick<Image, 'id' | 'filepath' | 'numVotes' | 'rating'>,
-    Pick<Image, 'id' | 'filepath' | 'numVotes' | 'rating'>,
+    Pick<Image, 'id' | 'filepath' | 'numVotes' | 'rating' | 'collectionId'>,
+    Pick<Image, 'id' | 'filepath' | 'numVotes' | 'rating' | 'collectionId'>,
   ] {
     let image1: {
       id: string;
       filepath: string;
       numVotes: number;
       rating: number;
+      collectionId: string;
     };
 
     if (Math.random() < 0.2) {
