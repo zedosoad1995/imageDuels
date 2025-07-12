@@ -63,6 +63,20 @@ export class ImagesService {
     return this.randomImagesWithVotes(images);
   }
 
+  async getOne(imageId: string): Promise<Image> {
+    const image = await prisma.image.findFirst({
+      where: {
+        id: imageId,
+      },
+    });
+
+    if (!image) {
+      throw new BadRequestException(`Invalid image ${imageId}`);
+    }
+
+    return image;
+  }
+
   private randomImages(
     images: {
       id: string;

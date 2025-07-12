@@ -1,5 +1,5 @@
 import { Button, Card, Flex, Group, Text } from "@mantine/core";
-import { createDuel } from "../../../../Api/collections";
+import { getDuel } from "../../../../Api/collections";
 import { useCallback, useContext, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import classes from "./Vote.module.css";
@@ -19,7 +19,7 @@ export const Vote = ({ collection }: Props) => {
   const { id: collectionId } = useParams();
   const [image1, setImage1] = useState("");
   const [image2, setImage2] = useState("");
-  const [duelId, setDuelId] = useState<string>();
+  const [token, setDuelToken] = useState<string>();
   const { loggedIn } = useContext(UserContext);
 
   useEffect(() => {
@@ -27,10 +27,10 @@ export const Vote = ({ collection }: Props) => {
       return;
     }
 
-    createDuel(collectionId).then(({ duelId, image1, image2 }) => {
+    getDuel(collectionId).then(({ token, image1, image2 }) => {
       setImage1(image1);
       setImage2(image2);
-      setDuelId(duelId);
+      setDuelToken(token);
     });
   }, []);
 
@@ -52,19 +52,21 @@ export const Vote = ({ collection }: Props) => {
         openSignUpModal();
       }
 
-      if (!duelId || !collectionId) {
+      if (!token || !collectionId) {
         return;
       }
 
-      await vote(duelId, outcome);
+      if (outcome !== "SKIP") {
+        await vote(token, outcome);
+      }
 
-      createDuel(collectionId).then(({ duelId, image1, image2 }) => {
+      getDuel(collectionId).then(({ token, image1, image2 }) => {
         setImage1(image1);
         setImage2(image2);
-        setDuelId(duelId);
+        setDuelToken(token);
       });
     },
-    [duelId, collectionId]
+    [token, collectionId]
   );
 
   useEffect(() => {

@@ -161,8 +161,8 @@ export class CollectionsController {
     return this.imagesService.create(collectionId, imageFile);
   }
 
-  @Post(':collectionId/duels')
-  async createDuel(
+  @Get(':collectionId/duels')
+  async getDuel(
     @UserId() userId: string | undefined,
     @Param('collectionId') collectionId: string,
   ) {

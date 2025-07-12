@@ -47,8 +47,8 @@ export const addImageToCollection = (
   return api.post(`/collections/${id}/add-image`, formData);
 };
 
-export const createDuel = (
+export const getDuel = (
   id: string
-): Promise<{ duelId: string | undefined; image1: string; image2: string }> => {
-  return api.post(`/collections/${id}/duels`);
+): Promise<{ token: string | undefined; image1: string; image2: string }> => {
+  return api.get(`/collections/${id}/duels`);
 };

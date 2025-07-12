@@ -16,7 +16,6 @@ import { ImagesService } from 'src/images/images.service';
 import { CollectionsService } from 'src/collections/collections.service';
 import { User } from '@prisma/client';
 import { LoggedUser, UserId } from 'src/users/users.decorator';
-import { JwtService } from '@nestjs/jwt';
 
 @UseGuards(AuthGuard(true), ProfileCompletedGuard)
 @Controller('duels')
@@ -25,7 +24,6 @@ export class DuelsController {
     private readonly duelsService: DuelsService,
     private readonly imagesService: ImagesService,
     private readonly collectionService: CollectionsService,
-    private jwtService: JwtService,
   ) {}
 
   @Get('feed')
@@ -59,9 +57,14 @@ export class DuelsController {
   ) {
     // TODO: SKIP. No reason to keep it. Simple do not call this endpoint when it is to skip.
 
-    const [image1, image2] = await this.duelsService.getDuelImagesFromToken(
+    const [imageId1, imageId2] = await this.duelsService.getDuelImagesFromToken(
       voteDto.token,
     );
+
+    const [image1, image2] = await Promise.all([
+      this.imagesService.getOne(imageId1),
+      this.imagesService.getOne(imageId2),
+    ]);
 
     await this.duelsService.createVote(voteDto.outcome, image1, image2, userId);
   }
