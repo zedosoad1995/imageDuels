@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import { Fragment, useContext, useEffect, useState } from "react";
 import { feed, vote, VoteOutcome } from "../../Api/duels";
 import { getImageURL } from "../../Utils/image";
 import { Card, Divider, Flex, Stack, Text } from "@mantine/core";
@@ -8,10 +8,12 @@ import { modals } from "@mantine/modals";
 import { useNavigate } from "react-router";
 import { getDuel } from "../../Api/collections";
 import { useMediaQuery } from "@mantine/hooks";
+import { usePage } from "../../Hooks/usePage";
 
 export const Feed = () => {
   const { loggedIn } = useContext(UserContext);
   const navigate = useNavigate();
+  usePage("feed");
   const isLaptopOrTablet = useMediaQuery("(min-width: 650px)");
 
   const [duels, setDuels] = useState<
@@ -84,13 +86,13 @@ export const Feed = () => {
       },
     });
 
-  const verticalPadding = isLaptopOrTablet ? 32 : 16;
+  const verticalPadding = isLaptopOrTablet ? 32 : 24;
 
   return (
     <Stack gap={0}>
       {duels?.map(
         ({ image1, image2, token, collectionId, collectionName }, index) => (
-          <>
+          <Fragment key={index}>
             <div
               style={{ cursor: "pointer" }}
               onClick={handleClickCollection(collectionId)}
@@ -99,7 +101,11 @@ export const Feed = () => {
                 style={{
                   marginBottom:
                     index === duels.length - 1 ? 0 : verticalPadding,
-                  marginTop: index === 0 ? 0 : verticalPadding,
+                  marginTop:
+                    index === 0 && isLaptopOrTablet ? 0 : verticalPadding,
+                  maxWidth: 1000,
+                  marginLeft: "auto",
+                  marginRight: "auto",
                 }}
               >
                 <Text
@@ -197,7 +203,7 @@ export const Feed = () => {
               </div>
             </div>
             {index < duels.length - 1 && <Divider />}
-          </>
+          </Fragment>
         )
       )}
     </Stack>

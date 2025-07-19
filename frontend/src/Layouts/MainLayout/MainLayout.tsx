@@ -1,4 +1,11 @@
-import { AppShell, Button, Modal, Stack, TextInput } from "@mantine/core";
+import {
+  AppShell,
+  Button,
+  Modal,
+  Stack,
+  TextInput,
+  UnstyledButton,
+} from "@mantine/core";
 import { Outlet, useNavigate } from "react-router";
 import classes from "./MainLayout.module.css";
 import { Sidebar } from "./components/Sidebar/Sidebar";
@@ -8,6 +15,7 @@ import debounce from "lodash.debounce";
 import { checkUsername, completeRegistration } from "../../Api/users";
 import { useMediaQuery } from "@mantine/hooks";
 import { Footer } from "./components/Footer/Footer";
+import { Header } from "./components/Header/Header";
 
 export const MainLayout = () => {
   const { user, logout, setUser } = useContext(UserContext);
@@ -114,7 +122,8 @@ export const MainLayout = () => {
 
   return (
     <>
-      <AppShell padding="xs" pb={50 + 10}>
+      <AppShell padding="xs" pb={50 + 10} /* pt={50 + 10} */>
+        {/* <Header /> */}
         <AppShell.Main className={classes.main}>
           <Outlet />
         </AppShell.Main>

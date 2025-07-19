@@ -27,10 +27,10 @@ const orderValues: { value: IGetCollectionsOrderBy; label: string }[] = [
   { value: "popular", label: "Popular" },
 ];
 
-export const Explore = () => {
+export const Collections = () => {
   const navigate = useNavigate();
   const { user } = useContext(UserContext);
-  usePage("explore");
+  usePage("collections");
 
   const [collections, setCollections] = useState<IGetCollections>([]);
   const [orderBy, setOrderBy] = useState<IGetCollectionsOrderBy>("new");

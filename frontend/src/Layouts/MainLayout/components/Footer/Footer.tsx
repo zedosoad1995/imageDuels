@@ -3,6 +3,7 @@ import ExploreIcon from "../../../../assets/svgs/explore.svg?react";
 import CollectionsIcon from "../../../../assets/svgs/collections.svg?react";
 import AddIcon from "../../../../assets/svgs/add-box.svg?react";
 import AccountIcon from "../../../../assets/svgs/account.svg?react";
+import DuelIcon from "../../../../assets/svgs/duel.svg?react";
 import classes from "./Footer.module.css";
 import { usePage } from "../../../../Hooks/usePage";
 import { useContext } from "react";
@@ -23,11 +24,21 @@ export const Footer = () => {
     <AppShell.Footer className={classes.base}>
       <Tooltip position="top" label="Explore">
         <Button
-          variant={page === "explore" ? "light" : "subtle"}
+          variant={page === "collections" ? "light" : "subtle"}
           className={classes.item}
           onClick={() => navigate("/")}
         >
           <ExploreIcon className={classes.itemIcon} />
+        </Button>
+      </Tooltip>
+
+      <Tooltip position="top" label="Duels">
+        <Button
+          variant={page === "feed" ? "light" : "subtle"}
+          className={classes.item}
+          onClick={() => navigate("/feed")}
+        >
+          <DuelIcon className={classes.itemIcon} />
         </Button>
       </Tooltip>
 

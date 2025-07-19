@@ -1,7 +1,8 @@
 import React, { createContext, useState } from "react";
 
 export type PageName =
-  | "explore"
+  | "feed"
+  | "collections"
   | "create-collection"
   | "my-collections"
   | "settings"

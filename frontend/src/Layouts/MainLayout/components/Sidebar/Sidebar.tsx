@@ -2,6 +2,7 @@ import { AppShell, Tooltip, UnstyledButton } from "@mantine/core";
 import classes from "./Sidebar.module.css";
 import ExploreIcon from "../../../../assets/svgs/explore.svg?react";
 import CollectionsIcon from "../../../../assets/svgs/collections.svg?react";
+import DuelIcon from "../../../../assets/svgs/duel.svg?react";
 import AddIcon from "../../../../assets/svgs/add-box.svg?react";
 import SettingsIcon from "../../../../assets/svgs/settings.svg?react";
 import LogoutIcon from "../../../../assets/svgs/logout.svg?react";
@@ -21,9 +22,17 @@ export const Sidebar = () => {
     navigate("/");
   };
 
+  const handleClickFeed = () => {
+    navigate("/feed");
+  };
+
   const handleClickCreate = () => {
     // TODO: open modal when use not logged
     navigate("/collections/create");
+  };
+
+  const handleClickCollections = () => {
+    navigate("/collections");
   };
 
   const handleClickMy = () => {
@@ -63,9 +72,19 @@ export const Sidebar = () => {
           <UnstyledButton
             className={classes.item}
             onClick={handleClickLogo}
-            data-active={page === "explore" || undefined}
+            data-active={page === "collections" || undefined}
           >
             <ExploreIcon className={classes.itemIcon} />
+          </UnstyledButton>
+        </Tooltip>
+
+        <Tooltip position="right" label="Duels">
+          <UnstyledButton
+            className={classes.item}
+            onClick={handleClickFeed}
+            data-active={page === "feed" || undefined}
+          >
+            <DuelIcon className={classes.itemIcon} />
           </UnstyledButton>
         </Tooltip>
 

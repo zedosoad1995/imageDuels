@@ -115,16 +115,17 @@ export class CollectionsService {
     userId,
     showNSFW,
   }: {
-    userId: string;
-    showNSFW: boolean;
+    userId?: string;
+    showNSFW?: boolean;
   }) {
     const whereQuery: Prisma.CollectionWhereInput = {};
 
     if (userId) {
       whereQuery.ownerId = { not: userId };
-      whereQuery.mode = 'PUBLIC';
-      whereQuery.isLive = true;
     }
+
+    whereQuery.mode = 'PUBLIC';
+    whereQuery.isLive = true;
 
     if (!showNSFW) {
       whereQuery.isNSFW = false;

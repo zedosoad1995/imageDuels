@@ -4,6 +4,7 @@ import {
   Get,
   HttpCode,
   Post,
+  Res,
   UseGuards,
   UsePipes,
 } from '@nestjs/common';
@@ -17,7 +18,6 @@ import { CollectionsService } from 'src/collections/collections.service';
 import { User } from '@prisma/client';
 import { LoggedUser, UserId } from 'src/users/users.decorator';
 
-@UseGuards(AuthGuard(true), ProfileCompletedGuard)
 @Controller('duels')
 export class DuelsController {
   constructor(
@@ -27,10 +27,10 @@ export class DuelsController {
   ) {}
 
   @Get('feed')
-  async feed(@LoggedUser() user: User) {
+  async feed(@LoggedUser({ fetchUser: true }) user: User) {
     const collections = await this.collectionService.getManyForUserFeed({
-      userId: user.id,
-      showNSFW: user.canSeeNSFW,
+      userId: user?.id,
+      showNSFW: user?.canSeeNSFW,
     });
 
     const duels = await this.imagesService.getBulkMatchesImages(
@@ -52,6 +52,7 @@ export class DuelsController {
     }));
   }
 
+  @UseGuards(AuthGuard(true), ProfileCompletedGuard)
   @UsePipes(new ZodValidationPipe(voteSchema))
   @HttpCode(204)
   @Post('vote')

@@ -3,7 +3,7 @@ import { createRoot } from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router";
 import { Register } from "./Pages/Register/Register";
 import { Login } from "./Pages/Login/Login";
-import { Explore } from "./Pages/Explore/Explore";
+import { Collections } from "./Pages/Collections/Collections";
 import { Collection } from "./Pages/Collection/Collection";
 import "@mantine/core/styles.css";
 import { createTheme, MantineProvider } from "@mantine/core";
@@ -35,6 +35,10 @@ const router = createBrowserRouter([
       },
       {
         path: "/",
+        Component: Collections,
+      },
+      {
+        path: "/feed",
         Component: Feed,
       },
       {
