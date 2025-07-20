@@ -1,19 +1,49 @@
-import { AppShell, UnstyledButton } from "@mantine/core";
+import { AppShell, Title, UnstyledButton } from "@mantine/core";
 import classes from "./Header.module.css";
 import { useNavigate } from "react-router";
+import { usePage } from "../../../../Hooks/usePage";
+import { useMemo } from "react";
+import { PageName } from "../../../../Contexts/PageContext";
 
 export const Header = () => {
   const navigate = useNavigate();
+  const page = usePage();
 
   const handleClickLogo = async () => {
     navigate("/");
   };
 
+  const pageName = useMemo(() => {
+    if (!page) {
+      return "Image Duels";
+    }
+
+    const pageLabelMap: Record<PageName, string> = {
+      settings: "Settings",
+      login: "Login",
+      register: "Sign Up",
+      feed: "Duels",
+      collections: "Collections",
+      "my-collections": "Your Collections",
+      "create-collection": "New Collection",
+    };
+
+    return pageLabelMap[page];
+  }, [page]);
+
   return (
     <AppShell.Header className={classes.base}>
-      <UnstyledButton onClick={handleClickLogo}>
-        <img src="/my-logo.svg" style={{ width: 30, display: "block" }} />
-      </UnstyledButton>
+      <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+        <UnstyledButton
+          onClick={handleClickLogo}
+          style={{ position: "relative", top: -3 }}
+        >
+          <img src="/my-logo.svg" style={{ width: 30, display: "block" }} />
+        </UnstyledButton>
+        <Title style={{ position: "relative", top: 2 }} size={24}>
+          {pageName}
+        </Title>
+      </div>
     </AppShell.Header>
   );
 };

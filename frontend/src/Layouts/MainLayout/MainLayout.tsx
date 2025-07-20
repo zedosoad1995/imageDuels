@@ -122,8 +122,8 @@ export const MainLayout = () => {
 
   return (
     <>
-      <AppShell padding="xs" pb={50 + 10} /* pt={50 + 10} */>
-        {/* <Header /> */}
+      <AppShell padding="xs" pb={50 + 10} pt={48}>
+        <Header />
         <AppShell.Main className={classes.main}>
           <Outlet />
         </AppShell.Main>
