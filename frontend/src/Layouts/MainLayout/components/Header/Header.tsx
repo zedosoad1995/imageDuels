@@ -33,14 +33,17 @@ export const Header = () => {
 
   return (
     <AppShell.Header className={classes.base}>
-      <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-        <UnstyledButton
-          onClick={handleClickLogo}
-          style={{ position: "relative", top: -3 }}
-        >
+      <div
+        style={{ display: "flex", alignItems: "center", gap: 6 }}
+        onClick={handleClickLogo}
+      >
+        <UnstyledButton style={{ position: "relative", top: -3 }}>
           <img src="/my-logo.svg" style={{ width: 30, display: "block" }} />
         </UnstyledButton>
-        <Title style={{ position: "relative", top: 2 }} size={24}>
+        <Title
+          style={{ position: "relative", top: 2, cursor: "pointer" }}
+          size={24}
+        >
           {pageName}
         </Title>
       </div>

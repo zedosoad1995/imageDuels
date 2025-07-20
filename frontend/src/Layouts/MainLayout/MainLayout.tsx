@@ -1,11 +1,4 @@
-import {
-  AppShell,
-  Button,
-  Modal,
-  Stack,
-  TextInput,
-  UnstyledButton,
-} from "@mantine/core";
+import { AppShell, Button, Modal, Stack, TextInput } from "@mantine/core";
 import { Outlet, useNavigate } from "react-router";
 import classes from "./MainLayout.module.css";
 import { Sidebar } from "./components/Sidebar/Sidebar";
@@ -122,7 +115,7 @@ export const MainLayout = () => {
 
   return (
     <>
-      <AppShell padding="xs" pb={50 + 10} pt={48}>
+      <AppShell padding="xs" footer={{ height: 50 }} header={{ height: 48 }}>
         <Header />
         <AppShell.Main className={classes.main}>
           <Outlet />

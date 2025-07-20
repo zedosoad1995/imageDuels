@@ -63,7 +63,7 @@ export const Footer = () => {
           </Button>
         </Tooltip>
       )}
-      <Menu shadow="md" width={150} position="top-start">
+      <Menu shadow="md" width={150} position="top-end" floatingStrategy="fixed">
         <Menu.Target>
           <Tooltip position="top" label="Account">
             <Button
