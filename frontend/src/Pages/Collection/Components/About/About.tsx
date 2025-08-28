@@ -123,7 +123,9 @@ export const About = ({ collection }: Props) => {
       <>
         {collection.question && <Text>Question: {collection.question}</Text>}
         {collection.description && (
-          <Text>Description: {collection.description}</Text>
+          <Text style={{ lineBreak: "anywhere" }}>
+            {collection.description}
+          </Text>
         )}
       </>
     );
@@ -167,7 +169,7 @@ export const About = ({ collection }: Props) => {
       />
 
       <Button onClick={handleClickEdit} loading={isLoading} disabled={!isValid}>
-        Edit
+        Save
       </Button>
       <Button onClick={openDeleteModal} color="red">
         Delete

@@ -20,6 +20,7 @@ import { Settings } from "./Pages/Settings/Settings";
 import { ProtectedLayout } from "./Layouts/ProtectedLayout/ProtectedLayout";
 import { PageProvider } from "./Contexts/PageContext";
 import { Feed } from "./Pages/Feed/Feed";
+import { theme, resolver } from "./Utils/theme";
 
 const router = createBrowserRouter([
   {
@@ -66,18 +67,9 @@ const router = createBrowserRouter([
   },
 ]);
 
-const theme = createTheme({
-  spacing: {
-    xxs: "4px",
-  },
-  shadows: {
-    around: "0 0 6px 2px rgba(0, 0, 0, 0.5)",
-  },
-});
-
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <MantineProvider theme={theme}>
+    <MantineProvider theme={createTheme(theme)} cssVariablesResolver={resolver}>
       <Notifications />
       <ModalsProvider>
         <PageProvider>

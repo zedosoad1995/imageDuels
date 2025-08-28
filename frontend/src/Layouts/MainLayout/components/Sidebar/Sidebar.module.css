@@ -3,6 +3,7 @@
   padding: 4px;
   display: flex;
   flex-direction: column;
+  background-color: var(--mantine-color-bg);
 }
 
 .navbarMain {
@@ -37,28 +38,10 @@
 
   &:hover {
     background-color: var(--mantine-color-gray-0);
-    color: var(--mantine-color-black);
-
-    & .linkIcon {
-      color: var(--mantine-color-black);
-    }
-  }
-
-  &[data-active] {
-    &,
-    &:hover {
-      background-color: var(--mantine-color-blue-light);
-      color: var(--mantine-color-blue-light-color);
-
-      & .itemIcon {
-        color: var(--mantine-color-blue-light-color);
-      }
-    }
   }
 }
 
 .itemIcon {
-  color: var(--mantine-color-gray-6);
   width: 25px;
   height: 25px;
 }

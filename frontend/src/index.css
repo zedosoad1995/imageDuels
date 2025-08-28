@@ -1,3 +1,4 @@
 body {
-  background-color: #ffffff;
+  background-color: var(--mantine-color-bg);
+  color: var(--mantine-color-textColor);
 }

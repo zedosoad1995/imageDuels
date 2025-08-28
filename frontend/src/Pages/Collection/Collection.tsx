@@ -27,7 +27,7 @@ import { CopyItem } from "../../Components/CopyItem/CopyItem";
 export const CollectionChild = () => {
   const { collection, fetchCollection, setCollection } =
     useContext(CollectionContext);
-  const { loggedIn } = useContext(UserContext);
+  const { loggedIn, user } = useContext(UserContext);
 
   const [showSubtitle, setShowSubtitle] = useState(false);
 
@@ -138,7 +138,9 @@ export const CollectionChild = () => {
           <Tabs.Tab value="images" onClick={fetchCollection}>
             Images
           </Tabs.Tab>
-          <Tabs.Tab value="about">About</Tabs.Tab>
+          {(user?.role === "ADMIN" ||
+            collection.belongsToMe ||
+            collection.description) && <Tabs.Tab value="about">About</Tabs.Tab>}
         </Tabs.List>
 
         <Tabs.Panel value="vote" pt={8}>
