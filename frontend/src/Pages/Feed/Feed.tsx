@@ -1,7 +1,7 @@
 import { Fragment, useContext, useEffect, useState } from "react";
 import { feed, vote, VoteOutcome } from "../../Api/duels";
 import { getImageURL } from "../../Utils/image";
-import { Card, Divider, Flex, Stack, Text } from "@mantine/core";
+import { Card, Divider, Flex, Group, Stack, Text } from "@mantine/core";
 import classes from "./Feed.module.css";
 import { UserContext } from "../../Contexts/UserContext";
 import { modals } from "@mantine/modals";
@@ -18,12 +18,12 @@ export const Feed = () => {
 
   const [duels, setDuels] = useState<
     | {
-        token: string | undefined;
-        image1: string;
-        image2: string;
-        collectionId: string;
-        collectionName: string;
-      }[]
+      token: string | undefined;
+      image1: string;
+      image2: string;
+      collectionId: string;
+      collectionName: string;
+    }[]
     | null
   >(null);
 
@@ -42,37 +42,37 @@ export const Feed = () => {
       collectionId: string,
       index: number
     ) =>
-    async (event: React.MouseEvent<HTMLDivElement>) => {
-      event.stopPropagation();
+      async (event: React.MouseEvent<HTMLDivElement>) => {
+        event.stopPropagation();
 
-      if (!loggedIn) {
-        openSignUpModal();
-      }
+        if (!loggedIn) {
+          openSignUpModal();
+        }
 
-      if (!token) {
-        return;
-      }
+        if (!token) {
+          return;
+        }
 
-      await vote(token, outcome);
+        await vote(token, outcome);
 
-      getDuel(collectionId).then(({ token, image1, image2 }) => {
-        setDuels((duels) => {
-          if (!duels) return duels;
+        getDuel(collectionId).then(({ token, image1, image2 }) => {
+          setDuels((duels) => {
+            if (!duels) return duels;
 
-          return duels.map((duel, indexMap) =>
-            index === indexMap
-              ? {
+            return duels.map((duel, indexMap) =>
+              index === indexMap
+                ? {
                   token,
                   image1,
                   image2,
                   collectionId,
                   collectionName: duel.collectionName,
                 }
-              : duel
-          );
+                : duel
+            );
+          });
         });
-      });
-    };
+      };
 
   const openSignUpModal = () =>
     modals.openConfirmModal({
@@ -95,27 +95,41 @@ export const Feed = () => {
           <Fragment key={index}>
             <div
               style={{ cursor: "pointer" }}
+              className={classes.duelContainer}
               onClick={handleClickCollection(collectionId)}
             >
               <div
                 style={{
                   marginBottom:
                     index === duels.length - 1 ? 0 : verticalPadding,
-                  marginTop:
-                    index === 0 && isLaptopOrTablet ? 0 : verticalPadding,
+                  marginTop: verticalPadding / 2,
                   maxWidth: 1000,
                   marginLeft: "auto",
                   marginRight: "auto",
                 }}
               >
-                <Text
-                  mb={isLaptopOrTablet ? 8 : 4}
-                  size={isLaptopOrTablet ? "xl" : "l"}
-                  fw={600}
-                  lh={1}
-                >
-                  {collectionName}
-                </Text>
+                <Group gap={4} mb={isLaptopOrTablet ? 12 : 6} justify="space-between">
+                  <Text
+                    size={isLaptopOrTablet ? "xl" : "l"}
+                    fw={600}
+                    lh={1}
+                  >
+                    {collectionName}
+                  </Text>
+
+                  <Text
+                    size={isLaptopOrTablet ? "l" : "md"}
+                    fw={300}
+                    lh={1}
+                    c="dimmed"
+                    className={classes.gotoText}
+                  >
+                    <span className={classes.gotoTextSpan}>
+                      View collection
+                    </span> ➞
+                  </Text>
+
+                </Group>
                 <Flex gap={8}>
                   <Card
                     withBorder
@@ -202,7 +216,7 @@ export const Feed = () => {
                 </Flex>
               </div>
             </div>
-            {index < duels.length - 1 && <Divider />}
+            {index < duels.length - 1 && <Divider my={4} />}
           </Fragment>
         )
       )}

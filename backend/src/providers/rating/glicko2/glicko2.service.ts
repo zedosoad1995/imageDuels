@@ -103,15 +103,16 @@ export class Glicko2Service {
     };
 
     let A = a;
-    if (delta * delta > rd * rd - v) {
-      var B = Math.log(delta * delta - rd * rd - v);
+    let B: number;
+    if (delta * delta > rd * rd + v) {
+      B = Math.log(delta * delta - rd * rd - v);
     } else {
       let k = 1;
       while (f(a - k * TAU) < 0) {
         k += 1;
       }
 
-      var B = a - k * TAU;
+      B = a - k * TAU;
     }
 
     let fA = f(A);

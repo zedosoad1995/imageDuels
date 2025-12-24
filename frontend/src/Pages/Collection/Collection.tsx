@@ -54,14 +54,16 @@ export const CollectionChild = () => {
   return (
     <>
       <Group justify="space-between" wrap="nowrap">
-        <Group>
+        <Group gap={8}>
           <Text fw={600} size="lg">
             {collection.title}
           </Text>
           {collection.isNSFW && (
+            <Tooltip label="Visible only to 18+ users with mature content enabled">
             <Badge size="xs" color="red">
               NSFW
             </Badge>
+            </Tooltip>
           )}
           {!collection.isValid && (
             <Tooltip label="You must upload at least 2 images">
