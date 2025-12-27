@@ -9,10 +9,11 @@ import { checkUsername, completeRegistration } from "../../Api/users";
 import { useMediaQuery } from "@mantine/hooks";
 import { Footer } from "./components/Footer/Footer";
 import { Header } from "./components/Header/Header";
+import { MEDIA_QUERY_DESKTOP } from "../../Utils/breakpoints";
 
 export const MainLayout = () => {
   const { user, logout, setUser } = useContext(UserContext);
-  const isLaptopOrTablet = useMediaQuery("(min-width: 800px)");
+  const isLaptopOrTablet = useMediaQuery(MEDIA_QUERY_DESKTOP);
 
   const navigate = useNavigate();
 

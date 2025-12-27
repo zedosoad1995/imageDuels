@@ -1,4 +1,4 @@
-import { Button, Stack, Textarea, TextInput } from "@mantine/core";
+import { Button, Stack, Textarea, TextInput, Title } from "@mantine/core";
 import { useState } from "react";
 import { ModeSelect } from "../../Components/ModeSelect/ModeSelect";
 import { CollectionModeType } from "../../Types/collection";
@@ -6,10 +6,13 @@ import { createCollection } from "../../Api/collections";
 import { useNavigate } from "react-router";
 import { Switch } from "../../Components/Switch/Switch";
 import { usePage } from "../../Hooks/usePage";
+import { useMediaQuery } from "@mantine/hooks";
+import { MEDIA_QUERY_DESKTOP } from "../../Utils/breakpoints";
 
 export const CreateCollection = () => {
   const navigate = useNavigate();
   usePage("create-collection");
+  const isDesktop = useMediaQuery(MEDIA_QUERY_DESKTOP);
 
   const [title, setTitle] = useState("");
   const [question, setQuestion] = useState("");
@@ -19,15 +22,15 @@ export const CreateCollection = () => {
 
   const handleChange =
     (setValue: React.Dispatch<React.SetStateAction<string>>) =>
-    (event: React.ChangeEvent<HTMLInputElement>) => {
-      setValue(event.currentTarget.value);
-    };
+      (event: React.ChangeEvent<HTMLInputElement>) => {
+        setValue(event.currentTarget.value);
+      };
 
   const handleChangeSwitch =
     (setValue: React.Dispatch<React.SetStateAction<boolean>>) =>
-    (event: React.ChangeEvent<HTMLInputElement>) => {
-      setValue(event.currentTarget.checked);
-    };
+      (event: React.ChangeEvent<HTMLInputElement>) => {
+        setValue(event.currentTarget.checked);
+      };
 
   const handleChangeDescription = (
     event: React.ChangeEvent<HTMLTextAreaElement>
@@ -54,33 +57,40 @@ export const CreateCollection = () => {
   // TODO: Should NSFW switch be shown when user is safe for work?
 
   return (
-    <Stack>
-      <TextInput
-        label="Title"
-        placeholder="Title"
-        value={title}
-        onChange={handleChange(setTitle)}
-        required
-      />
-      <TextInput
-        label="Question"
-        placeholder="Question"
-        value={question}
-        onChange={handleChange(setQuestion)}
-      />
-      <Textarea
-        label="Description"
-        placeholder="Description"
-        value={description}
-        onChange={handleChangeDescription}
-      />
-      <ModeSelect value={mode} onChange={handleModeChange} />
-      <Switch
-        label="NSWF content (+18)"
-        checked={isNSFW}
-        onChange={handleChangeSwitch(setIsNSFW)}
-      />
-      <Button onClick={handleClickCreate}>Create</Button>
-    </Stack>
+    <>
+      {isDesktop && (
+        <Title order={2} pb="sm">
+          New Collection
+        </Title>
+      )}
+      <Stack>
+        <TextInput
+          label="Title"
+          placeholder="Title"
+          value={title}
+          onChange={handleChange(setTitle)}
+          required
+        />
+        <TextInput
+          label="Question"
+          placeholder="Question"
+          value={question}
+          onChange={handleChange(setQuestion)}
+        />
+        <Textarea
+          label="Description"
+          placeholder="Description"
+          value={description}
+          onChange={handleChangeDescription}
+        />
+        <ModeSelect value={mode} onChange={handleModeChange} />
+        <Switch
+          label="NSWF content (+18)"
+          checked={isNSFW}
+          onChange={handleChangeSwitch(setIsNSFW)}
+        />
+        <Button onClick={handleClickCreate}>Create</Button>
+      </Stack>
+    </>
   );
 };

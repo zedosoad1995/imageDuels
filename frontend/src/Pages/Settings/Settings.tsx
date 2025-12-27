@@ -1,4 +1,4 @@
-import { Button, Stack, Text } from "@mantine/core";
+import { Button, Stack, Text, Title } from "@mantine/core";
 import { Switch } from "../../Components/Switch/Switch";
 import { useCallback, useContext, useState } from "react";
 import debounce from "lodash.debounce";
@@ -7,11 +7,14 @@ import { UserContext } from "../../Contexts/UserContext";
 import { modals } from "@mantine/modals";
 import { useNavigate } from "react-router";
 import { usePage } from "../../Hooks/usePage";
+import { useMediaQuery } from "@mantine/hooks";
+import { MEDIA_QUERY_DESKTOP } from "../../Utils/breakpoints";
 
 export const Settings = () => {
   const navigate = useNavigate();
   const { user, setUser } = useContext(UserContext);
   usePage("settings");
+  const isDesktop = useMediaQuery(MEDIA_QUERY_DESKTOP);
 
   const [canSeeNSFW, setCanSeeNSFW] = useState(user?.canSeeNSFW as boolean);
 
@@ -32,10 +35,10 @@ export const Settings = () => {
 
   const handleChangeSwitch =
     (setValue: React.Dispatch<React.SetStateAction<boolean>>) =>
-    (event: React.ChangeEvent<HTMLInputElement>) => {
-      setValue(event.currentTarget.checked);
-      debouncedUpdateUser(event.currentTarget.checked);
-    };
+      (event: React.ChangeEvent<HTMLInputElement>) => {
+        setValue(event.currentTarget.checked);
+        debouncedUpdateUser(event.currentTarget.checked);
+      };
 
   // TODO: when clicking NSFW on should a modal appear?
 
@@ -61,9 +64,12 @@ export const Settings = () => {
 
   return (
     <>
-      <Text fw={600} size="lg" pb="sm">
-        Settings
-      </Text>
+      {isDesktop && (
+        <Title order={2} pb="sm">
+          Settings
+        </Title>
+      )}
+
       <Stack>
         <Switch
           label="Show mature content (I'm over 18)"

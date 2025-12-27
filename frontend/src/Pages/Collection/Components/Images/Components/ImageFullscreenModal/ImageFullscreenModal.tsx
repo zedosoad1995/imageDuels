@@ -8,6 +8,7 @@ import { useHotkeys, useMediaQuery } from "@mantine/hooks";
 import { EmblaCarouselType } from "embla-carousel";
 import { IGetCollection } from "../../../../../../Types/collection";
 import classes from "./ImageFullscreenModal.module.css";
+import { MEDIA_QUERY_DESKTOP } from "../../../../../../Utils/breakpoints";
 
 interface Props {
   images: IGetCollection["images"];
@@ -23,7 +24,7 @@ export const ImageFullScreenModal = ({
   onClose,
 }: Props) => {
   const [embla, setEmbla] = useState<EmblaCarouselType | null>(null);
-  const isLaptopOrTablet = useMediaQuery("(min-width: 800px)");
+  const isLaptopOrTablet = useMediaQuery(MEDIA_QUERY_DESKTOP);
 
   useHotkeys([
     ["ArrowLeft", () => embla?.scrollPrev()],

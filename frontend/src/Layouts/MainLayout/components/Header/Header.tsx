@@ -24,7 +24,7 @@ export const Header = () => {
       register: "Sign Up",
       feed: "Duels",
       collections: "Collections",
-      "my-collections": "Your Collections",
+      "my-collections": "My Collections",
       "create-collection": "New Collection",
     };
 
@@ -41,7 +41,7 @@ export const Header = () => {
           <img src="/my-logo.svg" style={{ width: 30, display: "block" }} />
         </UnstyledButton>
         <Title
-          style={{ position: "relative", top: 2, cursor: "pointer" }}
+          style={{ position: "relative", top: 2, cursor: "pointer", marginLeft: 4 }}
           size={24}
         >
           {pageName}
