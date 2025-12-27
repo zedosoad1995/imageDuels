@@ -60,9 +60,9 @@ export const CollectionChild = () => {
           </Text>
           {collection.isNSFW && (
             <Tooltip label="Visible only to 18+ users with mature content enabled">
-            <Badge size="xs" color="red">
-              NSFW
-            </Badge>
+              <Badge size="xs" color="red">
+                NSFW
+              </Badge>
             </Tooltip>
           )}
           {!collection.isValid && (
@@ -125,7 +125,7 @@ export const CollectionChild = () => {
         </>
       )}
       <Tabs
-        defaultValue={loggedIn ? "vote" : "images"}
+        defaultValue={loggedIn && collection.isValid ? "vote" : "images"}
         keepMounted={false}
         onChange={(value) => {
           if (value === "images") {
@@ -136,7 +136,7 @@ export const CollectionChild = () => {
         }}
       >
         <Tabs.List>
-          <Tabs.Tab value="vote">Vote</Tabs.Tab>
+          <Tabs.Tab value="vote" disabled={!collection.isValid}>Vote</Tabs.Tab>
           <Tabs.Tab value="images" onClick={fetchCollection}>
             Images
           </Tabs.Tab>

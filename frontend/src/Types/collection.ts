@@ -42,7 +42,6 @@ export interface ICreateCollectionBody {
   description: string | null;
   question: string | null;
   isNSFW: boolean;
-  isLive: boolean;
 }
 
-export type IEditCollectionBody = Partial<ICreateCollectionBody>;
+export type IEditCollectionBody = Partial<ICreateCollectionBody> & { isLive?: boolean };
