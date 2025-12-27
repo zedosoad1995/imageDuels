@@ -13,13 +13,14 @@ import SettingsFillIcon from "../../../../assets/svgs/settings-fill.svg?react";
 import LogoutIcon from "../../../../assets/svgs/logout.svg?react";
 import LoginIcon from "../../../../assets/svgs/account.svg?react";
 import LoginFillIcon from "../../../../assets/svgs/account-fill.svg?react";
-import { useNavigate } from "react-router";
+import { useNavigate, useLocation } from "react-router";
 import { useContext } from "react";
 import { UserContext } from "../../../../Contexts/UserContext";
 import { usePage } from "../../../../Hooks/usePage";
 
 export const Sidebar = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const page = usePage();
 
   const { loggedIn, logout } = useContext(UserContext);
@@ -51,7 +52,9 @@ export const Sidebar = () => {
 
   const handleClickLogout = async () => {
     await logout();
-    navigate("/");
+    if (location.pathname !== "/") {
+      navigate("/");
+    }
   };
 
   const handleLogin = () => {
@@ -90,7 +93,7 @@ export const Sidebar = () => {
             onClick={handleClickFeed}
           >
             {page === "feed" && <DuelFillIcon className={classes.itemIcon} />}
-            {page !== "feed" && <DuelIcon className={classes.itemIcon} />}     
+            {page !== "feed" && <DuelIcon className={classes.itemIcon} />}
           </UnstyledButton>
         </Tooltip>
 

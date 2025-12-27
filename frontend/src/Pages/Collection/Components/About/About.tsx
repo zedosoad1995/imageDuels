@@ -123,7 +123,7 @@ export const About = ({ collection }: Props) => {
       <>
         {collection.question && <Text>Question: {collection.question}</Text>}
         {collection.description && (
-          <Text style={{ lineBreak: "anywhere" }}>
+          <Text style={{ lineBreak: "anywhere", whiteSpace: "pre-wrap" }}>
             {collection.description}
           </Text>
         )}

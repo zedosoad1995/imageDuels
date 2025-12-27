@@ -29,7 +29,7 @@ const orderValues: { value: IGetCollectionsOrderBy; label: string }[] = [
 
 export const Collections = () => {
   const navigate = useNavigate();
-  const { user } = useContext(UserContext);
+  const { user, loggedIn } = useContext(UserContext);
   usePage("collections");
 
   const [collections, setCollections] = useState<IGetCollections>([]);
@@ -41,7 +41,7 @@ export const Collections = () => {
     getCollections({ orderBy, search: debouncedSearch || undefined }).then(
       setCollections
     );
-  }, [orderBy, debouncedSearch]);
+  }, [orderBy, debouncedSearch, loggedIn]);
 
   const handleClickCollection = (id: string) => () => {
     navigate(`/collections/${id}`);
