@@ -65,6 +65,7 @@ export class CollectionsController {
     search: string | undefined,
   ) {
     const collections = await this.collectionsService.getMany({
+      onlySelf,
       userId: onlySelf ? user?.id : undefined,
       showNSFW: user?.canSeeNSFW,
       showAllModes: user?.role === 'ADMIN',
@@ -79,13 +80,12 @@ export class CollectionsController {
   async getOne(
     @LoggedUser({ fetchUser: true }) user: User | null,
     @Param('collectionId') collectionId: string,
+    @Query('cursor') cursor?: string,
   ) {
     const collection = await this.collectionsService.getOne(
       collectionId,
       user?.id,
-      {
-        imagesSort: { rating: 'desc' },
-      },
+      cursor,
     );
 
     const isPersonalFromOtherUser =

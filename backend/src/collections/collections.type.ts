@@ -1,6 +1,7 @@
 export type IGetCollectionsOrderBy = 'new' | 'popular';
 
 export interface IGetCollections {
+  onlySelf?: boolean;
   userId?: string;
   orderBy?: IGetCollectionsOrderBy;
   showAllModes?: boolean;

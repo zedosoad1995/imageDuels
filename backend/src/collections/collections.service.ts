@@ -8,11 +8,13 @@ import { CreateCollectionDto } from './dto/createCollection.dto';
 import { Prisma } from '@prisma/client';
 import { IGetCollections } from './collections.type';
 import { EditCollectionDto } from './dto/editCollection.dto';
+import { decodeCursor, encodeCursor } from 'src/common/helpers/cursor';
 const Fuse = require('fuse.js');
 
 @Injectable()
 export class CollectionsService {
   async getMany({
+    onlySelf,
     userId,
     orderBy,
     showAllModes,
@@ -95,14 +97,16 @@ export class CollectionsService {
       {} as Record<string, number>,
     );
 
-    const res = collections.map(({ _count, images, owner, ...collection }) => ({
-      ...collection,
-      createdBy: owner.username,
-      totalImages: _count.images,
-      totalVotes: votesMap[collection.id] || 0,
-      thumbnailImages: images.map(({ filepath }) => filepath),
-      isValid: this.isValid(_count.images),
-    }));
+    const res = collections
+      .map(({ _count, images, owner, ...collection }) => ({
+        ...collection,
+        createdBy: owner.username,
+        totalImages: _count.images,
+        totalVotes: votesMap[collection.id] || 0,
+        thumbnailImages: images.map(({ filepath }) => filepath),
+        isValid: this.isValid(_count.images),
+      }))
+      .filter(({ isValid }) => onlySelf || isValid);
 
     if (orderBy === 'popular') {
       res.sort((a, b) => b.totalVotes - a.totalVotes);
@@ -145,26 +149,67 @@ export class CollectionsService {
   async getOne(
     collectionId: string,
     userId: string | undefined,
-    {
-      imagesSort,
-    }: Partial<{ imagesSort: Prisma.ImageOrderByWithRelationInput }> = {},
+    cursor: string | null | undefined,
   ) {
-    const collection = await prisma.collection.findUnique({
-      where: {
-        id: collectionId,
-      },
-      include: {
-        images: {
-          select: {
-            id: true,
-            filepath: true,
-            numVotes: true,
-            rating: true,
-          },
-          orderBy: imagesSort,
+    const decodedCursor = decodeCursor(cursor);
+
+    const whereImagesClause: Prisma.ImageWhereInput = {};
+
+    const isCursorValid =
+      decodedCursor &&
+      decodedCursor.lastRating !== undefined &&
+      decodedCursor.lastId;
+
+    if (isCursorValid) {
+      whereImagesClause.OR = [
+        { rating: { lt: decodedCursor.lastRating as number } },
+        {
+          rating: decodedCursor.lastRating as number,
+          id: { lt: decodedCursor.lastId as string },
         },
-      },
-    });
+      ];
+    }
+
+    const [collection, totalImages, startPosition] = await Promise.all([
+      prisma.collection.findUnique({
+        where: {
+          id: collectionId,
+        },
+        include: {
+          images: {
+            select: {
+              id: true,
+              filepath: true,
+              numVotes: true,
+              rating: true,
+            },
+            where: whereImagesClause,
+            orderBy: {
+              rating: 'desc',
+              id: 'desc',
+            },
+            take: 50,
+          },
+        },
+      }),
+      prisma.image.count({
+        where: { collectionId },
+      }),
+      isCursorValid
+        ? prisma.image.count({
+            where: {
+              collectionId,
+              OR: [
+                { rating: { gt: decodedCursor.lastRating as number } },
+                {
+                  rating: decodedCursor.lastRating as number,
+                  id: { gte: decodedCursor.lastId as string },
+                },
+              ],
+            },
+          })
+        : Promise.resolve(0),
+    ]);
 
     if (!collection) {
       throw new NotFoundException(
@@ -172,15 +217,24 @@ export class CollectionsService {
       );
     }
 
-    const totalImages = collection.images.length;
+    const lastImage = collection.images.at(-1);
+
+    const nextCursor =
+      lastImage && collection.images.length === 50
+        ? encodeCursor({ lastRating: lastImage.rating, lastId: lastImage.id })
+        : null;
+
     const transformedCollection = {
       ...collection,
       images: collection.images.map(({ rating, ...image }, index) => ({
         ...image,
         percentile:
-          totalImages > 1 ? (totalImages - index - 1) / (totalImages - 1) : 1,
+          totalImages > 1
+            ? (totalImages - (startPosition + index) - 1) / (totalImages - 1)
+            : 1,
       })),
       belongsToMe: collection.ownerId === userId,
+      nextCursor,
     };
 
     return transformedCollection;

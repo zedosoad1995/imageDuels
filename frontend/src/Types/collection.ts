@@ -34,6 +34,7 @@ export type IGetCollection = ICollection & {
     percentile: number;
   }[];
   belongsToMe: boolean;
+  nextCursor: string | null;
 };
 
 export interface ICreateCollectionBody {
@@ -44,4 +45,6 @@ export interface ICreateCollectionBody {
   isNSFW: boolean;
 }
 
-export type IEditCollectionBody = Partial<ICreateCollectionBody> & { isLive?: boolean };
+export type IEditCollectionBody = Partial<ICreateCollectionBody> & {
+  isLive?: boolean;
+};
