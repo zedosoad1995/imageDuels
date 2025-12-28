@@ -13,7 +13,7 @@ interface CollectionContextProps {
     React.SetStateAction<IGetCollection | undefined>
   >;
   isLoading: boolean;
-  fetchCollection: () => Promise<void>;
+  fetchCollection: (options?: { useCursor?: boolean }) => Promise<void>;
 }
 
 export const CollectionContext = createContext<CollectionContextProps>({
@@ -30,14 +30,28 @@ export const CollectionProvider = ({
   const [collection, setCollection] = useState<IGetCollection>();
   const [isLoading, setIsLoading] = useState(false);
 
-  const fetchCollection = async () => {
+  const fetchCollection = async (options: { useCursor?: boolean } = {}) => {
     if (!collectionId) {
       return;
     }
 
+    let cursor: string | null | undefined;
+    if (options.useCursor) {
+      cursor = collection?.nextCursor;
+    }
+
     try {
       setIsLoading(true);
-      await getCollection(collectionId).then(setCollection);
+      const collectionRes = await getCollection(collectionId, cursor);
+
+      if (options.useCursor) {
+        setCollection((curr) => ({
+          ...collectionRes,
+          images: [...(curr?.images ?? []), ...collectionRes.images],
+        }));
+      } else {
+        setCollection(collectionRes);
+      }
     } finally {
       setIsLoading(false);
     }

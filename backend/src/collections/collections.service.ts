@@ -184,10 +184,7 @@ export class CollectionsService {
               rating: true,
             },
             where: whereImagesClause,
-            orderBy: {
-              rating: 'desc',
-              id: 'desc',
-            },
+            orderBy: [{ rating: 'desc' }, { id: 'desc' }],
             take: 50,
           },
         },

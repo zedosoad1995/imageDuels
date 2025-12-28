@@ -14,6 +14,7 @@ import { UserContext } from "../../../../Contexts/UserContext";
 import { ImageFullScreenModal } from "./Components/ImageFullscreenModal/ImageFullscreenModal";
 import { ImageUploadModal } from "./Components/ImageUploadModal/ImageUploadModal";
 import { ImageUploadErrorModal } from "./Components/ImageUploadErrorModal/ImageUploadErrorModal";
+import { useInfiniteScroll } from "../../../../Hooks/useInfiniteScroll";
 
 const limit = pLimit(2);
 
@@ -24,7 +25,7 @@ interface Props {
 export const Images = ({ collection }: Props) => {
   const { id } = useParams();
   const inputRef = useRef<HTMLInputElement>(null);
-  const { fetchCollection } = useContext(CollectionContext);
+  const { fetchCollection, isLoading } = useContext(CollectionContext);
   const { user } = useContext(UserContext);
 
   const [isOpenImgUploadModal, setIsOpenImgUploadModal] = useState(false);
@@ -37,6 +38,13 @@ export const Images = ({ collection }: Props) => {
   const [isOpenImgUploadFailureModal, setIsOpenImgUploadFailureModal] =
     useState(false);
   const [failedUploadedImages, setFailedUploadedImages] = useState<File[]>([]);
+
+  const sentinelRef = useInfiniteScroll({
+    hasMore: Boolean(collection.nextCursor),
+    isLoading,
+    onLoadMore: () => fetchCollection({ useCursor: true }),
+    rootMargin: "2000px",
+  });
 
   const onFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files?.length || !id) return;
@@ -194,6 +202,9 @@ export const Images = ({ collection }: Props) => {
           )
         )}
       </MasonryGrid>
+
+      <div ref={sentinelRef} style={{ height: 1 }} />
+
       <ImageFullScreenModal
         currIndex={clickedImageIdx}
         images={collection.images}

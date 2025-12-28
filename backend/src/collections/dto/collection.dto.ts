@@ -22,6 +22,7 @@ export const collectionResSchema = z.object({
     }),
   ),
   belongsToMe: z.boolean(),
+  nextCursor: z.string().nullable(),
 });
 
 export const manyCollectionsResSchema = z.array(

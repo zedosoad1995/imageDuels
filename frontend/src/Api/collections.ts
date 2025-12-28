@@ -16,8 +16,13 @@ export const getCollections = (
   });
 };
 
-export const getCollection = (id: string): Promise<IGetCollection> => {
-  return api.get(`/collections/${id}`);
+export const getCollection = (
+  id: string,
+  cursor?: string | null
+): Promise<IGetCollection> => {
+  return api.get(`/collections/${id}`, {
+    params: cursor ? { cursor } : {},
+  });
 };
 
 export const createCollection = (
