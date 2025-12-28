@@ -151,6 +151,8 @@ export class CollectionsService {
     userId: string | undefined,
     cursor: string | null | undefined,
   ) {
+    const NUM_IMAGES = 25;
+
     const decodedCursor = decodeCursor(cursor);
 
     const whereImagesClause: Prisma.ImageWhereInput = {};
@@ -185,7 +187,7 @@ export class CollectionsService {
             },
             where: whereImagesClause,
             orderBy: [{ rating: 'desc' }, { id: 'desc' }],
-            take: 50,
+            take: NUM_IMAGES,
           },
         },
       }),
@@ -217,7 +219,7 @@ export class CollectionsService {
     const lastImage = collection.images.at(-1);
 
     const nextCursor =
-      lastImage && collection.images.length === 50
+      lastImage && collection.images.length === NUM_IMAGES
         ? encodeCursor({ lastRating: lastImage.rating, lastId: lastImage.id })
         : null;
 

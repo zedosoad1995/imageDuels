@@ -25,8 +25,11 @@ interface Props {
 export const Images = ({ collection }: Props) => {
   const { id } = useParams();
   const inputRef = useRef<HTMLInputElement>(null);
-  const { fetchCollection, isLoading } = useContext(CollectionContext);
+  const { fetchCollection, isLoading: isLoadingApiCall } =
+    useContext(CollectionContext);
   const { user } = useContext(UserContext);
+
+  const [isLoadingInfiniteScroll, setIsLoadingInfiniteScroll] = useState(false);
 
   const [isOpenImgUploadModal, setIsOpenImgUploadModal] = useState(false);
   const [totalImagesToUpload, setTotalImagesToUpload] = useState(0);
@@ -41,8 +44,11 @@ export const Images = ({ collection }: Props) => {
 
   const sentinelRef = useInfiniteScroll({
     hasMore: Boolean(collection.nextCursor),
-    isLoading,
-    onLoadMore: () => fetchCollection({ useCursor: true }),
+    isLoading: isLoadingInfiniteScroll || isLoadingApiCall,
+    onLoadMore: () => {
+      setIsLoadingInfiniteScroll(true);
+      fetchCollection({ useCursor: true });
+    },
     rootMargin: "2000px",
   });
 
@@ -187,7 +193,13 @@ export const Images = ({ collection }: Props) => {
         accept=".jpg, .jpeg, .png, .webp, .svg"
       />
 
-      <MasonryGrid numColumns={{ base: 1, 600: 2, 1200: 3 }} gap={4}>
+      <MasonryGrid
+        numColumns={{ base: 1, 600: 2, 1200: 3 }}
+        gap={4}
+        onReady={() => {
+          setIsLoadingInfiniteScroll(false);
+        }}
+      >
         {collection.images.map(
           ({ id, filepath, numVotes, percentile }, index) => (
             <ImageCard

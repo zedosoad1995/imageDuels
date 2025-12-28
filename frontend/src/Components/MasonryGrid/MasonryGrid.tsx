@@ -5,9 +5,10 @@ interface Props {
   children: React.ReactNode;
   numColumns: number | { base: number; [k: number]: number };
   gap?: number;
+  onReady?: () => void;
 }
 
-export const MasonryGrid = ({ children, numColumns, gap }: Props) => {
+export const MasonryGrid = ({ children, numColumns, gap, onReady }: Props) => {
   const { width: screenWidth } = useViewportSize();
 
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -44,6 +45,18 @@ export const MasonryGrid = ({ children, numColumns, gap }: Props) => {
     }
   }, [React.Children.count(children)]);
 
+  function after2Frames(cb: () => void) {
+    let raf1 = 0,
+      raf2 = 0;
+    raf1 = requestAnimationFrame(() => {
+      raf2 = requestAnimationFrame(cb);
+    });
+    return () => {
+      cancelAnimationFrame(raf1);
+      cancelAnimationFrame(raf2);
+    };
+  }
+
   useEffect(() => {
     if (!containerRef.current) {
       return;
@@ -60,6 +73,7 @@ export const MasonryGrid = ({ children, numColumns, gap }: Props) => {
         (node) => node.getBoundingClientRect().height ?? 0
       );
 
+      // Check if all heights are set
       if (heights.slice(0, React.Children.count(children)).some((h) => !h)) {
         return;
       }
@@ -82,16 +96,35 @@ export const MasonryGrid = ({ children, numColumns, gap }: Props) => {
       setColumns(cols);
     };
 
-    const observer = new ResizeObserver(() => {
-      organizeCols();
-    });
+    let cancel: null | (() => void) = null;
+    let runId = 0;
 
+    const schedule = () => {
+      runId += 1;
+      const myRun = runId;
+
+      cancel?.();
+      cancel = after2Frames(() => {
+        if (myRun !== runId) return;
+
+        organizeCols();
+
+        // If this organizeCols causes another resize, schedule() runs again
+        // and this won't be "final". If nothing else happens, we're "ready".
+        onReady?.();
+      });
+    };
+
+    const observer = new ResizeObserver(schedule);
     observer.observe(containerRef.current);
 
+    schedule(); // initial
+
     return () => {
+      cancel?.();
       observer.disconnect();
     };
-  }, [children, realNumCols]);
+  }, [children, realNumCols, onReady]);
 
   return (
     <div
