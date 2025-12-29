@@ -2,7 +2,14 @@ import { CloseButton, Group, Text, Tooltip } from "@mantine/core";
 import { Carousel } from "@mantine/carousel";
 import { useHotkeys, useMediaQuery } from "@mantine/hooks";
 import { EmblaCarouselType } from "embla-carousel";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 
 import { getImageURL } from "../../../../../../Utils/image";
 import VotingIcon from "../../../../../../assets/svgs/ballot.svg?react";
@@ -10,10 +17,12 @@ import ScoreIcon from "../../../../../../assets/svgs/leaderboard.svg?react";
 import { IGetCollection } from "../../../../../../Types/collection";
 import classes from "./ImageFullscreenModal.module.css";
 import { MEDIA_QUERY_DESKTOP } from "../../../../../../Utils/breakpoints";
+import { CollectionContext } from "../../../../../../Contexts/CollectionContext";
 
 const WINDOW_SIZE = 40;
 const EDGE_THRESHOLD = 1;
-const STABILIZATION_TH = 50;
+const EDGE_FETCH_THRESHOLD = 1;
+const STABILIZATION_TH = 50; // Distance between slide and target, to consider stable, and move the window. Too high values will make the animation feel clunky
 
 function clamp(n: number, min: number, max: number) {
   return Math.max(min, Math.min(max, n));
@@ -24,6 +33,7 @@ interface Props {
   initIndex: number | undefined;
   isOpen: boolean;
   onClose: () => void;
+  hasMoreImagesToLoad: boolean;
 }
 
 export const ImageFullScreenModal = ({
@@ -31,7 +41,10 @@ export const ImageFullScreenModal = ({
   images,
   isOpen,
   onClose,
+  hasMoreImagesToLoad,
 }: Props) => {
+  const { fetchCollection } = useContext(CollectionContext);
+
   const [embla, setEmbla] = useState<EmblaCarouselType | null>(null);
   const isLaptopOrTablet = useMediaQuery(MEDIA_QUERY_DESKTOP);
 
@@ -65,19 +78,31 @@ export const ImageFullScreenModal = ({
     };
   }, [isOpen]);
 
-  // When opening / changing initIndex, center the window around it
+  const didInitRef = useRef(false);
+
   useEffect(() => {
     if (!isOpen || initIndex == null) return;
 
-    selectedGlobalRef.current = clamp(initIndex, 0, Math.max(0, total - 1));
+    // reset guard when closing
+    if (!isOpen) didInitRef.current = false;
+  }, [isOpen, initIndex]);
+
+  useEffect(() => {
+    if (!isOpen || initIndex == null) return;
+
+    // Only do this once per open (or when initIndex changes)
+    if (didInitRef.current) return;
+    didInitRef.current = true;
+
+    const init = clamp(initIndex, 0, Math.max(0, total - 1));
+    selectedGlobalRef.current = init;
 
     const targetRel = Math.floor(WINDOW_SIZE / 2);
     const newStart = clamp(
-      selectedGlobalRef.current - targetRel,
+      init - targetRel,
       0,
       Math.max(0, total - WINDOW_SIZE)
     );
-
     setStart(newStart);
   }, [isOpen, initIndex, total]);
 
@@ -116,8 +141,6 @@ export const ImageFullScreenModal = ({
     if (!embla || shiftingRef.current) return;
 
     const rel = embla.selectedScrollSnap();
-    const selectedGlobal = start + rel;
-    selectedGlobalRef.current = selectedGlobal;
 
     const lastRel = windowedImages.length - 1;
     const nearLeft = rel <= EDGE_THRESHOLD;
@@ -127,7 +150,7 @@ export const ImageFullScreenModal = ({
     const hasRight = end < total;
 
     if ((nearLeft && hasLeft) || (nearRight && hasRight)) {
-      requestShiftAround(selectedGlobal);
+      requestShiftAround(selectedGlobalRef.current);
     }
   }, [embla, start, end, total, windowedImages.length, requestShiftAround]);
 
@@ -147,6 +170,10 @@ export const ImageFullScreenModal = ({
       const loc = engine.location.get();
       const target = engine.target.get();
       const dist = Math.abs(loc - target);
+
+      const rel = embla.selectedScrollSnap();
+      const selectedGlobal = start + rel;
+      selectedGlobalRef.current = selectedGlobal;
 
       // Keep your same “loose” threshold so it triggers quickly
       if (dist > STABILIZATION_TH) return;
@@ -169,6 +196,28 @@ export const ImageFullScreenModal = ({
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
     };
   }, [embla, scheduleMaybeShift]);
+
+  useEffect(() => {
+    if (!embla) return;
+
+    const onSelect = () => {
+      const rel = embla.selectedScrollSnap();
+      const selectedGlobal = start + rel;
+
+      if (
+        selectedGlobal > selectedGlobalRef.current &&
+        selectedGlobalRef.current >= images.length - 1 - EDGE_FETCH_THRESHOLD &&
+        hasMoreImagesToLoad
+      ) {
+        fetchCollection({ useCursor: true });
+      }
+    };
+    embla.on("select", onSelect);
+
+    return () => {
+      embla.off("select", onSelect);
+    };
+  }, [embla, start, total]);
 
   // Apply pending shift AFTER render
   useEffect(() => {

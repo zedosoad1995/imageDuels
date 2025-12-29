@@ -19,8 +19,6 @@
     "@mantine/spotlight": "^8.1.0",
     "axios": "^1.7.9",
     "browser-image-compression": "^2.0.2",
-    "embla-carousel": "^8.6.0",
-    "embla-carousel-react": "^8.6.0",
     "lodash.debounce": "^4.0.8",
     "p-limit": "^6.2.0",
     "react": "^19.0.0",
