@@ -218,7 +218,7 @@ export const Images = ({ collection }: Props) => {
       <div ref={sentinelRef} style={{ height: 1 }} />
 
       <ImageFullScreenModal
-        currIndex={clickedImageIdx}
+        initIndex={clickedImageIdx}
         images={collection.images}
         isOpen={isOpenImgView}
         onClose={() => setIsOpenImgView(false)}

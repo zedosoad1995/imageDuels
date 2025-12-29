@@ -1,24 +1,33 @@
 import { CloseButton, Group, Text, Tooltip } from "@mantine/core";
 import { Carousel } from "@mantine/carousel";
+import { useHotkeys, useMediaQuery } from "@mantine/hooks";
+import { EmblaCarouselType } from "embla-carousel";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+
 import { getImageURL } from "../../../../../../Utils/image";
 import VotingIcon from "../../../../../../assets/svgs/ballot.svg?react";
 import ScoreIcon from "../../../../../../assets/svgs/leaderboard.svg?react";
-import { useEffect, useState } from "react";
-import { useHotkeys, useMediaQuery } from "@mantine/hooks";
-import { EmblaCarouselType } from "embla-carousel";
 import { IGetCollection } from "../../../../../../Types/collection";
 import classes from "./ImageFullscreenModal.module.css";
 import { MEDIA_QUERY_DESKTOP } from "../../../../../../Utils/breakpoints";
 
+const WINDOW_SIZE = 40;
+const EDGE_THRESHOLD = 1;
+const STABILIZATION_TH = 50;
+
+function clamp(n: number, min: number, max: number) {
+  return Math.max(min, Math.min(max, n));
+}
+
 interface Props {
   images: IGetCollection["images"];
-  currIndex: number | undefined;
+  initIndex: number | undefined;
   isOpen: boolean;
   onClose: () => void;
 }
 
 export const ImageFullScreenModal = ({
-  currIndex,
+  initIndex,
   images,
   isOpen,
   onClose,
@@ -26,25 +35,160 @@ export const ImageFullScreenModal = ({
   const [embla, setEmbla] = useState<EmblaCarouselType | null>(null);
   const isLaptopOrTablet = useMediaQuery(MEDIA_QUERY_DESKTOP);
 
-  useHotkeys([
-    ["ArrowLeft", () => embla?.scrollPrev()],
-    ["ArrowRight", () => embla?.scrollNext()],
-  ]);
+  // Virtualization window [start, end)
+  const [start, setStart] = useState(0);
+  const total = images.length;
+  const end = useMemo(
+    () => Math.min(total, start + WINDOW_SIZE),
+    [total, start]
+  );
 
+  // Global selection bookkeeping
+  const selectedGlobalRef = useRef(0);
+
+  // Shift bookkeeping
+  const shiftingRef = useRef(false);
+  const pendingShiftRef = useRef<null | {
+    selectedGlobal: number;
+    newStart: number;
+  }>(null);
+
+  // Stabilization check (same as your working version)
+  const rafRef = useRef<number | null>(null);
+
+  // Lock body scroll
   useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-    }
+    if (isOpen) document.body.style.overflow = "hidden";
+    else document.body.style.overflow = "";
     return () => {
       document.body.style.overflow = "";
     };
   }, [isOpen]);
 
-  if (currIndex === undefined || !isOpen) {
-    return null;
-  }
+  // When opening / changing initIndex, center the window around it
+  useEffect(() => {
+    if (!isOpen || initIndex == null) return;
+
+    selectedGlobalRef.current = clamp(initIndex, 0, Math.max(0, total - 1));
+
+    const targetRel = Math.floor(WINDOW_SIZE / 2);
+    const newStart = clamp(
+      selectedGlobalRef.current - targetRel,
+      0,
+      Math.max(0, total - WINDOW_SIZE)
+    );
+
+    setStart(newStart);
+  }, [isOpen, initIndex, total]);
+
+  const windowedImages = useMemo(
+    () => images.slice(start, end),
+    [images, start, end]
+  );
+
+  // Hotkeys
+  useHotkeys([
+    ["ArrowLeft", () => embla?.scrollPrev()],
+    ["ArrowRight", () => embla?.scrollNext()],
+  ]);
+
+  const requestShiftAround = useCallback(
+    (selectedGlobal: number) => {
+      if (total <= WINDOW_SIZE) return;
+
+      const targetRel = Math.floor(WINDOW_SIZE / 2);
+      const newStart = clamp(
+        selectedGlobal - targetRel,
+        0,
+        Math.max(0, total - WINDOW_SIZE)
+      );
+
+      if (newStart === start) return;
+
+      shiftingRef.current = true;
+      pendingShiftRef.current = { selectedGlobal, newStart };
+      setStart(newStart);
+    },
+    [start, total]
+  );
+
+  const maybeShiftWindow = useCallback(() => {
+    if (!embla || shiftingRef.current) return;
+
+    const rel = embla.selectedScrollSnap();
+    const selectedGlobal = start + rel;
+    selectedGlobalRef.current = selectedGlobal;
+
+    const lastRel = windowedImages.length - 1;
+    const nearLeft = rel <= EDGE_THRESHOLD;
+    const nearRight = rel >= lastRel - EDGE_THRESHOLD;
+
+    const hasLeft = start > 0;
+    const hasRight = end < total;
+
+    if ((nearLeft && hasLeft) || (nearRight && hasRight)) {
+      requestShiftAround(selectedGlobal);
+    }
+  }, [embla, start, end, total, windowedImages.length, requestShiftAround]);
+
+  // Check "stable enough", then maybe shift (same idea as your VirtualizedCarousel)
+  const scheduleMaybeShift = useCallback(() => {
+    if (!embla || shiftingRef.current) return;
+
+    if (rafRef.current) cancelAnimationFrame(rafRef.current);
+
+    rafRef.current = requestAnimationFrame(() => {
+      rafRef.current = null;
+      if (!embla || shiftingRef.current) return;
+
+      const engine = embla.internalEngine?.();
+      if (!engine) return;
+
+      const loc = engine.location.get();
+      const target = engine.target.get();
+      const dist = Math.abs(loc - target);
+
+      // Keep your same “loose” threshold so it triggers quickly
+      if (dist > STABILIZATION_TH) return;
+
+      maybeShiftWindow();
+    });
+  }, [embla, maybeShiftWindow]);
+
+  // Subscribe to scroll
+  useEffect(() => {
+    if (!embla) return;
+
+    const onScroll = () => scheduleMaybeShift();
+    embla.on("scroll", onScroll);
+
+    requestAnimationFrame(() => scheduleMaybeShift());
+
+    return () => {
+      embla.off("scroll", onScroll);
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    };
+  }, [embla, scheduleMaybeShift]);
+
+  // Apply pending shift AFTER render
+  useEffect(() => {
+    if (!embla) return;
+    const pending = pendingShiftRef.current;
+    if (!pending) return;
+
+    requestAnimationFrame(() => {
+      if (!embla) return;
+
+      embla.reInit();
+      const newRel = pending.selectedGlobal - pending.newStart;
+      embla.scrollTo(newRel, true);
+
+      pendingShiftRef.current = null;
+      shiftingRef.current = false;
+    });
+  }, [embla, start, windowedImages.length]);
+
+  if (initIndex == null || !isOpen) return null;
 
   return (
     <div
@@ -73,14 +217,13 @@ export const ImageFullScreenModal = ({
         className={classes.closeButton}
         onClick={onClose}
       />
+
       <Carousel
         slideSize="100%"
-        getEmblaApi={setEmbla}
-        emblaOptions={{
-          align: "center",
-        }}
         slideGap={0}
-        initialSlide={currIndex}
+        initialSlide={initIndex - start}
+        getEmblaApi={setEmbla}
+        emblaOptions={{ align: "center", containScroll: "trimSnaps" }}
         styles={{
           control: {
             background: "rgba(0,0,0,0.3)",
@@ -90,37 +233,16 @@ export const ImageFullScreenModal = ({
         }}
         withControls={isLaptopOrTablet}
       >
-        {images.map(({ filepath, numVotes, percentile }, i) => (
-          <Carousel.Slide
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              position: "relative",
-            }}
-            key={i}
-          >
-            <div
-              onClick={onClose}
+        {windowedImages.map(({ filepath, numVotes, percentile }, i) => {
+          const globalIdx = start + i; // IMPORTANT: stable key across window shifts
+          return (
+            <Carousel.Slide
+              key={globalIdx}
               style={{
-                position: "absolute",
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 0,
-                cursor: "pointer",
-              }}
-            />
-            <div
-              style={{
-                textAlign: "center",
-                height: "100vh",
                 display: "flex",
                 flexDirection: "column",
                 alignItems: "center",
-                minHeight: 0,
-                minWidth: 0,
-                zIndex: 1,
+                position: "relative",
               }}
             >
               <div
@@ -134,64 +256,90 @@ export const ImageFullScreenModal = ({
                   cursor: "pointer",
                 }}
               />
+
               <div
                 style={{
-                  flex: 1,
+                  textAlign: "center",
+                  height: "100vh",
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
                   minHeight: 0,
                   minWidth: 0,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
+                  zIndex: 1,
                 }}
               >
-                <img
-                  src={getImageURL(filepath)}
+                <div
+                  onClick={onClose}
                   style={{
-                    margin: "0 auto",
-                    objectFit: "contain",
-                    maxHeight: "calc(100vh - 30px)",
-                    maxWidth: "100%",
-                    zIndex: 1,
-                    display: "block",
+                    position: "absolute",
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    cursor: "pointer",
                   }}
                 />
+
+                <div
+                  style={{
+                    flex: 1,
+                    minHeight: 0,
+                    minWidth: 0,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <img
+                    src={getImageURL(filepath)}
+                    style={{
+                      margin: "0 auto",
+                      objectFit: "contain",
+                      maxHeight: "calc(100vh - 30px)",
+                      maxWidth: "100%",
+                      zIndex: 1,
+                      display: "block",
+                    }}
+                  />
+                </div>
+
+                <Group
+                  px={8}
+                  gap={12}
+                  style={{
+                    width: "100%",
+                    justifyContent: "center",
+                    zIndex: 1,
+                    height: 25,
+                  }}
+                >
+                  <Tooltip
+                    zIndex={1000000}
+                    label={`Score: ${(percentile * 100).toFixed(1)}%`}
+                    events={{ hover: true, focus: false, touch: true }}
+                  >
+                    <Group gap={4} style={{ cursor: "pointer" }}>
+                      <ScoreIcon height={16} />
+                      <Text fw={600}>{(percentile * 100).toFixed(1)}%</Text>
+                    </Group>
+                  </Tooltip>
+
+                  <Tooltip
+                    zIndex={1000000}
+                    label={`${numVotes} votes`}
+                    events={{ hover: true, focus: false, touch: true }}
+                  >
+                    <Group gap={4} style={{ cursor: "pointer" }}>
+                      <VotingIcon height={16} />
+                      <Text fw={600}>{numVotes}</Text>
+                    </Group>
+                  </Tooltip>
+                </Group>
               </div>
-
-              <Group
-                px={8}
-                gap={12}
-                style={{
-                  width: "100%",
-                  justifyContent: "center",
-                  zIndex: 1,
-                  height: 25,
-                }}
-              >
-                <Tooltip
-                  zIndex={1000000}
-                  label={`Score: ${(percentile * 100).toFixed(1)}%`}
-                  events={{ hover: true, focus: false, touch: true }}
-                >
-                  <Group gap={4} style={{ cursor: "pointer" }}>
-                    <ScoreIcon height={16} />
-                    <Text fw={600}>{(percentile * 100).toFixed(1)}%</Text>
-                  </Group>
-                </Tooltip>
-
-                <Tooltip
-                  zIndex={1000000}
-                  label={`${numVotes} votes`}
-                  events={{ hover: true, focus: false, touch: true }}
-                >
-                  <Group gap={4} style={{ cursor: "pointer" }}>
-                    <VotingIcon height={16} />
-                    <Text fw={600}>{numVotes}</Text>
-                  </Group>
-                </Tooltip>
-              </Group>
-            </div>
-          </Carousel.Slide>
-        ))}
+            </Carousel.Slide>
+          );
+        })}
       </Carousel>
     </div>
   );
