@@ -118,32 +118,58 @@ export class CollectionsService {
   async getManyForUserFeed({
     userId,
     showNSFW,
+    limit = 20,
+    cursor,
   }: {
     userId?: string;
     showNSFW?: boolean;
+    limit?: number;
+    cursor?: string | null | undefined;
   }) {
-    const whereQuery: Prisma.CollectionWhereInput = {};
+    const decodedCursor = decodeCursor(cursor);
 
-    if (userId) {
-      whereQuery.ownerId = { not: userId };
-    }
+    const isCursorValid = decodedCursor && decodedCursor.lastId;
 
-    whereQuery.mode = 'PUBLIC';
-    whereQuery.isLive = true;
+    const whereCursor = isCursorValid
+      ? Prisma.sql`AND c.id > ${decodedCursor.lastId}`
+      : Prisma.empty;
 
-    if (!showNSFW) {
-      whereQuery.isNSFW = false;
-    }
+    const whereOwner = userId
+      ? Prisma.sql`AND c."ownerId" <> ${userId}`
+      : Prisma.empty;
 
-    const collections = await prisma.collection.findMany({
-      select: {
-        id: true,
-        title: true,
-      },
-      where: whereQuery,
-    });
+    const whereNSFW = showNSFW
+      ? Prisma.empty
+      : Prisma.sql`AND c."isNSFW" IS FALSE`;
 
-    return collections;
+    const collections = await prisma.$queryRaw<{ id: string; title: string }[]>(
+      Prisma.sql`
+      SELECT c.id, c.title
+      FROM "Collection" c
+      WHERE c.mode = 'PUBLIC'
+        AND c."isLive" IS TRUE
+        AND EXISTS (
+          SELECT 1
+          FROM "Image" i
+          WHERE i."collectionId" = c.id
+          LIMIT 1 OFFSET 1
+        )
+        ${whereNSFW}
+        ${whereOwner}
+        ${whereCursor}
+      ORDER BY c.id
+      LIMIT ${limit}
+    `,
+    );
+
+    const lastCollection = collections.at(-1);
+
+    const nextCursor =
+      lastCollection && collections.length === limit
+        ? encodeCursor({ lastId: lastCollection.id })
+        : null;
+
+    return { collections, nextCursor };
   }
 
   async getOne(

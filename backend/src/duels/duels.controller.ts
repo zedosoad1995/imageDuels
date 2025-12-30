@@ -4,6 +4,7 @@ import {
   Get,
   HttpCode,
   Post,
+  Query,
   Res,
   UseGuards,
   UsePipes,
@@ -27,11 +28,17 @@ export class DuelsController {
   ) {}
 
   @Get('feed')
-  async feed(@LoggedUser({ fetchUser: true }) user: User) {
-    const collections = await this.collectionService.getManyForUserFeed({
-      userId: user?.id,
-      showNSFW: user?.canSeeNSFW,
-    });
+  async feed(
+    @LoggedUser({ fetchUser: true }) user: User,
+    @Query('cursor') cursor?: string,
+  ) {
+    const { collections, nextCursor } =
+      await this.collectionService.getManyForUserFeed({
+        userId: user?.id,
+        showNSFW: user?.canSeeNSFW,
+        limit: 20,
+        cursor,
+      });
 
     const duels = await this.imagesService.getBulkMatchesImages(
       collections.map(({ id }) => id),
@@ -43,13 +50,16 @@ export class DuelsController {
       ),
     );
 
-    return duels.map((duel, index) => ({
-      image1: duel[0].filepath,
-      image2: duel[1].filepath,
-      token: tokens[index],
-      collectionId: collections[index].id,
-      collectionName: collections[index].title,
-    }));
+    return {
+      duels: duels.map((duel, index) => ({
+        image1: duel[0].filepath,
+        image2: duel[1].filepath,
+        token: tokens[index],
+        collectionId: collections[index].id,
+        collectionName: collections[index].title,
+      })),
+      nextCursor,
+    };
   }
 
   @UseGuards(AuthGuard(true), ProfileCompletedGuard)

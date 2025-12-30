@@ -44,7 +44,6 @@ model Collection {
 
 enum CollectionModeEnum {
   PERSONAL
-  SECRET
   PRIVATE
   PUBLIC
 }
@@ -62,6 +61,8 @@ model Image {
   duelsAsImage2   Duel[]     @relation("image2Relation")
   createdAt       DateTime   @default(now())
   collectionId    String
+
+  @@index([collectionId])
 }
 
 model Duel {

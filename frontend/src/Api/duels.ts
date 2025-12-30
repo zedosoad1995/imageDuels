@@ -2,16 +2,21 @@ import api from ".";
 
 export type VoteOutcome = "WIN" | "LOSS" | "SKIP";
 
-export const feed = (): Promise<
-  {
+export const feed = (
+  cursor?: string | null
+): Promise<{
+  duels: {
     token: string | undefined;
     image1: string;
     image2: string;
     collectionId: string;
     collectionName: string;
-  }[]
-> => {
-  return api.get("/duels/feed");
+  }[];
+  nextCursor: string | null;
+}> => {
+  return api.get("/duels/feed", {
+    params: cursor ? { cursor } : {},
+  });
 };
 
 export const vote = (token: string, outcome: VoteOutcome): Promise<null> => {

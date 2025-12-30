@@ -33,7 +33,11 @@ export class ImagesService {
   }
 
   async getBulkMatchesImages(collectionIds: string[]) {
-    return Promise.all(collectionIds.map((id) => this.getMatchImages(id)));
+    const res = await Promise.allSettled(
+      collectionIds.map((id) => this.getMatchImages(id)),
+    );
+
+    return res.filter((val) => val.status === 'fulfilled').map((r) => r.value);
   }
 
   async getMatchImages(

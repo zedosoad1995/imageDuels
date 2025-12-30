@@ -223,6 +223,7 @@ export const Images = ({ collection }: Props) => {
         isOpen={isOpenImgView}
         onClose={() => setIsOpenImgView(false)}
         hasMoreImagesToLoad={Boolean(collection.nextCursor)}
+        isLoadingFetch={isLoadingApiCall}
       />
       <ImageUploadModal
         isOpen={isOpenImgUploadModal}

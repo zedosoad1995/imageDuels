@@ -9,7 +9,11 @@ import { useNavigate } from "react-router";
 import { getDuel } from "../../Api/collections";
 import { useMediaQuery } from "@mantine/hooks";
 import { usePage } from "../../Hooks/usePage";
-import { MEDIA_QUERY_DESKTOP, MEDIA_QUERY_TABLET } from "../../Utils/breakpoints";
+import {
+  MEDIA_QUERY_DESKTOP,
+  MEDIA_QUERY_TABLET,
+} from "../../Utils/breakpoints";
+import { useInfiniteScroll } from "../../Hooks/useInfiniteScroll";
 
 export const Feed = () => {
   const { loggedIn } = useContext(UserContext);
@@ -19,17 +23,39 @@ export const Feed = () => {
 
   const [duels, setDuels] = useState<
     | {
-      token: string | undefined;
-      image1: string;
-      image2: string;
-      collectionId: string;
-      collectionName: string;
-    }[]
+        token: string | undefined;
+        image1: string;
+        image2: string;
+        collectionId: string;
+        collectionName: string;
+      }[]
     | null
   >(null);
+  const [cursor, setCursor] = useState<string | null | undefined>();
+  const [isLoading, setIsLoading] = useState(false);
+
+  const sentinelRef = useInfiniteScroll({
+    hasMore: Boolean(cursor),
+    isLoading,
+    onLoadMore: () => {
+      setIsLoading(true);
+      feed(cursor)
+        .then(({ duels, nextCursor }) => {
+          setDuels((val) => (val ? [...val, ...duels] : null));
+          setCursor(nextCursor);
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });
+    },
+    rootMargin: "2000px",
+  });
 
   useEffect(() => {
-    feed().then(setDuels);
+    feed().then(({ duels, nextCursor }) => {
+      setDuels(duels);
+      setCursor(nextCursor);
+    });
   }, []);
 
   const handleClickCollection = (collectionId: string) => () => {
@@ -43,37 +69,37 @@ export const Feed = () => {
       collectionId: string,
       index: number
     ) =>
-      async (event: React.MouseEvent<HTMLDivElement>) => {
-        event.stopPropagation();
+    async (event: React.MouseEvent<HTMLDivElement>) => {
+      event.stopPropagation();
 
-        if (!loggedIn) {
-          openSignUpModal();
-        }
+      if (!loggedIn) {
+        openSignUpModal();
+      }
 
-        if (!token) {
-          return;
-        }
+      if (!token) {
+        return;
+      }
 
-        await vote(token, outcome);
+      await vote(token, outcome);
 
-        getDuel(collectionId).then(({ token, image1, image2 }) => {
-          setDuels((duels) => {
-            if (!duels) return duels;
+      getDuel(collectionId).then(({ token, image1, image2 }) => {
+        setDuels((duels) => {
+          if (!duels) return duels;
 
-            return duels.map((duel, indexMap) =>
-              index === indexMap
-                ? {
+          return duels.map((duel, indexMap) =>
+            index === indexMap
+              ? {
                   token,
                   image1,
                   image2,
                   collectionId,
                   collectionName: duel.collectionName,
                 }
-                : duel
-            );
-          });
+              : duel
+          );
         });
-      };
+      });
+    };
 
   const openSignUpModal = () =>
     modals.openConfirmModal({
@@ -117,12 +143,12 @@ export const Feed = () => {
                     marginRight: "auto",
                   }}
                 >
-                  <Group gap={4} mb={isLaptopOrTablet ? 12 : 6} justify="space-between">
-                    <Text
-                      size={isLaptopOrTablet ? "xl" : "l"}
-                      fw={600}
-                      lh={1}
-                    >
+                  <Group
+                    gap={4}
+                    mb={isLaptopOrTablet ? 12 : 6}
+                    justify="space-between"
+                  >
+                    <Text size={isLaptopOrTablet ? "xl" : "l"} fw={600} lh={1}>
                       {collectionName}
                     </Text>
 
@@ -135,9 +161,9 @@ export const Feed = () => {
                     >
                       <span className={classes.gotoTextSpan}>
                         View collection
-                      </span> ➞
+                      </span>{" "}
+                      ➞
                     </Text>
-
                   </Group>
                   <Flex gap={8}>
                     <Card
@@ -230,6 +256,8 @@ export const Feed = () => {
           )
         )}
       </Stack>
+
+      <div ref={sentinelRef} style={{ height: 1 }} />
     </>
   );
 };

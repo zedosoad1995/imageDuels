@@ -34,6 +34,7 @@ interface Props {
   isOpen: boolean;
   onClose: () => void;
   hasMoreImagesToLoad: boolean;
+  isLoadingFetch: boolean;
 }
 
 export const ImageFullScreenModal = ({
@@ -42,6 +43,7 @@ export const ImageFullScreenModal = ({
   isOpen,
   onClose,
   hasMoreImagesToLoad,
+  isLoadingFetch,
 }: Props) => {
   const { fetchCollection } = useContext(CollectionContext);
 
@@ -58,6 +60,7 @@ export const ImageFullScreenModal = ({
 
   // Global selection bookkeeping
   const selectedGlobalRef = useRef(0);
+  const maxAchievedGlobalRef = useRef(0);
 
   // Shift bookkeeping
   const shiftingRef = useRef(false);
@@ -174,6 +177,9 @@ export const ImageFullScreenModal = ({
       const rel = embla.selectedScrollSnap();
       const selectedGlobal = start + rel;
       selectedGlobalRef.current = selectedGlobal;
+      if (selectedGlobalRef.current > maxAchievedGlobalRef.current) {
+        maxAchievedGlobalRef.current = selectedGlobalRef.current;
+      }
 
       // Keep your same “loose” threshold so it triggers quickly
       if (dist > STABILIZATION_TH) return;
@@ -205,9 +211,10 @@ export const ImageFullScreenModal = ({
       const selectedGlobal = start + rel;
 
       if (
-        selectedGlobal > selectedGlobalRef.current &&
+        selectedGlobal > maxAchievedGlobalRef.current &&
         selectedGlobalRef.current >= images.length - 1 - EDGE_FETCH_THRESHOLD &&
-        hasMoreImagesToLoad
+        hasMoreImagesToLoad &&
+        !isLoadingFetch
       ) {
         fetchCollection({ useCursor: true });
       }
