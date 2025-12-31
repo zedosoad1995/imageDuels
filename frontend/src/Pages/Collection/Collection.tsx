@@ -109,6 +109,7 @@ export const CollectionChild = () => {
             <Menu.Dropdown>
               {collection.belongsToMe && (
                 <Menu.Item
+                  disabled={!collection.isValid}
                   onClick={togglePausePlay}
                   leftSection={
                     collection.isLive ? (
@@ -121,7 +122,7 @@ export const CollectionChild = () => {
                   {collection.isLive ? "Pause" : "Go Live"}
                 </Menu.Item>
               )}
-              <CopyItem />
+              <CopyItem disabled={!collection.isValid} />
             </Menu.Dropdown>
           </Menu>
         )}
