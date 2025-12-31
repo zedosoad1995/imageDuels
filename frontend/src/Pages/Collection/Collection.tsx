@@ -58,6 +58,20 @@ export const CollectionChild = () => {
           <Text fw={600} size="lg">
             {collection.title}
           </Text>
+          {collection.mode === "PRIVATE" && (
+            <Tooltip label="Only people with the link can view this collection">
+              <Badge size="xs" color="gray">
+                Private
+              </Badge>
+            </Tooltip>
+          )}
+          {collection.mode === "PERSONAL" && (
+            <Tooltip label="Only you can view this collections">
+              <Badge size="xs" color="gray">
+                Personal
+              </Badge>
+            </Tooltip>
+          )}
           {collection.isNSFW && (
             <Tooltip label="Visible only to 18+ users with mature content enabled">
               <Badge size="xs" color="red">
@@ -136,7 +150,9 @@ export const CollectionChild = () => {
         }}
       >
         <Tabs.List>
-          <Tabs.Tab value="vote" disabled={!collection.isValid}>Vote</Tabs.Tab>
+          <Tabs.Tab value="vote" disabled={!collection.isValid}>
+            Vote
+          </Tabs.Tab>
           <Tabs.Tab value="images" onClick={fetchCollection}>
             Images
           </Tabs.Tab>
