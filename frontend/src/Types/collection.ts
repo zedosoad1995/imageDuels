@@ -18,13 +18,17 @@ export interface IGetCollectionsQuery {
   onlySelf?: boolean;
   orderBy?: IGetCollectionsOrderBy;
   search?: string;
+  cursor?: string | null;
 }
 
-export type IGetCollections = (ICollection & {
-  totalImages: number;
-  totalVotes: number;
-  thumbnailImages: string[];
-})[];
+export type IGetCollections = {
+  collections: (ICollection & {
+    totalImages: number;
+    totalVotes: number;
+    thumbnailImages: string[];
+  })[];
+  nextCursor: string | null;
+};
 
 export type IGetCollection = ICollection & {
   images: {

@@ -63,17 +63,22 @@ export class CollectionsController {
     orderBy: IGetCollectionsOrderBy,
     @Query('search')
     search: string | undefined,
+    @Query('cursor') cursor?: string,
   ) {
-    const collections = await this.collectionsService.getMany({
+    const { collections, nextCursor } = await this.collectionsService.getMany({
       onlySelf,
       userId: onlySelf ? user?.id : undefined,
       showNSFW: user?.canSeeNSFW,
       showAllModes: user?.role === 'ADMIN',
       orderBy,
       search,
+      cursor,
     });
 
-    return manyCollectionsResSchema.parse(collections);
+    return {
+      collections: manyCollectionsResSchema.parse(collections),
+      nextCursor,
+    };
   }
 
   @Get(':collectionId')

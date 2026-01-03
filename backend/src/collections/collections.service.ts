@@ -6,10 +6,9 @@ import {
 import { prisma } from 'src/common/helpers/prisma';
 import { CreateCollectionDto } from './dto/createCollection.dto';
 import { Prisma } from '@prisma/client';
-import { IGetCollections } from './collections.type';
+import { IGetCollections, IGetCollectionsOrderBy } from './collections.type';
 import { EditCollectionDto } from './dto/editCollection.dto';
 import { decodeCursor, encodeCursor } from 'src/common/helpers/cursor';
-const Fuse = require('fuse.js');
 
 @Injectable()
 export class CollectionsService {
@@ -20,99 +19,183 @@ export class CollectionsService {
     showAllModes,
     showNSFW,
     search,
+    limit = 20,
+    cursor,
   }: IGetCollections) {
-    const whereQuery: Prisma.CollectionWhereInput = {};
-    const orderByQuery: Prisma.CollectionOrderByWithRelationInput = {};
+    const orderByOptions = orderBy
+      ? {
+          new: {
+            cursorField: 'lastCreatedAt',
+            transCollectionField: 'createdAt',
+          },
+          popular: {
+            cursorField: 'lastTotalVotes',
+            transCollectionField: 'totalVotes',
+          },
+        }[orderBy]
+      : undefined;
+
+    const decodedCursor = decodeCursor(cursor);
+
+    const isCursorValid =
+      !!decodedCursor &&
+      !!orderByOptions &&
+      !!decodedCursor.lastId &&
+      decodedCursor[orderByOptions.cursorField] !== undefined &&
+      decodedCursor[orderByOptions.cursorField] !== null;
+
+    const where: Prisma.Sql[] = [];
 
     if (userId) {
-      whereQuery.ownerId = userId;
+      where.push(Prisma.sql`c."ownerId" = ${userId}`);
     } else if (!showAllModes) {
-      whereQuery.mode = 'PUBLIC';
-      whereQuery.isLive = true;
+      where.push(Prisma.sql`c.mode = 'PUBLIC'`, Prisma.sql`c."isLive" IS TRUE`);
+    }
+
+    const trimmedSearch = search?.trim();
+    if (trimmedSearch) {
+      const like = `%${trimmedSearch}%`;
+
+      where.push(Prisma.sql`
+        (
+          c.title LIKE ${like} COLLATE NOCASE
+          OR c.description LIKE ${like} COLLATE NOCASE
+          OR c.question LIKE ${like} COLLATE NOCASE
+        )
+      `);
     }
 
     if (!showNSFW) {
-      whereQuery.isNSFW = false;
+      where.push(Prisma.sql`c."isNSFW" IS FALSE`);
     }
 
+    if (!onlySelf) {
+      // Check if valid (Must have >= 2 images)
+      where.push(Prisma.sql`ic.total_images >= 2`);
+    }
+
+    const order: Prisma.Sql[] = [];
     if (orderBy === 'new') {
-      orderByQuery.createdAt = 'desc';
+      order.push(Prisma.sql`c."createdAt" DESC`, Prisma.sql`c.id DESC`);
+
+      if (isCursorValid) {
+        const lastCreatedAtMs = new Date(
+          decodedCursor.lastCreatedAt as string,
+        ).getTime();
+        where.push(Prisma.sql`
+          (
+            c."createdAt" < ${lastCreatedAtMs}
+            OR (
+              c."createdAt" = ${lastCreatedAtMs}
+              AND c.id < ${decodedCursor.lastId}
+            )
+          )
+        `);
+      }
+    } else if (orderBy === 'popular') {
+      order.push(Prisma.sql`ic.total_votes DESC`, Prisma.sql`c.id DESC`);
+
+      if (isCursorValid) {
+        where.push(
+          Prisma.sql`(ic.total_votes < ${decodedCursor.lastTotalVotes} OR (ic.total_votes = ${decodedCursor.lastTotalVotes} AND c.id < ${decodedCursor.lastId}))`,
+        );
+      }
     }
 
-    let collections = await prisma.collection.findMany({
-      where: whereQuery,
-      include: {
-        _count: {
-          select: {
-            images: true,
-          },
-        },
-        images: {
-          select: {
-            filepath: true,
-            numVotes: true,
-          },
-          orderBy: {
-            rating: 'desc',
-          },
-          take: 3,
-        },
-        owner: {
-          select: {
-            username: true,
-          },
-        },
-      },
-      orderBy: orderByQuery,
-    });
+    const whereSql = where.length
+      ? Prisma.sql`WHERE ${Prisma.join(where, ' AND ')}`
+      : Prisma.empty;
 
-    if (search?.trim()) {
-      const fuse = new Fuse(collections, {
-        keys: [
-          'title',
-          'question',
-          'description',
-          {
-            name: 'owner.username',
-            weight: 0.5,
-          },
-        ],
-      });
+    const orderSql = order.length
+      ? Prisma.sql`ORDER BY ${Prisma.join(order, ', ')}`
+      : Prisma.sql`ORDER BY c.id DESC`;
 
-      collections = fuse.search(search.trim()).map(({ item }) => item);
-    }
+    const collections = await prisma.$queryRaw<
+      {
+        id: string;
+        title: string;
+        description: string | null;
+        question: string | null;
+        mode: string;
+        isNSFW: boolean;
+        isLive: boolean;
+        total_images: number;
+        total_votes: number;
+        thumbnail_images: string; // <- JSON text, parse in JS
+        owner_username: string;
+      }[]
+    >(Prisma.sql`
+      WITH image_counts AS (
+        SELECT
+          "collectionId",
+          COUNT(*) AS total_images,
+          COALESCE(SUM("numVotes"), 0) AS total_votes
+        FROM "Image"
+        GROUP BY "collectionId"
+      )
+      SELECT
+        c.id,
+        c.title,
+        c.question,
+        c.description,
+        c.mode,
+        c."isNSFW",
+        c."isLive",
+        c."createdAt",
+        COALESCE(ic.total_images, 0) AS total_images,
+        COALESCE(ic.total_votes, 0)  AS total_votes,
+        COALESCE((
+          SELECT json_group_array(filepath)
+          FROM (
+            SELECT filepath
+            FROM "Image"
+            WHERE "collectionId" = c.id
+            ORDER BY rating DESC, id ASC
+            LIMIT 3
+          )
+        ), '[]') AS thumbnail_images,
+        u.username AS owner_username
+      FROM "Collection" c
+      LEFT JOIN image_counts ic
+        ON ic."collectionId" = c.id
+      INNER JOIN "User" u
+        ON u.id = c."ownerId"
+      ${whereSql}
+      ${orderSql}
+      LIMIT ${limit}
+    `);
 
-    const sumRes = await prisma.image.groupBy({
-      by: ['collectionId'],
-      _sum: {
-        numVotes: true,
-      },
-    });
-
-    const votesMap = sumRes.reduce(
-      (acc, { collectionId, _sum }) => {
-        acc[collectionId] = _sum.numVotes || 0;
-        return acc;
-      },
-      {} as Record<string, number>,
+    const transformedCollections = collections.map(
+      ({
+        owner_username,
+        thumbnail_images,
+        total_images,
+        total_votes,
+        ...collection
+      }) => ({
+        ...collection,
+        createdBy: owner_username,
+        totalImages: Number(total_images),
+        totalVotes: Number(total_votes),
+        thumbnailImages: JSON.parse(thumbnail_images) as string[],
+        isValid: this.isValid(total_images),
+      }),
     );
 
-    const res = collections
-      .map(({ _count, images, owner, ...collection }) => ({
-        ...collection,
-        createdBy: owner.username,
-        totalImages: _count.images,
-        totalVotes: votesMap[collection.id] || 0,
-        thumbnailImages: images.map(({ filepath }) => filepath),
-        isValid: this.isValid(_count.images),
-      }))
-      .filter(({ isValid }) => onlySelf || isValid);
+    const lastCollection = transformedCollections.at(-1);
 
-    if (orderBy === 'popular') {
-      res.sort((a, b) => b.totalVotes - a.totalVotes);
-    }
+    const nextCursor =
+      lastCollection &&
+      orderByOptions &&
+      transformedCollections.length === limit
+        ? encodeCursor({
+            lastId: lastCollection.id,
+            [orderByOptions.cursorField]:
+              lastCollection[orderByOptions.transCollectionField],
+          })
+        : null;
 
-    return res;
+    return { collections: transformedCollections, nextCursor };
   }
 
   async getManyForUserFeed({

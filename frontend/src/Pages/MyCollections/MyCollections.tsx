@@ -7,15 +7,48 @@ import { usePage } from "../../Hooks/usePage";
 import classes from "./MyCollections.module.css";
 import { useMediaQuery } from "@mantine/hooks";
 import { MEDIA_QUERY_DESKTOP } from "../../Utils/breakpoints";
+import { useInfiniteScroll } from "../../Hooks/useInfiniteScroll";
 
 export const MyCollections = () => {
   usePage("my-collections");
   const isDesktop = useMediaQuery(MEDIA_QUERY_DESKTOP);
 
-  const [collections, setCollections] = useState<IGetCollections>([]);
+  const [collections, setCollections] = useState<
+    IGetCollections["collections"]
+  >([]);
+  const [cursor, setCursor] = useState<IGetCollections["nextCursor"]>(null);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const sentinelRef = useInfiniteScroll({
+    hasMore: Boolean(cursor),
+    isLoading: isLoading,
+    onLoadMore: () => {
+      setIsLoading(true);
+      getCollections({
+        onlySelf: true,
+        cursor,
+      })
+        .then(({ collections, nextCursor }) => {
+          setCollections((prev) => [...prev, ...collections]);
+          setCursor(nextCursor);
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });
+    },
+    rootMargin: "2000px",
+  });
 
   useEffect(() => {
-    getCollections({ onlySelf: true }).then(setCollections);
+    setIsLoading(true);
+    getCollections({ onlySelf: true })
+      .then(({ collections, nextCursor }) => {
+        setCollections(collections);
+        setCursor(nextCursor);
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
   }, []);
 
   const {
@@ -40,7 +73,10 @@ export const MyCollections = () => {
           personal: [],
           private: [],
           public: [],
-        } as Record<"personal" | "private" | "public", IGetCollections>
+        } as Record<
+          "personal" | "private" | "public",
+          IGetCollections["collections"]
+        >
       ),
     [collections]
   );

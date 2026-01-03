@@ -4,7 +4,7 @@ import { useNavigate } from "react-router";
 import { Collage } from "../../../../Components/Collage/Collage";
 
 interface Props {
-  collections: IGetCollections;
+  collections: IGetCollections["collections"];
 }
 
 export const CollectionsGrid = ({ collections }: Props) => {

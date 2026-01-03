@@ -7,4 +7,6 @@ export interface IGetCollections {
   showAllModes?: boolean;
   showNSFW?: boolean;
   search?: string;
+  limit?: number;
+  cursor?: string | null | undefined;
 }
