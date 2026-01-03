@@ -60,7 +60,7 @@ export const Collections = () => {
           setIsLoading(false);
         });
     },
-    rootMargin: "2000px",
+    rootMargin: "1000px",
   });
 
   useEffect(() => {
@@ -132,6 +132,7 @@ export const Collections = () => {
             totalImages,
             mode,
             isNSFW,
+            isLive,
             createdBy,
           }) => {
             return (
@@ -152,6 +153,11 @@ export const Collections = () => {
                   {isNSFW && (
                     <Badge size="xs" color="red">
                       NSFW +18
+                    </Badge>
+                  )}
+                  {user?.role === "ADMIN" && !isLive && (
+                    <Badge size="xs" color="gray">
+                      Offline
                     </Badge>
                   )}
                 </Group>

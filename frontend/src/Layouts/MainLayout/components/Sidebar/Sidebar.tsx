@@ -78,42 +78,42 @@ export const Sidebar = () => {
       </div>
       <div className={classes.navbarMain}>
         <Tooltip position="right" label="Explore">
-          <UnstyledButton
-            className={classes.item}
-            onClick={handleClickLogo}
-          >
-            {page === "collections" && <ExploreFillIcon className={classes.itemIcon} />}
-            {page !== "collections" && <ExploreIcon className={classes.itemIcon} />}
+          <UnstyledButton className={classes.item} onClick={handleClickLogo}>
+            {page === "collections" && (
+              <ExploreFillIcon className={classes.itemIcon} />
+            )}
+            {page !== "collections" && (
+              <ExploreIcon className={classes.itemIcon} />
+            )}
           </UnstyledButton>
         </Tooltip>
 
         <Tooltip position="right" label="Duels">
-          <UnstyledButton
-            className={classes.item}
-            onClick={handleClickFeed}
-          >
+          <UnstyledButton className={classes.item} onClick={handleClickFeed}>
             {page === "feed" && <DuelFillIcon className={classes.itemIcon} />}
             {page !== "feed" && <DuelIcon className={classes.itemIcon} />}
           </UnstyledButton>
         </Tooltip>
 
         <Tooltip position="right" label="Create Collection">
-          <UnstyledButton
-            className={classes.item}
-            onClick={handleClickCreate}
-          >
-            {page === "create-collection" && <AddFillIcon className={classes.itemIcon} />}
-            {page !== "create-collection" && <AddIcon className={classes.itemIcon} />}
+          <UnstyledButton className={classes.item} onClick={handleClickCreate}>
+            {page === "create-collection" && (
+              <AddFillIcon className={classes.itemIcon} />
+            )}
+            {page !== "create-collection" && (
+              <AddIcon className={classes.itemIcon} />
+            )}
           </UnstyledButton>
         </Tooltip>
         {loggedIn && (
           <Tooltip position="right" label="My Collections">
-            <UnstyledButton
-              className={classes.item}
-              onClick={handleClickMy}
-            >
-              {page === "my-collections" && <CollectionsFillIcon className={classes.itemIcon} />}
-              {page !== "my-collections" && <CollectionsIcon className={classes.itemIcon} />}
+            <UnstyledButton className={classes.item} onClick={handleClickMy}>
+              {page === "my-collections" && (
+                <CollectionsFillIcon className={classes.itemIcon} />
+              )}
+              {page !== "my-collections" && (
+                <CollectionsIcon className={classes.itemIcon} />
+              )}
             </UnstyledButton>
           </Tooltip>
         )}
@@ -122,12 +122,13 @@ export const Sidebar = () => {
         {loggedIn && (
           <>
             <Tooltip position="right" label="Settings">
-              <UnstyledButton
-                className={classes.item}
-                onClick={handleSettings}
-              >
-                {page === "settings" && <SettingsFillIcon className={classes.itemIcon} />}
-                {page !== "settings" && <SettingsIcon className={classes.itemIcon} />}
+              <UnstyledButton className={classes.item} onClick={handleSettings}>
+                {page === "settings" && (
+                  <SettingsFillIcon className={classes.itemIcon} />
+                )}
+                {page !== "settings" && (
+                  <SettingsIcon className={classes.itemIcon} />
+                )}
               </UnstyledButton>
             </Tooltip>
 
@@ -145,8 +146,12 @@ export const Sidebar = () => {
           <>
             <Tooltip position="right" label="Login">
               <UnstyledButton className={classes.item} onClick={handleLogin}>
-                {["login", "register"].includes(page) && <LoginFillIcon className={classes.itemIcon} />}
-                {!["login", "register"].includes(page) && <LoginIcon className={classes.itemIcon} />}
+                {["login", "register"].includes(page) && (
+                  <LoginFillIcon className={classes.itemIcon} />
+                )}
+                {!["login", "register"].includes(page) && (
+                  <LoginIcon className={classes.itemIcon} />
+                )}
               </UnstyledButton>
             </Tooltip>
           </>

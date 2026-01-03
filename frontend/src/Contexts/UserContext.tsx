@@ -12,6 +12,7 @@ interface UserContextProps {
   setUser: React.Dispatch<React.SetStateAction<IUser | null>>;
   loggedIn: boolean;
   isFetchingLoggedUser: boolean;
+  hasBeganLoggedUserFetch: boolean;
   logout: () => Promise<void>;
 }
 
@@ -20,15 +21,18 @@ export const UserContext = createContext<UserContextProps>({
   setUser: () => {},
   loggedIn: false,
   isFetchingLoggedUser: false,
+  hasBeganLoggedUserFetch: false,
   logout: async () => {},
 });
 
 export const UserProvider = ({ children }: UserProviderProps) => {
   const [user, setUser] = useState<IUser | null>(null);
   const [isFetchingLoggedUser, setIsFetchingLoggedUser] = useState(false);
+  const [hasBeganLoggedUserFetch, setHasBeganLoggedUserFetch] = useState(false);
 
   useEffect(() => {
     setIsFetchingLoggedUser(true);
+    setHasBeganLoggedUserFetch(true);
     getMe()
       .then((user) => {
         setUser(user);
@@ -55,6 +59,7 @@ export const UserProvider = ({ children }: UserProviderProps) => {
         setUser,
         loggedIn,
         isFetchingLoggedUser,
+        hasBeganLoggedUserFetch,
         logout,
       }}
     >

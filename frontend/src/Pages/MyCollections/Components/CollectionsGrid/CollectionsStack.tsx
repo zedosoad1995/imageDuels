@@ -17,7 +17,16 @@ export const CollectionsGrid = ({ collections }: Props) => {
   return (
     <Grid>
       {collections.map(
-        ({ id, title, thumbnailImages, totalVotes, totalImages, isNSFW }) => {
+        ({
+          id,
+          title,
+          thumbnailImages,
+          totalVotes,
+          totalImages,
+          isNSFW,
+          isLive,
+          isValid,
+        }) => {
           return (
             <Grid.Col
               key={id}
@@ -31,6 +40,16 @@ export const CollectionsGrid = ({ collections }: Props) => {
                 {isNSFW && (
                   <Badge size="xs" color="red">
                     NSFW +18
+                  </Badge>
+                )}
+                {!isLive && (
+                  <Badge size="xs" color="gray">
+                    Offline
+                  </Badge>
+                )}
+                {!isValid && (
+                  <Badge size="xs" color="gray">
+                    Draft
                   </Badge>
                 )}
               </Group>

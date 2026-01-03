@@ -5,10 +5,11 @@ import { UserContext } from "../../Contexts/UserContext";
 export const ProtectedLayout = () => {
   const navigate = useNavigate();
 
-  const { loggedIn, isFetchingLoggedUser } = useContext(UserContext);
+  const { loggedIn, isFetchingLoggedUser, hasBeganLoggedUserFetch } =
+    useContext(UserContext);
 
   useEffect(() => {
-    if (isFetchingLoggedUser) return;
+    if (isFetchingLoggedUser || !hasBeganLoggedUserFetch) return;
 
     if (!loggedIn) {
       // TODO: or show page not found or something like that
@@ -16,7 +17,7 @@ export const ProtectedLayout = () => {
     }
   }, [isFetchingLoggedUser, loggedIn]);
 
-  if (!loggedIn || isFetchingLoggedUser) {
+  if (!loggedIn || isFetchingLoggedUser || !hasBeganLoggedUserFetch) {
     // TODO: show loading component
     return null;
   }

@@ -1,11 +1,11 @@
 import { useContext, useEffect } from "react";
 import { PageContext, PageName } from "../Contexts/PageContext";
 
-export const usePage = (name?: PageName) => {
+export const usePage = (name?: PageName | null) => {
   const { page, setPage } = useContext(PageContext);
 
   useEffect(() => {
-    if (!name) return;
+    if (name === undefined) return;
 
     setPage(name);
   }, [name]);

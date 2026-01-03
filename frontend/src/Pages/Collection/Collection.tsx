@@ -23,11 +23,14 @@ import MoreHorizontalIcon from "../../assets/svgs/more-horizontal.svg?react";
 import PauseIcon from "../../assets/svgs/pause.svg?react";
 import PlayIcon from "../../assets/svgs/play.svg?react";
 import { CopyItem } from "../../Components/CopyItem/CopyItem";
+import { usePage } from "../../Hooks/usePage";
 
 export const CollectionChild = () => {
   const { collection, fetchCollection, setCollection } =
     useContext(CollectionContext);
   const { loggedIn, user } = useContext(UserContext);
+
+  usePage(null);
 
   const [showSubtitle, setShowSubtitle] = useState(false);
 
@@ -82,7 +85,7 @@ export const CollectionChild = () => {
           {!collection.isValid && (
             <Tooltip label="You must upload at least 2 images">
               <Badge size="xs" color="gray">
-                Invalid
+                Draft
               </Badge>
             </Tooltip>
           )}

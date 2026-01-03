@@ -1,4 +1,4 @@
-import { Button, Card, Flex, Group, Text } from "@mantine/core";
+import { Button, Card, Container, Flex, Group, Text } from "@mantine/core";
 import { getDuel } from "../../../../Api/collections";
 import { useCallback, useContext, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
@@ -88,7 +88,7 @@ export const Vote = ({ collection }: Props) => {
   // TODO: Display 2 images to vote when not logged in, but when user clicks, show modal to sign up
 
   return (
-    <>
+    <Container size={"lg"}>
       {collection.question && (
         <Text fw={600} size="lg" pb={8}>
           {collection.question}
@@ -183,6 +183,6 @@ export const Vote = ({ collection }: Props) => {
           Skip
         </Button>
       </Group>
-    </>
+    </Container>
   );
 };
