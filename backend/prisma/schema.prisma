@@ -14,13 +14,15 @@ model User {
   id                 String       @id @default(uuid())
   email              String       @unique
   username           String?      @unique
-  googleId           String?      @unique
+  googleId           String?      @unique @map("google_id")
   role               RoleEnum     @default(REGULAR)
-  canSeeNSFW         Boolean      @default(false)
-  isProfileCompleted Boolean      @default(false)
+  canSeeNSFW         Boolean      @default(false) @map("can_see_nsfw")
+  isProfileCompleted Boolean      @default(false) @map("is_profile_completed")
   Collection         Collection[]
   duels              Duel[]
-  createdAt          DateTime     @default(now())
+  createdAt          DateTime     @default(now()) @map("created_at")
+
+  @@map("users")
 }
 
 enum RoleEnum {
@@ -34,12 +36,14 @@ model Collection {
   description String?
   question    String?
   mode        CollectionModeEnum
-  isNSFW      Boolean            @default(false)
-  isLive      Boolean            @default(true)
+  isNSFW      Boolean            @default(false) @map("is_nsfw")
+  isLive      Boolean            @default(true) @map("is_live")
   owner       User               @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-  ownerId     String
-  createdAt   DateTime           @default(now())
+  ownerId     String             @map("owner_id")
+  createdAt   DateTime           @default(now()) @map("created_at")
   images      Image[]
+
+  @@map("collections")
 }
 
 enum CollectionModeEnum {
@@ -52,31 +56,34 @@ model Image {
   id              String     @id @default(uuid())
   filepath        String
   rating          Float
-  ratingDeviation Float
+  ratingDeviation Float      @map("rating_deviation")
   volatility      Float
-  numVotes        Int        @default(0)
-  height          Int        @default(0)
-  width           Int        @default(0)
+  numVotes        Int        @default(0) @map("num_votes")
+  height          Int
+  width           Int
   version         Int        @default(0)
   collection      Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
   duelsAsImage1   Duel[]     @relation("image1Relation")
   duelsAsImage2   Duel[]     @relation("image2Relation")
-  createdAt       DateTime   @default(now())
-  collectionId    String
+  createdAt       DateTime   @default(now()) @map("created_at")
+  collectionId    String     @map("collection_id")
 
   @@index([collectionId])
+  @@map("images")
 }
 
 model Duel {
-  id           String           @id @default(uuid())
-  image1       Image            @relation("image1Relation", fields: [image1Id], references: [id], onDelete: Cascade)
-  image2       Image            @relation("image2Relation", fields: [image2Id], references: [id], onDelete: Cascade)
-  voter        User             @relation(fields: [voterId], references: [id], onDelete: Cascade)
-  outcome      DuelOutcomeEnum
-  image1Id     String
-  image2Id     String
-  voterId      String
-  createdAt    DateTime         @default(now())
+  id        String          @id @default(uuid())
+  image1    Image           @relation("image1Relation", fields: [image1Id], references: [id], onDelete: Cascade)
+  image2    Image           @relation("image2Relation", fields: [image2Id], references: [id], onDelete: Cascade)
+  voter     User            @relation(fields: [voterId], references: [id], onDelete: Cascade)
+  outcome   DuelOutcomeEnum
+  image1Id  String          @map("image1_id")
+  image2Id  String          @map("image2_id")
+  voterId   String          @map("voter_id")
+  createdAt DateTime        @default(now()) @map("created_at")
+
+  @@map("duels")
 }
 
 enum DuelOutcomeEnum {

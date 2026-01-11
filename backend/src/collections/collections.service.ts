@@ -47,9 +47,9 @@ export class CollectionsService {
     const where: Prisma.Sql[] = [];
 
     if (userId) {
-      where.push(Prisma.sql`c."ownerId" = ${userId}`);
+      where.push(Prisma.sql`c.owner_id = ${userId}`);
     } else if (!showAllModes) {
-      where.push(Prisma.sql`c.mode = 'PUBLIC'`, Prisma.sql`c."isLive" IS TRUE`);
+      where.push(Prisma.sql`c.mode = 'PUBLIC'`, Prisma.sql`c.is_live IS TRUE`);
     }
 
     const trimmedSearch = search?.trim();
@@ -66,7 +66,7 @@ export class CollectionsService {
     }
 
     if (!showNSFW) {
-      where.push(Prisma.sql`c."isNSFW" IS FALSE`);
+      where.push(Prisma.sql`c.is_nsfw IS FALSE`);
     }
 
     if (!onlySelf) {
@@ -76,7 +76,7 @@ export class CollectionsService {
 
     const order: Prisma.Sql[] = [];
     if (orderBy === 'new') {
-      order.push(Prisma.sql`c."createdAt" DESC`, Prisma.sql`c.id DESC`);
+      order.push(Prisma.sql`c.created_at DESC`, Prisma.sql`c.id DESC`);
 
       if (isCursorValid) {
         const lastCreatedAtMs = new Date(
@@ -84,9 +84,9 @@ export class CollectionsService {
         ).getTime();
         where.push(Prisma.sql`
           (
-            c."createdAt" < ${lastCreatedAtMs}
+            c.created_at < ${lastCreatedAtMs}
             OR (
-              c."createdAt" = ${lastCreatedAtMs}
+              c.created_at = ${lastCreatedAtMs}
               AND c.id < ${decodedCursor.lastId}
             )
           )
@@ -127,11 +127,11 @@ export class CollectionsService {
     >(Prisma.sql`
       WITH image_counts AS (
         SELECT
-          "collectionId",
+          collection_id,
           COUNT(*) AS total_images,
-          COALESCE(SUM("numVotes"), 0) AS total_votes
-        FROM "Image"
-        GROUP BY "collectionId"
+          COALESCE(SUM("num_votes"), 0) AS total_votes
+        FROM images
+        GROUP BY collection_id
       )
       SELECT
         c.id,
@@ -139,27 +139,27 @@ export class CollectionsService {
         c.question,
         c.description,
         c.mode,
-        c."isNSFW",
-        c."isLive",
-        c."createdAt",
+        c.is_nsfw AS "isNSFW",
+        c.is_live AS "isLive",
+        c.created_at,
         COALESCE(ic.total_images, 0) AS total_images,
         COALESCE(ic.total_votes, 0)  AS total_votes,
         COALESCE((
           SELECT json_agg(filepath)
           FROM (
             SELECT filepath
-            FROM "Image"
-            WHERE "collectionId" = c.id
+            FROM images
+            WHERE collection_id = c.id
             ORDER BY rating DESC, id ASC
             LIMIT 3
           ) AS t
         ), '[]'::json) AS thumbnail_images,
         u.username AS owner_username
-      FROM "Collection" c
+      FROM collections c
       LEFT JOIN image_counts ic
-        ON ic."collectionId" = c.id
-      INNER JOIN "User" u
-        ON u.id = c."ownerId"
+        ON ic.collection_id = c.id
+      INNER JOIN users u
+        ON u.id = c.owner_id
       ${whereSql}
       ${orderSql}
       LIMIT ${limit}
@@ -218,23 +218,23 @@ export class CollectionsService {
       : Prisma.empty;
 
     const whereOwner = userId
-      ? Prisma.sql`AND c."ownerId" <> ${userId}`
+      ? Prisma.sql`AND c.owner_id <> ${userId}`
       : Prisma.empty;
 
     const whereNSFW = showNSFW
       ? Prisma.empty
-      : Prisma.sql`AND c."isNSFW" IS FALSE`;
+      : Prisma.sql`AND c.is_nsfw IS FALSE`;
 
     const collections = await prisma.$queryRaw<{ id: string; title: string }[]>(
       Prisma.sql`
       SELECT c.id, c.title
-      FROM "Collection" c
+      FROM collections c
       WHERE c.mode = 'PUBLIC'
-        AND c."isLive" IS TRUE
+        AND c.is_live IS TRUE
         AND EXISTS (
           SELECT 1
-          FROM "Image" i
-          WHERE i."collectionId" = c.id
+          FROM images i
+          WHERE i.collection_id = c.id
           LIMIT 1 OFFSET 1
         )
         ${whereNSFW}
