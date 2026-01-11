@@ -1,27 +1,39 @@
 import { useViewportSize } from "@mantine/hooks";
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import debounce from "lodash.debounce";
 
-interface Props {
-  children: React.ReactNode;
-  numColumns: number | { base: number; [k: number]: number };
-  gap?: number;
-  onReady?: () => void;
+interface MasonryItem<T extends object> {
+  height: number;
+  width: number;
+  key: React.Key;
+  props: T;
 }
 
-export const MasonryGrid = ({ children, numColumns, gap, onReady }: Props) => {
+interface Props<T extends object> {
+  data: MasonryItem<T>[];
+  BaseItem: React.ComponentType<T>;
+  cols: number | { base: number; [k: number]: number };
+  gap?: number;
+}
+
+export const MasonryGrid = <T extends object>({
+  data,
+  BaseItem,
+  cols,
+  gap = 4,
+}: Props<T>) => {
   const { width: screenWidth } = useViewportSize();
 
-  const containerRef = useRef<HTMLDivElement | null>(null);
-  const elementsRef = useRef<(HTMLDivElement | null)[]>([]);
+  const parentContainerRef = useRef<HTMLDivElement | null>(null);
 
-  const [columns, setColumns] = useState<React.ReactNode[][]>([]);
+  const [parentWidth, setParentWidth] = useState(0);
 
-  const realNumCols = useMemo(() => {
-    if (typeof numColumns === "number") {
-      return numColumns;
+  const numCols = useMemo(() => {
+    if (typeof cols === "number") {
+      return cols;
     }
 
-    const { base, ...numColsObj } = numColumns;
+    const { base, ...numColsObj } = cols;
 
     const colSizes = Object.keys(numColsObj)
       .map(Number)
@@ -37,159 +49,132 @@ export const MasonryGrid = ({ children, numColumns, gap, onReady }: Props) => {
     }
 
     return numColsObj[colSizeMin];
-  }, [numColumns, screenWidth]);
+  }, [cols, screenWidth]);
 
-  useEffect(() => {
-    if (React.Children.count(children) < elementsRef.current.length) {
-      elementsRef.current.splice(React.Children.count(children));
-    }
-  }, [React.Children.count(children)]);
+  const imgWidth = useMemo(
+    () => (parentWidth - gap * (numCols - 1)) / numCols,
+    [parentWidth, gap, numCols]
+  );
 
-  function after2Frames(cb: () => void) {
-    let raf1 = 0,
-      raf2 = 0;
-    raf1 = requestAnimationFrame(() => {
-      raf2 = requestAnimationFrame(cb);
-    });
-    return () => {
-      cancelAnimationFrame(raf1);
-      cancelAnimationFrame(raf2);
-    };
-  }
+  const [transformedData, parentHeightNormalized, numGapsParent] =
+    useMemo(() => {
+      const heights = Array.from({ length: numCols }, () => ({
+        height: 0,
+        nextRow: 0,
+      }));
 
-  useEffect(() => {
-    if (!containerRef.current) {
-      return;
-    }
+      const findHeightsMinIdx = () => {
+        let minVal = heights[0].height;
+        let minIdx = 0;
 
-    const organizeCols = () => {
-      const childArray: React.ReactNode[] = React.Children.toArray(children);
+        for (let i = 1; i < numCols; i++) {
+          if (heights[i].height < minVal) {
+            minVal = heights[i].height;
+            minIdx = i;
+          }
+        }
 
-      const childNodes = elementsRef.current.filter(
-        (node) => node?.nodeType === Node.ELEMENT_NODE
-      ) as HTMLElement[];
+        return minIdx;
+      };
 
-      const heights = childNodes.map(
-        (node) => node.getBoundingClientRect().height ?? 0
-      );
+      const res: {
+        hwRatio: number;
+        normalizedStartY: number;
+        colNum: number;
+        rowNum: number;
+      }[] = [];
 
-      // Check if all heights are set
-      if (heights.slice(0, React.Children.count(children)).some((h) => !h)) {
-        return;
+      for (let i = 0; i < data.length; i++) {
+        const record = data[i];
+
+        const nextIdx = findHeightsMinIdx();
+        const hwRatio = record.height / record.width;
+
+        res.push({
+          hwRatio,
+          colNum: nextIdx,
+          normalizedStartY: heights[nextIdx].height,
+          rowNum: heights[nextIdx].nextRow,
+        });
+
+        heights[nextIdx] = {
+          nextRow: heights[nextIdx].nextRow + 1,
+          height: heights[nextIdx].height + hwRatio,
+        };
       }
 
-      const heightCols = Array(realNumCols).fill(0);
-      const cols: React.ReactNode[][] = Array.from(
-        { length: realNumCols },
-        () => []
-      );
-
-      childArray.forEach((node, index) => {
-        const minHeightIndex = heightCols.findIndex(
-          (h) => h === Math.min(...heightCols)
+      const indexOfMaxHeight = heights
+        .map(({ height }) => height)
+        .reduce(
+          (bestIndex, curr, i) =>
+            curr > heights.map(({ height }) => height)[bestIndex]
+              ? i
+              : bestIndex,
+          0
         );
 
-        cols[minHeightIndex].push(node);
-        heightCols[minHeightIndex] += heights[index];
-      });
+      return [
+        res,
+        heights[indexOfMaxHeight].height,
+        Math.max(heights[indexOfMaxHeight].nextRow - 1, 0),
+      ];
+    }, [data, numCols]);
 
-      setColumns(cols);
-    };
+  const debouncedUpdateParentWidth = useCallback(
+    debounce(
+      () => {
+        if (parentContainerRef.current) {
+          setParentWidth(parentContainerRef.current.offsetWidth);
+        }
+      },
+      50,
+      { leading: true, trailing: true }
+    ),
+    []
+  );
 
-    let cancel: null | (() => void) = null;
-    let runId = 0;
+  useEffect(() => {
+    debouncedUpdateParentWidth();
 
-    const schedule = () => {
-      runId += 1;
-      const myRun = runId;
-
-      cancel?.();
-      cancel = after2Frames(() => {
-        if (myRun !== runId) return;
-
-        organizeCols();
-
-        // If this organizeCols causes another resize, schedule() runs again
-        // and this won't be "final". If nothing else happens, we're "ready".
-        onReady?.();
-      });
-    };
-
-    const observer = new ResizeObserver(schedule);
-    observer.observe(containerRef.current);
-
-    schedule(); // initial
-
+    window.addEventListener("resize", debouncedUpdateParentWidth);
     return () => {
-      cancel?.();
-      observer.disconnect();
+      window.removeEventListener("resize", debouncedUpdateParentWidth);
+      debouncedUpdateParentWidth.cancel();
     };
-  }, [children, realNumCols, onReady]);
+  }, [debouncedUpdateParentWidth]);
 
   return (
     <div
+      ref={parentContainerRef}
       style={{
-        display: "flex",
-        flexDirection: "row",
         position: "relative",
-        gap,
+        height: parentHeightNormalized * imgWidth + numGapsParent * gap,
       }}
     >
-      {columns.map((col, index) => (
-        <div
-          key={index}
-          style={{ display: "flex", flexDirection: "column", flex: 1, gap }}
-        >
-          {col.map((el, index) => (
-            <React.Fragment key={index}>{el}</React.Fragment>
-          ))}
-        </div>
-      ))}
-      <div
-        ref={containerRef}
-        style={{ visibility: "hidden", position: "fixed" }}
-      >
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "row",
-          }}
-        >
-          {Array(realNumCols)
-            .fill(undefined)
-            .map((_, colIndex) => (
-              <div
-                key={colIndex}
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  flex: 1,
-                }}
-              >
-                {colIndex === 0 &&
-                  React.Children.map(children, (child, index) => (
-                    <div
-                      style={{ position: index === 0 ? "inherit" : "inherit" }}
-                    >
-                      <div
-                        ref={(el) => {
-                          if (!el) {
-                            return;
-                          }
+      {transformedData.map(
+        ({ colNum, hwRatio, normalizedStartY, rowNum }, i) => {
+          const translateX = colNum * (imgWidth + gap);
+          const translateY = normalizedStartY * imgWidth + gap * rowNum;
 
-                          elementsRef.current[index] = el;
-                        }}
-                        key={index}
-                      >
-                        {child}
-                      </div>
-                    </div>
-                  ))}
-                {colIndex !== 0 && <div />}
-              </div>
-            ))}
-        </div>
-      </div>
+          const { key, props } = data[i];
+
+          return (
+            <div
+              style={{
+                position: "absolute",
+                top: 0,
+                left: 0,
+                width: imgWidth,
+                height: hwRatio * imgWidth,
+                transform: `translate(${translateX}px, ${translateY}px)`,
+              }}
+              key={key}
+            >
+              <BaseItem {...props} />
+            </div>
+          );
+        }
+      )}
     </div>
   );
 };

@@ -293,6 +293,8 @@ export class CollectionsService {
               filepath: true,
               numVotes: true,
               rating: true,
+              height: true,
+              width: true,
             },
             where: whereImagesClause,
             orderBy: [{ rating: 'desc' }, { id: 'desc' }],

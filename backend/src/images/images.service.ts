@@ -7,6 +7,8 @@ import { prisma } from 'src/common/helpers/prisma';
 import { RATING_INI, RD_INI, VOLATILITY_INI } from './constants/rating';
 import { randInt } from 'src/common/helpers/random';
 import { Image } from '@prisma/client';
+import { imageSize } from 'image-size';
+import * as fs from 'node:fs';
 
 @Injectable()
 export class ImagesService {
@@ -21,6 +23,9 @@ export class ImagesService {
       );
     }
 
+    const fileBuffer = await fs.promises.readFile(imageFile.path);
+    const { width, height } = imageSize(fileBuffer);
+
     return prisma.image.create({
       data: {
         filepath: imageFile.filename,
@@ -28,6 +33,8 @@ export class ImagesService {
         ratingDeviation: RD_INI,
         volatility: VOLATILITY_INI,
         collectionId,
+        height,
+        width,
       },
     });
   }

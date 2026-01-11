@@ -19,6 +19,8 @@ export const collectionResSchema = z.object({
       filepath: z.string(),
       numVotes: z.number(),
       percentile: z.number(),
+      height: z.number(),
+      width: z.number(),
     }),
   ),
   belongsToMe: z.boolean(),

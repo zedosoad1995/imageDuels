@@ -36,6 +36,8 @@ export type IGetCollection = ICollection & {
     filepath: string;
     numVotes: number;
     percentile: number;
+    height: number;
+    width: number;
   }[];
   belongsToMe: boolean;
   nextCursor: string | null;

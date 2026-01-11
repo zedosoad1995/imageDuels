@@ -40,18 +40,29 @@ export const CollectionChild = () => {
   }
 
   const handleClickOffline = async () => {
-    await editCollection(collection.id, {
-      isLive: true,
-    });
-    await fetchCollection();
+    const prev = collection;
+    const optimistic = { ...prev, isLive: true };
+
+    setCollection(optimistic);
+
+    try {
+      await editCollection(prev.id, { isLive: true });
+    } catch (e) {
+      setCollection(prev);
+    }
   };
 
   const togglePausePlay = async () => {
-    setCollection({ ...collection, isLive: !collection.isLive });
-    await editCollection(collection.id, {
-      isLive: !collection.isLive,
-    });
-    await fetchCollection();
+    const prev = collection;
+    const optimistic = { ...prev, isLive: !prev.isLive };
+
+    setCollection(optimistic);
+
+    try {
+      await editCollection(prev.id, { isLive: optimistic.isLive });
+    } catch (e) {
+      setCollection(prev); // rollback
+    }
   };
 
   return (

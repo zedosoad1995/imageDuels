@@ -1,4 +1,4 @@
-import { useContext, useRef, useState } from "react";
+import { useContext, useMemo, useRef, useState } from "react";
 import { useParams } from "react-router";
 import { addImageToCollection } from "../../../../Api/collections";
 import imageCompression, { Options } from "browser-image-compression";
@@ -29,8 +29,6 @@ export const Images = ({ collection }: Props) => {
     useContext(CollectionContext);
   const { user } = useContext(UserContext);
 
-  const [isLoadingInfiniteScroll, setIsLoadingInfiniteScroll] = useState(false);
-
   const [isOpenImgUploadModal, setIsOpenImgUploadModal] = useState(false);
   const [totalImagesToUpload, setTotalImagesToUpload] = useState(0);
   const [totalImagesUploaded, setTotalImagesUploaded] = useState(0);
@@ -44,9 +42,8 @@ export const Images = ({ collection }: Props) => {
 
   const sentinelRef = useInfiniteScroll({
     hasMore: Boolean(collection.nextCursor),
-    isLoading: isLoadingInfiniteScroll || isLoadingApiCall,
+    isLoading: isLoadingApiCall,
     onLoadMore: () => {
-      setIsLoadingInfiniteScroll(true);
       fetchCollection({ useCursor: true });
     },
     rootMargin: "2000px",
@@ -177,6 +174,27 @@ export const Images = ({ collection }: Props) => {
     setClickedImageIdx(index);
   };
 
+  const masonryData = useMemo(
+    () =>
+      collection.images.map(
+        ({ id, filepath, numVotes, percentile, height, width }, index) => ({
+          props: {
+            canDelete: collection.belongsToMe || user?.role === "ADMIN",
+            filepath,
+            imageId: id,
+            numVotes,
+            percentile,
+            onClick: handleImageClick(index),
+          },
+          height,
+          width,
+          key: id,
+        })
+      ),
+
+    [collection.images]
+  );
+
   return (
     <>
       {collection.belongsToMe && (
@@ -194,6 +212,19 @@ export const Images = ({ collection }: Props) => {
       />
 
       <MasonryGrid
+        BaseItem={ImageCard}
+        data={masonryData}
+        cols={{ base: 1, 600: 2, 1200: 3 }}
+      />
+
+      {/* <VirtuosoMasonry
+        columnCount={3}
+        data={masonryData}
+        ItemContent={MasonryItemContent}
+        useWindowScroll={true}
+      /> */}
+
+      {/* <MasonryGrid
         numColumns={{ base: 1, 600: 2, 1200: 3 }}
         gap={4}
         onReady={() => {
@@ -213,7 +244,7 @@ export const Images = ({ collection }: Props) => {
             />
           )
         )}
-      </MasonryGrid>
+      </MasonryGrid> */}
 
       <div ref={sentinelRef} style={{ height: 1 }} />
 
