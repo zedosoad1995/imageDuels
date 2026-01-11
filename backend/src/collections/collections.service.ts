@@ -121,7 +121,7 @@ export class CollectionsService {
         isLive: boolean;
         total_images: number;
         total_votes: number;
-        thumbnail_images: string; // <- JSON text, parse in JS
+        thumbnail_images: string[]; // <- JSON text, parse in JS
         owner_username: string;
       }[]
     >(Prisma.sql`
@@ -145,15 +145,15 @@ export class CollectionsService {
         COALESCE(ic.total_images, 0) AS total_images,
         COALESCE(ic.total_votes, 0)  AS total_votes,
         COALESCE((
-          SELECT json_group_array(filepath)
+          SELECT json_agg(filepath)
           FROM (
             SELECT filepath
             FROM "Image"
             WHERE "collectionId" = c.id
             ORDER BY rating DESC, id ASC
             LIMIT 3
-          )
-        ), '[]') AS thumbnail_images,
+          ) AS t
+        ), '[]'::json) AS thumbnail_images,
         u.username AS owner_username
       FROM "Collection" c
       LEFT JOIN image_counts ic
@@ -177,7 +177,7 @@ export class CollectionsService {
         createdBy: owner_username,
         totalImages: Number(total_images),
         totalVotes: Number(total_votes),
-        thumbnailImages: JSON.parse(thumbnail_images) as string[],
+        thumbnailImages: thumbnail_images,
         isValid: this.isValid(total_images),
       }),
     );

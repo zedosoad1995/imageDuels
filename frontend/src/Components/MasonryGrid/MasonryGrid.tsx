@@ -128,13 +128,15 @@ export const MasonryGrid = <T extends object>({
         }
       },
       50,
-      { leading: true, trailing: true }
+      { trailing: true }
     ),
     []
   );
 
   useEffect(() => {
-    debouncedUpdateParentWidth();
+    if (parentContainerRef.current) {
+      setParentWidth(parentContainerRef.current.offsetWidth);
+    }
 
     window.addEventListener("resize", debouncedUpdateParentWidth);
     return () => {
