@@ -217,35 +217,6 @@ export const Images = ({ collection }: Props) => {
         cols={{ base: 1, 600: 2, 1200: 3, 1500: 4 }}
       />
 
-      {/* <VirtuosoMasonry
-        columnCount={3}
-        data={masonryData}
-        ItemContent={MasonryItemContent}
-        useWindowScroll={true}
-      /> */}
-
-      {/* <MasonryGrid
-        numColumns={{ base: 1, 600: 2, 1200: 3 }}
-        gap={4}
-        onReady={() => {
-          setIsLoadingInfiniteScroll(false);
-        }}
-      >
-        {collection.images.map(
-          ({ id, filepath, numVotes, percentile }, index) => (
-            <ImageCard
-              key={id}
-              canDelete={collection.belongsToMe || user?.role === "ADMIN"}
-              filepath={filepath}
-              imageId={id}
-              numVotes={numVotes}
-              percentile={percentile}
-              onClick={handleImageClick(index)}
-            />
-          )
-        )}
-      </MasonryGrid> */}
-
       <div ref={sentinelRef} style={{ height: 1 }} />
 
       <ImageFullScreenModal

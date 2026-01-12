@@ -7,23 +7,15 @@
   }
 }
 
-.duelContainer {
+.gotoText {
   cursor: pointer;
-  padding-left: 4px;
-  padding-right: 4px;
 
-  &:hover:not(:has(.imageCard:hover)) {
-    background-color: var(--mantine-color-gray-0);
-  }
-}
-
-.gotoText{
   .gotoTextSpan {
     text-decoration: none;
   }
 
   &:hover {
-    .gotoTextSpan {    
+    .gotoTextSpan {
       text-decoration: underline;
     }
   }

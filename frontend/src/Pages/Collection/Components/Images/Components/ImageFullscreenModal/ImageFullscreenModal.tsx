@@ -289,40 +289,33 @@ export const ImageFullScreenModal = ({
         }}
         withControls={isLaptopOrTablet}
       >
-        {windowedImages.map(({ filepath, numVotes, percentile }, i) => {
-          const globalIdx = start + i; // IMPORTANT: stable key across window shifts
-          return (
-            <Carousel.Slide
-              key={globalIdx}
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                position: "relative",
-              }}
-            >
-              <div
-                onClick={onClose}
-                style={{
-                  position: "absolute",
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
-                  cursor: "pointer",
-                }}
-              />
+        {windowedImages.map(
+          ({ filepath, numVotes, percentile, height, width, id }, i) => {
+            const isSvg = filepath.split("?")[0].toLowerCase().endsWith(".svg");
 
-              <div
+            const maxDim = Math.max(height, width);
+
+            let transformedH: number | "auto" = "auto";
+            let transformedW: number | "auto" = "auto";
+
+            if (isSvg) {
+              if (maxDim < 200) {
+                transformedH = 200;
+                transformedW = 200;
+              } else {
+                transformedH = height;
+                transformedW = width;
+              }
+            }
+
+            return (
+              <Carousel.Slide
+                key={id}
                 style={{
-                  textAlign: "center",
-                  height: "100vh",
                   display: "flex",
                   flexDirection: "column",
                   alignItems: "center",
-                  minHeight: 0,
-                  minWidth: 0,
-                  zIndex: 1,
+                  position: "relative",
                 }}
               >
                 <div
@@ -339,63 +332,90 @@ export const ImageFullScreenModal = ({
 
                 <div
                   style={{
-                    flex: 1,
+                    textAlign: "center",
+                    height: "100vh",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
                     minHeight: 0,
                     minWidth: 0,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
+                    zIndex: 1,
                   }}
                 >
-                  <img
-                    src={getImageURL(filepath)}
+                  <div
+                    onClick={onClose}
                     style={{
-                      margin: "0 auto",
-                      objectFit: "contain",
-                      maxHeight: "calc(100vh - 30px)",
-                      maxWidth: "100%",
-                      zIndex: 1,
-                      display: "block",
+                      position: "absolute",
+                      top: 0,
+                      left: 0,
+                      right: 0,
+                      bottom: 0,
+                      cursor: "pointer",
                     }}
                   />
+
+                  <div
+                    style={{
+                      flex: 1,
+                      minHeight: 0,
+                      minWidth: 0,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <img
+                      src={getImageURL(filepath)}
+                      style={{
+                        margin: "0 auto",
+                        objectFit: "contain",
+                        maxHeight: "calc(100vh - 30px)",
+                        maxWidth: "100%",
+                        zIndex: 1,
+                        display: "block",
+                        height: transformedH,
+                        width: transformedW,
+                      }}
+                    />
+                  </div>
+
+                  <Group
+                    px={8}
+                    gap={12}
+                    style={{
+                      width: "100%",
+                      justifyContent: "center",
+                      zIndex: 1,
+                      height: 25,
+                    }}
+                  >
+                    <Tooltip
+                      zIndex={1000000}
+                      label={`Score: ${(percentile * 100).toFixed(1)}%`}
+                      events={{ hover: true, focus: false, touch: true }}
+                    >
+                      <Group gap={4} style={{ cursor: "pointer" }}>
+                        <ScoreIcon height={16} />
+                        <Text fw={600}>{(percentile * 100).toFixed(1)}%</Text>
+                      </Group>
+                    </Tooltip>
+
+                    <Tooltip
+                      zIndex={1000000}
+                      label={`${numVotes} votes`}
+                      events={{ hover: true, focus: false, touch: true }}
+                    >
+                      <Group gap={4} style={{ cursor: "pointer" }}>
+                        <VotingIcon height={16} />
+                        <Text fw={600}>{numVotes}</Text>
+                      </Group>
+                    </Tooltip>
+                  </Group>
                 </div>
-
-                <Group
-                  px={8}
-                  gap={12}
-                  style={{
-                    width: "100%",
-                    justifyContent: "center",
-                    zIndex: 1,
-                    height: 25,
-                  }}
-                >
-                  <Tooltip
-                    zIndex={1000000}
-                    label={`Score: ${(percentile * 100).toFixed(1)}%`}
-                    events={{ hover: true, focus: false, touch: true }}
-                  >
-                    <Group gap={4} style={{ cursor: "pointer" }}>
-                      <ScoreIcon height={16} />
-                      <Text fw={600}>{(percentile * 100).toFixed(1)}%</Text>
-                    </Group>
-                  </Tooltip>
-
-                  <Tooltip
-                    zIndex={1000000}
-                    label={`${numVotes} votes`}
-                    events={{ hover: true, focus: false, touch: true }}
-                  >
-                    <Group gap={4} style={{ cursor: "pointer" }}>
-                      <VotingIcon height={16} />
-                      <Text fw={600}>{numVotes}</Text>
-                    </Group>
-                  </Tooltip>
-                </Group>
-              </div>
-            </Carousel.Slide>
-          );
-        })}
+              </Carousel.Slide>
+            );
+          }
+        )}
       </Carousel>
     </div>
   );

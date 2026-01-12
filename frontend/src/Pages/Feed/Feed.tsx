@@ -128,11 +128,7 @@ export const Feed = () => {
         {duels?.map(
           ({ image1, image2, token, collectionId, collectionName }, index) => (
             <Fragment key={index}>
-              <div
-                style={{ cursor: "pointer" }}
-                className={classes.duelContainer}
-                onClick={handleClickCollection(collectionId)}
-              >
+              <div>
                 <div
                   style={{
                     marginBottom:
@@ -158,6 +154,7 @@ export const Feed = () => {
                       lh={1}
                       c="dimmed"
                       className={classes.gotoText}
+                      onClick={handleClickCollection(collectionId)}
                     >
                       <span className={classes.gotoTextSpan}>
                         View collection
