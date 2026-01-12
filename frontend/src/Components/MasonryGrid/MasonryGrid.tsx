@@ -68,7 +68,7 @@ export const MasonryGrid = <T extends object>({
         let minIdx = 0;
 
         for (let i = 1; i < numCols; i++) {
-          if (heights[i].height < minVal) {
+          if (heights[i].height < minVal - Math.min(i * 0.4, 1)) {
             minVal = heights[i].height;
             minIdx = i;
           }

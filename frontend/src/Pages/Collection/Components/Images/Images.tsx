@@ -214,7 +214,7 @@ export const Images = ({ collection }: Props) => {
       <MasonryGrid
         BaseItem={ImageCard}
         data={masonryData}
-        cols={{ base: 1, 600: 2, 1200: 3 }}
+        cols={{ base: 1, 600: 2, 1200: 3, 1500: 4 }}
       />
 
       {/* <VirtuosoMasonry
