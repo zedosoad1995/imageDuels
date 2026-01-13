@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { GLICKO_SCALE, RATING_INI, TAU } from 'src/images/constants/rating';
 
-interface IPlayer {
+export interface IPlayer {
   rating: number;
   ratingDeviation: number;
   volatility: number;
@@ -9,7 +9,11 @@ interface IPlayer {
 
 @Injectable()
 export class Glicko2Service {
-  public calculateNewRatings(p1: IPlayer, p2: IPlayer, isWin: boolean) {
+  public calculateNewRatings(
+    p1: IPlayer,
+    p2: IPlayer,
+    isWin: boolean,
+  ): [IPlayer, IPlayer] {
     const p1NewParams = this.calculateNewRating(p1, p2, isWin);
     const p2NewParams = this.calculateNewRating(p2, p1, !isWin);
 
