@@ -13,6 +13,9 @@ export interface IRatingSystem<TState> {
     p2: TState,
     result: MatchResult,
   ): [TState, TState];
+
+  // Optional: if a rating system has uncertainty (e.g. RD), expose it.
+  getUncertainty?(state: TState): number;
 }
 
 export interface SimPlayer<TState> {
@@ -20,6 +23,7 @@ export interface SimPlayer<TState> {
   trueRating: number; // ground-truth only used by the simulator
   state: TState; // rating system-specific state
   numVotes: number;
+  momentum: number;
 }
 
 export interface IMatchmaker {

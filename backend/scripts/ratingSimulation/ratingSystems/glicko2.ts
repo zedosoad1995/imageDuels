@@ -14,14 +14,18 @@ export class Glicko2RatingSystem implements IRatingSystem<IPlayer> {
 
   createInitialState(): IPlayer {
     return {
-      rating: RATING_INI,
-      ratingDeviation: RD_INI,
-      volatility: VOLATILITY_INI,
+      rating: 1000, //RATING_INI,
+      ratingDeviation: 350, //RD_INI,
+      volatility: 0.001, //VOLATILITY_INI,
     };
   }
 
   getComparableRating(state: IPlayer): number {
     return state.rating;
+  }
+
+  getUncertainty(state: IPlayer): number {
+    return state.ratingDeviation;
   }
 
   updateAfterMatch(

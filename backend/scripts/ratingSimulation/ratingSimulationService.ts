@@ -29,6 +29,7 @@ export class RatingSimulationService<TState> {
         trueRating: trueMin + Math.random() * (trueMax - trueMin),
         state: this.ratingSystem.createInitialState(),
         numVotes: 0,
+        momentum: 0,
       }),
     );
 
@@ -54,16 +55,29 @@ export class RatingSimulationService<TState> {
         result,
       );
 
+      const oldRating1 = this.ratingSystem.getComparableRating(p1.state);
+      const oldRating2 = this.ratingSystem.getComparableRating(p2.state);
+      const newRating1 = this.ratingSystem.getComparableRating(newP1State);
+      const newRating2 = this.ratingSystem.getComparableRating(newP2State);
+
+      const delta1 = newRating1 - oldRating1;
+      const delta2 = newRating2 - oldRating2;
+
+      // smoothing factor: 0.1 = “last 10-ish games”
+      const MOMENTUM_ALPHA = 0.1;
+
       players[i1] = {
         ...p1,
         state: newP1State,
         numVotes: p1.numVotes + 1,
+        momentum: (1 - MOMENTUM_ALPHA) * p1.momentum + MOMENTUM_ALPHA * delta1,
       };
 
       players[i2] = {
         ...p2,
         state: newP2State,
         numVotes: p2.numVotes + 1,
+        momentum: (1 - MOMENTUM_ALPHA) * p2.momentum + MOMENTUM_ALPHA * delta2,
       };
     }
 

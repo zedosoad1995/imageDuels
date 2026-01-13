@@ -6,8 +6,16 @@ import { SimilarRatingMatchmaker } from './matchingStrategies/similar';
 import { SimilarRatingLVMatchmaker } from './matchingStrategies/similar-low-votes';
 import { SimulationResult } from './types';
 import { SimilarRatingDistMatchmaker } from './matchingStrategies/similar-dist';
+import { SimilarRatingMomentumMatchmaker } from './matchingStrategies/similar-momentum';
+import { HighInfoGainMatchmaker } from './matchingStrategies/high-info';
 
-type Strat = 'rand' | 'similar' | 'similar-lv' | 'similar-dist';
+type Strat =
+  | 'rand'
+  | 'similar'
+  | 'similar-lv'
+  | 'similar-dist'
+  | 'similar-momentum'
+  | 'high-info';
 
 const getMatchingStrat = (strat: Strat) => {
   if (strat === 'rand') {
@@ -22,6 +30,18 @@ const getMatchingStrat = (strat: Strat) => {
 
   if (strat === 'similar-dist') {
     return new SimilarRatingDistMatchmaker(
+      new Glicko2RatingSystem(new Glicko2Service()),
+    );
+  }
+
+  if (strat === 'similar-momentum') {
+    return new SimilarRatingMomentumMatchmaker(
+      new Glicko2RatingSystem(new Glicko2Service()),
+    );
+  }
+
+  if (strat === 'high-info') {
+    return new HighInfoGainMatchmaker(
       new Glicko2RatingSystem(new Glicko2Service()),
     );
   }
@@ -69,10 +89,10 @@ const logStats = (name: string, values: number[]) => {
 // ---------- multi-run driver ----------
 
 const runMany = async () => {
-  const NUM_RUNS = 1;
+  const NUM_RUNS = 1000;
   const NUM_PLAYERS = 100;
   const NUM_ROUNDS = 1000;
-  const STRAT: Strat = 'similar-dist';
+  const STRAT: Strat = 'high-info';
 
   const avgAbsRankErrors: number[] = [];
   const maxAbsRankErrors: number[] = [];
