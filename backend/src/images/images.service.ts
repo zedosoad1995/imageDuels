@@ -82,7 +82,7 @@ export class ImagesService {
 
     const minVotes = Math.min(...lowVoteImages.map(({ numVotes }) => numVotes));
     const lowestVotesImages = lowVoteImages.filter(
-      ({ numVotes }) => (numVotes = minVotes),
+      ({ numVotes }) => numVotes === minVotes,
     );
 
     const image1 = lowestVotesImages[randInt(lowestVotesImages.length - 1)];

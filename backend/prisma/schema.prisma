@@ -38,6 +38,8 @@ model Collection {
   mode        CollectionModeEnum
   isNSFW      Boolean            @default(false) @map("is_nsfw")
   isLive      Boolean            @default(true) @map("is_live")
+  numImages   Int?               @map("num_images")
+  numVotes    Int?               @map("num_votes")
   owner       User               @relation(fields: [ownerId], references: [id], onDelete: Cascade)
   ownerId     String             @map("owner_id")
   createdAt   DateTime           @default(now()) @map("created_at")
