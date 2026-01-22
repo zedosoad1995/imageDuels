@@ -71,7 +71,7 @@ export class CollectionsService {
 
     if (!onlySelf) {
       // Check if valid (Must have >= 2 images)
-      where.push(Prisma.sql`ic.total_images >= 2`);
+      where.push(Prisma.sql`c.num_images >= 2`);
     }
 
     const order: Prisma.Sql[] = [];
@@ -93,11 +93,11 @@ export class CollectionsService {
         `);
       }
     } else if (orderBy === 'popular') {
-      order.push(Prisma.sql`ic.total_votes DESC`, Prisma.sql`c.id DESC`);
+      order.push(Prisma.sql`c.num_votes DESC`, Prisma.sql`c.id DESC`);
 
       if (isCursorValid) {
         where.push(
-          Prisma.sql`(ic.total_votes < ${decodedCursor.lastTotalVotes} OR (ic.total_votes = ${decodedCursor.lastTotalVotes} AND c.id < ${decodedCursor.lastId}))`,
+          Prisma.sql`((c.num_votes, c.id) < (${decodedCursor.lastTotalVotes}, ${decodedCursor.lastId})`,
         );
       }
     }
@@ -134,8 +134,8 @@ export class CollectionsService {
         c.is_nsfw AS "isNSFW",
         c.is_live AS "isLive",
         c.created_at,
-        COALESCE(ic.total_images, 0) AS total_images,
-        COALESCE(ic.total_votes, 0)  AS total_votes,
+        c.num_images AS total_images,
+        c.num_votes  AS total_votes,
         COALESCE((
           SELECT json_agg(filepath)
           FROM (
@@ -148,13 +148,6 @@ export class CollectionsService {
         ), '[]'::json) AS thumbnail_images,
         u.username AS owner_username
       FROM collections c
-      LEFT JOIN LATERAL (
-        SELECT
-          COUNT(*) AS total_images,
-          COALESCE(SUM(i.num_votes), 0) AS total_votes
-        FROM images i
-        WHERE c.id = i.collection_id
-      ) ic ON TRUE
       INNER JOIN users u
         ON u.id = c.owner_id
       ${whereSql}
@@ -228,12 +221,7 @@ export class CollectionsService {
       FROM collections c
       WHERE c.mode = 'PUBLIC'
         AND c.is_live IS TRUE
-        AND EXISTS (
-          SELECT 1
-          FROM images i
-          WHERE i.collection_id = c.id
-          LIMIT 1 OFFSET 1
-        )
+        AND c.num_images >= 2
         ${whereNSFW}
         ${whereOwner}
         ${whereCursor}
