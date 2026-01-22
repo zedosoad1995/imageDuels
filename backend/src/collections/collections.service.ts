@@ -121,18 +121,10 @@ export class CollectionsService {
         isLive: boolean;
         total_images: number;
         total_votes: number;
-        thumbnail_images: string[]; // <- JSON text, parse in JS
+        thumbnail_images: string[];
         owner_username: string;
       }[]
     >(Prisma.sql`
-      WITH image_counts AS (
-        SELECT
-          collection_id,
-          COUNT(*) AS total_images,
-          COALESCE(SUM("num_votes"), 0) AS total_votes
-        FROM images
-        GROUP BY collection_id
-      )
       SELECT
         c.id,
         c.title,
@@ -156,8 +148,13 @@ export class CollectionsService {
         ), '[]'::json) AS thumbnail_images,
         u.username AS owner_username
       FROM collections c
-      LEFT JOIN image_counts ic
-        ON ic.collection_id = c.id
+      LEFT JOIN LATERAL (
+        SELECT
+          COUNT(*) AS total_images,
+          COALESCE(SUM(i.num_votes), 0) AS total_votes
+        FROM images i
+        WHERE c.id = i.collection_id
+      ) ic ON TRUE
       INNER JOIN users u
         ON u.id = c.owner_id
       ${whereSql}

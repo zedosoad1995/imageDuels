@@ -39,8 +39,15 @@ export class HighInfoGainMatchmaker implements IMatchmaker {
     const UNC_SCALE = 350;
 
     const W_FAIR = 10; // importance of similar rating
-    const W_UNC = -1; // importance of uncertainty
+    const W_UNC = 0; //-1; // importance of uncertainty
     const W_LV = 0; // importance of low votes
+    const W_TS = 0; //10;
+
+    const maxTimeSince =
+      players.reduce(
+        (m, p) => (p.lastRoundUpdate > m ? p.lastRoundUpdate : m),
+        0,
+      ) || 1;
 
     const weights = candidates.map((p) => {
       const oppRating = this.ratingSystem.getComparableRating(p.state as any);
@@ -60,7 +67,15 @@ export class HighInfoGainMatchmaker implements IMatchmaker {
       // 3) low votes: prefer under-served opponents (0..1)
       const lowVotesNorm = 1 - p.numVotes / maxVotes;
 
-      const score = W_FAIR * fairness + W_UNC * uncNorm + W_LV * lowVotesNorm;
+      const timeSinceNorm = 1 - p.lastRoundUpdate / maxTimeSince;
+
+      const TSC = 0.7;
+
+      const score =
+        W_FAIR * fairness +
+        W_UNC * uncNorm +
+        W_LV * lowVotesNorm +
+        W_TS * (timeSinceNorm > TSC ? (timeSinceNorm - TSC) / (1 - TSC) : 0);
 
       // ensure strictly positive for roulette wheel
       return Math.max(score, 1e-6);

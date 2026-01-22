@@ -4,9 +4,14 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { prisma } from 'src/common/helpers/prisma';
-import { RATING_INI, RD_INI, VOLATILITY_INI } from './constants/rating';
+import {
+  FAIR_TEMPERATURE,
+  RATING_INI,
+  RD_INI,
+  VOLATILITY_INI,
+} from './constants/rating';
 import { randInt } from 'src/common/helpers/random';
-import { Image } from '@prisma/client';
+import { Image, Prisma } from '@prisma/client';
 import { imageSize } from 'image-size';
 import * as fs from 'node:fs';
 
@@ -55,7 +60,7 @@ export class ImagesService {
       Pick<Image, 'id' | 'filepath' | 'numVotes'>,
     ]
   > {
-    const images = await prisma.image.findMany({
+    const lowVoteImages = await prisma.image.findMany({
       where: {
         collectionId,
       },
@@ -64,15 +69,69 @@ export class ImagesService {
         filepath: true,
         numVotes: true,
         rating: true,
-        collectionId: true,
       },
+      orderBy: {
+        numVotes: 'asc',
+      },
+      take: 20,
     });
 
-    if (images.length < 2) {
+    if (lowVoteImages.length < 2) {
       throw new BadRequestException('There are not enough images');
     }
 
-    return this.randomImagesWithVotes(images);
+    const minVotes = Math.min(...lowVoteImages.map(({ numVotes }) => numVotes));
+    const lowestVotesImages = lowVoteImages.filter(
+      ({ numVotes }) => (numVotes = minVotes),
+    );
+
+    const image1 = lowestVotesImages[randInt(lowestVotesImages.length - 1)];
+
+    const candidateImagesLow = await prisma.$queryRaw<
+      { id: string; filepath: string; numVotes: number; rating: number }[]
+    >(Prisma.sql`
+      SELECT id, filepath, num_votes AS "numVotes", rating
+      FROM images
+      WHERE collection_id = ${collectionId} AND (rating, id) < (${image1.rating}, ${image1.id})
+      ORDER BY rating DESC
+      LIMIT 100
+    `);
+
+    const candidateImagesHigh = await prisma.$queryRaw<
+      { id: string; filepath: string; numVotes: number; rating: number }[]
+    >(Prisma.sql`
+      SELECT id, filepath, num_votes AS "numVotes", rating
+      FROM images
+      WHERE collection_id = ${collectionId} AND (rating, id) > (${image1.rating}, ${image1.id})
+      ORDER BY rating ASC
+      LIMIT 100
+    `);
+
+    const candidateImages = [...candidateImagesLow, ...candidateImagesHigh];
+
+    const weights = candidateImages.map(({ rating }) => {
+      const w = Math.exp(-Math.abs(rating - image1.rating) / FAIR_TEMPERATURE);
+      return Math.max(w, 1e-6);
+    });
+
+    const totalWeight = weights.reduce((sum, w) => sum + w, 0);
+
+    let threshold = Math.random() * totalWeight;
+    let image2 = candidateImages[0];
+
+    for (let i = 0; i < candidateImages.length; i++) {
+      threshold -= weights[i];
+      if (threshold <= 0) {
+        image2 = candidateImages[i];
+        break;
+      }
+    }
+
+    if (Math.random() < 0.5) {
+      return [image2, image1];
+    }
+
+    return [image1, image2];
   }
 
   async getOne(imageId: string): Promise<Image> {
@@ -87,74 +146,6 @@ export class ImagesService {
     }
 
     return image;
-  }
-
-  private randomImages(
-    images: {
-      id: string;
-      filepath: string;
-      numVotes: number;
-      rating: number;
-    }[],
-  ): [
-    Pick<Image, 'id' | 'filepath' | 'numVotes' | 'rating'>,
-    Pick<Image, 'id' | 'filepath' | 'numVotes' | 'rating'>,
-  ] {
-    const image1 = images.splice(randInt(images.length - 1), 1)[0];
-    const image2 = images[randInt(images.length - 1)];
-
-    return [image1, image2];
-  }
-
-  private randomImagesWithVotes(
-    images: {
-      id: string;
-      filepath: string;
-      numVotes: number;
-      rating: number;
-      collectionId: string;
-    }[],
-  ): [
-    Pick<Image, 'id' | 'filepath' | 'numVotes' | 'rating'>,
-    Pick<Image, 'id' | 'filepath' | 'numVotes' | 'rating'>,
-  ] {
-    let image1: {
-      id: string;
-      filepath: string;
-      numVotes: number;
-      rating: number;
-      collectionId: string;
-    };
-
-    if (Math.random() < 0.2) {
-      image1 = images.splice(randInt(images.length - 1), 1)[0];
-    } else {
-      const lowestVotes = images.reduce(
-        (acc, val) => Math.min(acc, val.numVotes),
-        99999999999,
-      );
-      const imageLowestVotesIdx = images.findIndex(
-        ({ numVotes }) => numVotes === lowestVotes,
-      );
-
-      image1 = images.splice(imageLowestVotesIdx, 1)[0];
-    }
-
-    const sortedImages = images
-      .slice()
-      .sort(
-        (a, b) =>
-          Math.abs(a.rating - image1.rating) -
-          Math.abs(b.rating - image1.rating),
-      );
-
-    const image2 = sortedImages[randInt(Math.min(sortedImages.length - 1, 10))];
-
-    if (Math.random() < 0.5) {
-      return [image2, image1];
-    }
-
-    return [image1, image2];
   }
 
   async deleteOne(imageId: string, userId: string, isAdmin: boolean) {

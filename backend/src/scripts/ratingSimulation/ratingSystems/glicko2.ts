@@ -6,6 +6,7 @@ import { IRatingSystem, MatchResult } from '../types';
 import {
   RATING_INI,
   RD_INI,
+  TAU,
   VOLATILITY_INI,
 } from 'src/images/constants/rating';
 
@@ -35,5 +36,18 @@ export class Glicko2RatingSystem implements IRatingSystem<IPlayer> {
   ): [IPlayer, IPlayer] {
     const isWin = result === 'P1_WIN';
     return this.glicko2.calculateNewRatings(p1, p2, isWin);
+  }
+
+  updateTimeDecay(p: IPlayer, unitTimeSinceLastUpdate: number): void {
+    const rdMax = 150;
+    const c = 60;
+
+    p.ratingDeviation = Math.min(
+      Math.sqrt(
+        Math.pow(p.ratingDeviation, 2) +
+          Math.pow(c, 2) * unitTimeSinceLastUpdate,
+      ),
+      rdMax,
+    );
   }
 }

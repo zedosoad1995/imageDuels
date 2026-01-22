@@ -16,6 +16,8 @@ export interface IRatingSystem<TState> {
 
   // Optional: if a rating system has uncertainty (e.g. RD), expose it.
   getUncertainty?(state: TState): number;
+
+  updateTimeDecay(p: TState, numDaysSinceLastUpdate: number): void;
 }
 
 export interface SimPlayer<TState> {
@@ -24,6 +26,7 @@ export interface SimPlayer<TState> {
   state: TState; // rating system-specific state
   numVotes: number;
   momentum: number;
+  lastRoundUpdate: number;
 }
 
 export interface IMatchmaker {
@@ -52,8 +55,7 @@ export interface SimulationResult {
 }
 
 export interface RunSimulationParams {
-  numPlayers: number;
-  numRounds: number;
+  customRounds: { numPlayers: number; numRounds: number }[];
   trueMin?: number;
   trueMax?: number;
 }

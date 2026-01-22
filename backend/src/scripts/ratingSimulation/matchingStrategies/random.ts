@@ -1,7 +1,5 @@
-import { Injectable } from '@nestjs/common';
 import { IMatchmaker, SimPlayer } from '../types';
 
-@Injectable()
 export class RandomMatchmaker implements IMatchmaker {
   pickPair<TState>(players: SimPlayer<TState>[]): [number, number] {
     const n = players.length;
