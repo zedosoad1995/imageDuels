@@ -63,7 +63,6 @@ model Image {
   numVotes        Int        @default(0) @map("num_votes")
   height          Int
   width           Int
-  version         Int        @default(0)
   collection      Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
   duelsAsImage1   Duel[]     @relation("image1Relation")
   duelsAsImage2   Duel[]     @relation("image2Relation")

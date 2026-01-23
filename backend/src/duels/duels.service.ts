@@ -1,6 +1,10 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { JwtService, TokenExpiredError } from '@nestjs/jwt';
-import { DuelOutcomeEnum, Image } from '@prisma/client';
+import { DuelOutcomeEnum, Prisma } from '@prisma/client';
 import { prisma } from 'src/common/helpers/prisma';
 import { Glicko2Service } from 'src/providers/rating/glicko2/glicko2.service';
 
@@ -45,55 +49,77 @@ export class DuelsService {
 
   async createVote(
     outcome: DuelOutcomeEnum,
-    image1: Image,
-    image2: Image,
+    image1Id: string,
+    image2Id: string,
     userId: string,
   ) {
+    const imageIds = [image1Id, image2Id].sort();
+
     await prisma.$transaction(async (ctx) => {
-      const queries: any[] = [
-        ctx.duel.create({
-          data: {
-            outcome,
-            image1Id: image1.id,
-            image2Id: image2.id,
-            voterId: userId,
-          },
-        }),
-      ];
+      const images = await ctx.$queryRaw<
+        {
+          id: string;
+          rating: number;
+          ratingDeviation: number;
+          volatility: number;
+        }[]
+      >`
+        SELECT id, rating, rating_deviation AS "ratingDeviation", volatility
+        FROM images
+        WHERE id IN (${Prisma.join(imageIds)})
+        ORDER BY id
+        FOR UPDATE
+    `;
 
+      if (images.length !== 2) {
+        console.error(
+          'Images len must be 2',
+          image1Id,
+          image2Id,
+          images.length,
+        );
+        throw new InternalServerErrorException();
+      }
+
+      await ctx.duel.create({
+        data: {
+          outcome,
+          image1Id,
+          image2Id,
+          voterId: userId,
+        },
+      });
+
+      const byId = new Map(images.map((r) => [r.id, r]));
+      const img1 = byId.get(image1Id)!;
+      const img2 = byId.get(image2Id)!;
+
+      const im1Won = outcome === 'WIN';
       const [image1Params, image2Params] = this.glicko2.calculateNewRatings(
-        image1,
-        image2,
-        outcome === 'WIN',
+        img1,
+        img2,
+        im1Won,
       );
 
-      queries.push(
-        ctx.image.update({
-          data: {
-            numVotes: image1.numVotes + 1,
-            ...image1Params,
-          },
-          where: {
-            id: image1.id,
-            version: image1.version,
-          },
-        }),
-      );
+      await ctx.image.update({
+        data: {
+          numVotes: { increment: 1 },
+          ...image1Params,
+        },
+        where: {
+          id: img1.id,
+        },
+      });
 
-      queries.push(
-        ctx.image.update({
-          data: {
-            numVotes: image2.numVotes + 1,
-            ...image2Params,
-          },
-          where: {
-            id: image2.id,
-            version: image2.version,
-          },
-        }),
-      );
-
-      return Promise.all(queries);
+      await ctx.image.update({
+        data: {
+          numVotes: { increment: 1 },
+          ...image2Params,
+        },
+        where: {
+          id: img2.id,
+        },
+      });
     });
   }
 }
