@@ -9,6 +9,40 @@ export interface IPlayer {
 
 @Injectable()
 export class Glicko2Service {
+  public updateTimeDecay(
+    p: IPlayer,
+    daysSinceLastUpdate?: number | null,
+  ): IPlayer {
+    const rdMax = 120;
+    const c = 20;
+    const daysUntilUpdate = 90;
+
+    if (!daysSinceLastUpdate) {
+      return p;
+    }
+
+    const unitTimeSinceLastUpdate = Math.floor(
+      daysSinceLastUpdate / daysUntilUpdate,
+    );
+
+    if (unitTimeSinceLastUpdate <= 0) {
+      return p;
+    }
+
+    const ratingDeviation = Math.min(
+      Math.sqrt(
+        Math.pow(p.ratingDeviation, 2) +
+          Math.pow(c, 2) * unitTimeSinceLastUpdate,
+      ),
+      rdMax,
+    );
+
+    return {
+      ...p,
+      ratingDeviation,
+    };
+  }
+
   public calculateNewRatings(
     p1: IPlayer,
     p2: IPlayer,

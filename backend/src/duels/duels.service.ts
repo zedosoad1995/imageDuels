@@ -62,9 +62,10 @@ export class DuelsService {
           rating: number;
           ratingDeviation: number;
           volatility: number;
+          votedDaysAgo: number | null;
         }[]
       >`
-        SELECT id, rating, rating_deviation AS "ratingDeviation", volatility
+        SELECT id, rating, rating_deviation AS "ratingDeviation", volatility, (CURRENT_DATE - last_vote_at::date) AS "votedDaysAgo"
         FROM images
         WHERE id IN (${Prisma.join(imageIds)})
         ORDER BY id
@@ -81,6 +82,7 @@ export class DuelsService {
         throw new InternalServerErrorException();
       }
 
+      // TODO: Is this really necessary? Only for analytics, or if in the future we want to show. But maybe we can simply accept that there will be data missing in the past. Another advantage is if we want to reconstruct the rating in some way... But is this table that bad, in terms of performance, or memory
       await ctx.duel.create({
         data: {
           outcome,
@@ -94,16 +96,20 @@ export class DuelsService {
       const img1 = byId.get(image1Id)!;
       const img2 = byId.get(image2Id)!;
 
+      let image1Params = this.glicko2.updateTimeDecay(img1, img1.votedDaysAgo);
+      let image2Params = this.glicko2.updateTimeDecay(img2, img2.votedDaysAgo);
+
       const im1Won = outcome === 'WIN';
-      const [image1Params, image2Params] = this.glicko2.calculateNewRatings(
-        img1,
-        img2,
+      [image1Params, image2Params] = this.glicko2.calculateNewRatings(
+        image1Params,
+        image2Params,
         im1Won,
       );
 
       await ctx.image.update({
         data: {
           numVotes: { increment: 1 },
+          lastVoteAt: new Date(),
           ...image1Params,
         },
         where: {
@@ -114,6 +120,7 @@ export class DuelsService {
       await ctx.image.update({
         data: {
           numVotes: { increment: 1 },
+          lastVoteAt: new Date(),
           ...image2Params,
         },
         where: {

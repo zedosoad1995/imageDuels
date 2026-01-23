@@ -76,11 +76,11 @@ export class DuelsController {
       voteDto.token,
     );
 
-    const [image1, image2] = await Promise.all([
-      this.imagesService.getOne(imageId1),
-      this.imagesService.getOne(imageId2),
-    ]);
-
-    await this.duelsService.createVote(voteDto.outcome, image1, image2, userId);
+    await this.duelsService.createVote(
+      voteDto.outcome,
+      imageId1,
+      imageId2,
+      userId,
+    );
   }
 }

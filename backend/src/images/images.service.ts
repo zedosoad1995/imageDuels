@@ -88,9 +88,15 @@ export class ImagesService {
     const image1 = lowestVotesImages[randInt(lowestVotesImages.length - 1)];
 
     const candidateImagesLow = await prisma.$queryRaw<
-      { id: string; filepath: string; numVotes: number; rating: number }[]
+      {
+        id: string;
+        filepath: string;
+        numVotes: number;
+        rating: number;
+        votedDaysAgo: number | null;
+      }[]
     >(Prisma.sql`
-      SELECT id, filepath, num_votes AS "numVotes", rating
+      SELECT id, filepath, num_votes AS "numVotes", rating, (CURRENT_DATE - last_vote_at::date) AS "votedDaysAgo"
       FROM images
       WHERE collection_id = ${collectionId} AND (rating, id) < (${image1.rating}, ${image1.id})
       ORDER BY rating DESC
@@ -98,9 +104,15 @@ export class ImagesService {
     `);
 
     const candidateImagesHigh = await prisma.$queryRaw<
-      { id: string; filepath: string; numVotes: number; rating: number }[]
+      {
+        id: string;
+        filepath: string;
+        numVotes: number;
+        rating: number;
+        votedDaysAgo: number | null;
+      }[]
     >(Prisma.sql`
-      SELECT id, filepath, num_votes AS "numVotes", rating
+      SELECT id, filepath, num_votes AS "numVotes", rating, (CURRENT_DATE - last_vote_at::date) AS "votedDaysAgo"
       FROM images
       WHERE collection_id = ${collectionId} AND (rating, id) > (${image1.rating}, ${image1.id})
       ORDER BY rating ASC
@@ -109,9 +121,26 @@ export class ImagesService {
 
     const candidateImages = [...candidateImagesLow, ...candidateImagesHigh];
 
-    const weights = candidateImages.map(({ rating }) => {
-      const w = Math.exp(-Math.abs(rating - image1.rating) / FAIR_TEMPERATURE);
-      return Math.max(w, 1e-6);
+    const maxVotedDaysAgo =
+      Math.max(...candidateImages.map((i) => i.votedDaysAgo ?? 0)) || 1;
+
+    const weights = candidateImages.map(({ rating, votedDaysAgo }) => {
+      const ratingSimilarity = Math.max(
+        Math.exp(-Math.abs(rating - image1.rating) / FAIR_TEMPERATURE),
+      );
+
+      const votedDaysAgoNorm = votedDaysAgo
+        ? 1 - votedDaysAgo / maxVotedDaysAgo
+        : 0;
+
+      const DAYS_AGO_NORM_CUTOFF = 0.7;
+      const lastVoteValue =
+        votedDaysAgoNorm > DAYS_AGO_NORM_CUTOFF
+          ? (votedDaysAgoNorm - DAYS_AGO_NORM_CUTOFF) /
+            (1 - DAYS_AGO_NORM_CUTOFF)
+          : 0;
+
+      return ratingSimilarity + 0.3 * lastVoteValue;
     });
 
     const totalWeight = weights.reduce((sum, w) => sum + w, 0);
