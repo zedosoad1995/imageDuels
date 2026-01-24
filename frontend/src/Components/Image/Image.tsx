@@ -6,11 +6,17 @@ interface Props {
 }
 
 export const Image = ({ filepath }: Props) => {
+  const imageURL = getImageURL(filepath);
+  
+  if (!imageURL) {
+    return null;
+  }
+
   return (
     <div className={classes.root}>
       <div
         style={{
-          backgroundImage: `url(${getImageURL(filepath)})`,
+          backgroundImage: `url(${imageURL})`,
           backgroundRepeat: "no-repeat",
           backgroundSize: "contain",
           backgroundPosition: "center",

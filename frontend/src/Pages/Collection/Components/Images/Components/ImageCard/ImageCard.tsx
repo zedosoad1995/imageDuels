@@ -49,6 +49,10 @@ export const ImageCard = ({
       onConfirm: handleDelete,
     });
 
+  if (!filepath || filepath.trim() === "") {
+    return null;
+  }
+
   return (
     <div className={classes.root}>
       {canDelete && (

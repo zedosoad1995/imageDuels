@@ -296,7 +296,11 @@ export const ImageFullScreenModal = ({
         withControls={isLaptopOrTablet}
       >
         {windowedImages.map(
-          ({ filepath, numVotes, percentile, height, width, id }, i) => {
+          ({ filepath, numVotes, percentile, height, width, id }) => {
+            if (!filepath || filepath.trim() === "") {
+              return null;
+            }
+
             const isSvg = filepath.split("?")[0].toLowerCase().endsWith(".svg");
 
             const maxDim = Math.max(height, width);
