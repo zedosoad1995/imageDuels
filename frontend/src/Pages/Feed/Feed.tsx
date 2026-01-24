@@ -74,6 +74,7 @@ export const Feed = () => {
 
       if (!loggedIn) {
         openSignUpModal();
+        return;
       }
 
       if (!token) {
@@ -134,7 +135,7 @@ export const Feed = () => {
                     marginBottom:
                       index === duels.length - 1 ? 0 : verticalPadding,
                     marginTop: verticalPadding / 2,
-                    maxWidth: 1000,
+                    maxWidth: 1400,
                     marginLeft: "auto",
                     marginRight: "auto",
                   }}

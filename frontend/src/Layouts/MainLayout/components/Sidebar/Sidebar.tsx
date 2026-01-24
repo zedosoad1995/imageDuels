@@ -38,10 +38,6 @@ export const Sidebar = () => {
     navigate("/collections/create");
   };
 
-  const handleClickCollections = () => {
-    navigate("/collections");
-  };
-
   const handleClickMy = () => {
     navigate("/collections/me");
   };

@@ -58,9 +58,9 @@ export class CollectionsService {
 
       where.push(Prisma.sql`
         (
-          c.title LIKE ${like} COLLATE NOCASE
-          OR c.description LIKE ${like} COLLATE NOCASE
-          OR c.question LIKE ${like} COLLATE NOCASE
+          c.title ILIKE ${like}
+          OR c.description ILIKE ${like}
+          OR c.question ILIKE ${like}
         )
       `);
     }

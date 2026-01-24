@@ -1,10 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { getCollections } from "../../Api/collections";
 import { IGetCollections } from "../../Types/collection";
-import { Accordion, Title } from "@mantine/core";
+import { Tabs, Title } from "@mantine/core";
 import { CollectionsGrid } from "./Components/CollectionsGrid/CollectionsStack";
 import { usePage } from "../../Hooks/usePage";
-import classes from "./MyCollections.module.css";
 import { useMediaQuery } from "@mantine/hooks";
 import { MEDIA_QUERY_DESKTOP } from "../../Utils/breakpoints";
 import { useInfiniteScroll } from "../../Hooks/useInfiniteScroll";
@@ -88,44 +87,25 @@ export const MyCollections = () => {
           My Collections
         </Title>
       )}
-      <Accordion
-        multiple
-        defaultValue={["public", "private", "personal"]}
-        variant="contained"
-      >
-        <Accordion.Item value="public">
-          <Accordion.Control
-            classNames={{ label: classes.collectionsSectionLabel }}
-          >
-            Public Collections ({publicCollections.length})
-          </Accordion.Control>
-          <Accordion.Panel>
-            <CollectionsGrid collections={publicCollections} />
-          </Accordion.Panel>
-        </Accordion.Item>
+      <Tabs defaultValue={"public"} keepMounted={true}>
+        <Tabs.List>
+          <Tabs.Tab value="public">Public</Tabs.Tab>
+          <Tabs.Tab value="private">Private</Tabs.Tab>
+          <Tabs.Tab value="personal">Personal</Tabs.Tab>
+        </Tabs.List>
 
-        <Accordion.Item value="private">
-          <Accordion.Control
-            classNames={{ label: classes.collectionsSectionLabel }}
-          >
-            Private Collections ({privateCollections.length})
-          </Accordion.Control>
-          <Accordion.Panel>
-            <CollectionsGrid collections={privateCollections} />
-          </Accordion.Panel>
-        </Accordion.Item>
+        <Tabs.Panel value="public" pt={8}>
+          <CollectionsGrid collections={publicCollections} />
+        </Tabs.Panel>
 
-        <Accordion.Item value="personal">
-          <Accordion.Control
-            classNames={{ label: classes.collectionsSectionLabel }}
-          >
-            Personal Collections ({personalCollections.length})
-          </Accordion.Control>
-          <Accordion.Panel>
-            <CollectionsGrid collections={personalCollections} />
-          </Accordion.Panel>
-        </Accordion.Item>
-      </Accordion>
+        <Tabs.Panel value="private" pt={8}>
+          <CollectionsGrid collections={privateCollections} />
+        </Tabs.Panel>
+
+        <Tabs.Panel value="personal" pt={8}>
+          <CollectionsGrid collections={personalCollections} />
+        </Tabs.Panel>
+      </Tabs>
     </>
   );
 };
