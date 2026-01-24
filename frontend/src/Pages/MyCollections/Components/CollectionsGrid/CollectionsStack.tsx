@@ -23,6 +23,7 @@ export const CollectionsGrid = ({ collections }: Props) => {
           thumbnailImages,
           totalVotes,
           totalImages,
+          mode,
           isNSFW,
           isLive,
           isValid,
@@ -38,17 +39,17 @@ export const CollectionsGrid = ({ collections }: Props) => {
               <Group mt={2} pl={0} gap={8}>
                 <Text fw={700}>{title}</Text>
                 {isNSFW && (
-                  <Badge size="xs" color="red">
+                  <Badge size="xs" variant="light" color="red">
                     NSFW +18
                   </Badge>
                 )}
                 {!isLive && (
-                  <Badge size="xs" color="gray">
+                  <Badge size="xs" variant="light" color="gray">
                     Offline
                   </Badge>
                 )}
                 {!isValid && (
-                  <Badge size="xs" color="gray">
+                  <Badge size="xs" variant="light" color="yellow">
                     Draft
                   </Badge>
                 )}

@@ -74,28 +74,28 @@ export const CollectionChild = () => {
           </Text>
           {collection.mode === "PRIVATE" && (
             <Tooltip label="Only people with the link can view this collection">
-              <Badge size="xs" color="gray">
+              <Badge size="xs" variant="light" color="blue">
                 Private
               </Badge>
             </Tooltip>
           )}
           {collection.mode === "PERSONAL" && (
             <Tooltip label="Only you can view this collections">
-              <Badge size="xs" color="gray">
+              <Badge size="xs" variant="light" color="blue">
                 Personal
               </Badge>
             </Tooltip>
           )}
           {collection.isNSFW && (
             <Tooltip label="Visible only to 18+ users with mature content enabled">
-              <Badge size="xs" color="red">
+              <Badge size="xs" variant="light" color="red">
                 NSFW
               </Badge>
             </Tooltip>
           )}
           {!collection.isValid && (
             <Tooltip label="You must upload at least 2 images">
-              <Badge size="xs" color="gray">
+              <Badge size="xs" variant="light" color="yellow">
                 Draft
               </Badge>
             </Tooltip>
@@ -104,6 +104,7 @@ export const CollectionChild = () => {
             <Tooltip label="Click here, to go Live!">
               <Badge
                 size="xs"
+                variant="light"
                 color="gray"
                 style={{ cursor: "pointer" }}
                 onClick={handleClickOffline}

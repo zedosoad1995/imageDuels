@@ -145,18 +145,18 @@ export const Collections = () => {
                 <Collage images={thumbnailImages} />
                 <Group mt={2} pl={0} gap={8}>
                   <Text fw={700}>{title}</Text>
-                  {user?.role === "ADMIN" && (
-                    <Badge size="xs" color="gray">
+                  {user?.role === "ADMIN" && mode !== "PUBLIC" && (
+                    <Badge size="xs" variant="light" color="gray">
                       {mode.toLowerCase()}
                     </Badge>
                   )}
                   {isNSFW && (
-                    <Badge size="xs" color="red">
+                    <Badge size="xs" variant="light" color="red">
                       NSFW +18
                     </Badge>
                   )}
                   {user?.role === "ADMIN" && !isLive && (
-                    <Badge size="xs" color="gray">
+                    <Badge size="xs" variant="light" color="gray">
                       Offline
                     </Badge>
                   )}

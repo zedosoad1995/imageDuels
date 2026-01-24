@@ -179,6 +179,9 @@ export class ImagesService {
 
   async deleteOne(imageId: string, userId: string, isAdmin: boolean) {
     const image = await prisma.image.findUnique({
+      select: {
+        id: true,
+      },
       where: {
         id: imageId,
         collection: {
@@ -192,6 +195,10 @@ export class ImagesService {
     }
 
     return prisma.image.delete({
+      select: {
+        id: true,
+        filepath: true,
+      },
       where: {
         id: imageId,
       },
