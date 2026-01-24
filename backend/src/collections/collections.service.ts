@@ -271,7 +271,7 @@ export class CollectionsService {
       ];
     }
 
-    const [collection, totalImages, startPosition] = await Promise.all([
+    const [collection, startPosition] = await Promise.all([
       prisma.collection.findUnique({
         where: {
           id: collectionId,
@@ -291,9 +291,6 @@ export class CollectionsService {
             take: NUM_IMAGES,
           },
         },
-      }),
-      prisma.image.count({
-        where: { collectionId },
       }),
       isCursorValid
         ? prisma.image.count({
@@ -329,8 +326,9 @@ export class CollectionsService {
       images: collection.images.map(({ rating, ...image }, index) => ({
         ...image,
         percentile:
-          totalImages > 1
-            ? (totalImages - (startPosition + index) - 1) / (totalImages - 1)
+          collection.numImages > 1
+            ? (collection.numImages - (startPosition + index) - 1) /
+              (collection.numImages - 1)
             : 1,
       })),
       belongsToMe: collection.ownerId === userId,

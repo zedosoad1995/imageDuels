@@ -70,7 +70,7 @@ export class CollectionsController {
       onlySelf,
       userId: onlySelf ? user?.id : undefined,
       showNSFW: user?.canSeeNSFW,
-      showAllModes: (user?.role === 'ADMIN' && !mode) || !onlySelf,
+      showAllModes: (user?.role === 'ADMIN' && !mode) || onlySelf,
       mode,
       orderBy,
       search,
@@ -104,7 +104,7 @@ export class CollectionsController {
       user?.role !== 'ADMIN' &&
       collection.ownerId !== user?.id &&
       (!collection.isLive ||
-        !this.collectionsService.isValid(collection.images.length));
+        !this.collectionsService.isValid(collection.numImages));
 
     const isNSFWAndUserIsAGoodBoy =
       (!user || !user?.canSeeNSFW) && collection.isNSFW;
