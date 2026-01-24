@@ -51,7 +51,9 @@ export const ImageFullScreenModal = ({
   const isLaptopOrTablet = useMediaQuery(MEDIA_QUERY_DESKTOP);
 
   // Virtualization window [start, end)
-  const [start, setStart] = useState(0);
+  const [start, setStart] = useState(
+    (initIndex ?? 0) - Math.floor(WINDOW_SIZE / 2)
+  );
   const total = images.length;
   const end = useMemo(
     () => Math.min(total, start + WINDOW_SIZE),
@@ -71,6 +73,10 @@ export const ImageFullScreenModal = ({
 
   // Stabilization check (same as your working version)
   const rafRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    setStart((initIndex ?? 0) - Math.floor(WINDOW_SIZE / 2));
+  }, [initIndex]);
 
   // Lock body scroll
   useEffect(() => {
