@@ -17,6 +17,7 @@ export class CollectionsService {
     userId,
     orderBy,
     showAllModes,
+    mode,
     showNSFW,
     search,
     limit = 20,
@@ -37,6 +38,8 @@ export class CollectionsService {
 
     const decodedCursor = decodeCursor(cursor);
 
+    console.log(decodeCursor);
+
     const isCursorValid =
       !!decodedCursor &&
       !!orderByOptions &&
@@ -46,10 +49,26 @@ export class CollectionsService {
 
     const where: Prisma.Sql[] = [];
 
+    if (!showAllModes) {
+      if (mode) {
+        console.log(mode);
+        where.push(Prisma.sql`c.mode = ${mode}::"CollectionModeEnum"`);
+      } else {
+        where.push(Prisma.sql`c.mode = 'PUBLIC'`);
+      }
+    }
+
     if (userId) {
       where.push(Prisma.sql`c.owner_id = ${userId}`);
-    } else if (!showAllModes) {
-      where.push(Prisma.sql`c.mode = 'PUBLIC'`, Prisma.sql`c.is_live IS TRUE`);
+    }
+
+    if (!onlySelf) {
+      // Check if valid (Must have >= 2 images)
+      where.push(Prisma.sql`c.num_images >= 2`, Prisma.sql`c.is_live IS TRUE`);
+    }
+
+    if (!showNSFW) {
+      where.push(Prisma.sql`c.is_nsfw IS FALSE`);
     }
 
     const trimmedSearch = search?.trim();
@@ -65,31 +84,15 @@ export class CollectionsService {
       `);
     }
 
-    if (!showNSFW) {
-      where.push(Prisma.sql`c.is_nsfw IS FALSE`);
-    }
-
-    if (!onlySelf) {
-      // Check if valid (Must have >= 2 images)
-      where.push(Prisma.sql`c.num_images >= 2`);
-    }
-
     const order: Prisma.Sql[] = [];
     if (orderBy === 'new') {
       order.push(Prisma.sql`c.created_at DESC`, Prisma.sql`c.id DESC`);
 
       if (isCursorValid) {
-        const lastCreatedAtMs = new Date(
-          decodedCursor.lastCreatedAt as string,
-        ).getTime();
+        const lastCreatedAt = new Date(decodedCursor.lastCreatedAt as string);
+
         where.push(Prisma.sql`
-          (
-            c.created_at < ${lastCreatedAtMs}
-            OR (
-              c.created_at = ${lastCreatedAtMs}
-              AND c.id < ${decodedCursor.lastId}
-            )
-          )
+            (c.created_at, c.id) < (${lastCreatedAt}, ${decodedCursor.lastId})
         `);
       }
     } else if (orderBy === 'popular') {
@@ -119,10 +122,11 @@ export class CollectionsService {
         mode: string;
         isNSFW: boolean;
         isLive: boolean;
-        total_images: number;
-        total_votes: number;
+        totalImages: number;
+        totalVotes: number;
         thumbnail_images: string[];
         owner_username: string;
+        createdAt: Date;
       }[]
     >(Prisma.sql`
       SELECT
@@ -134,8 +138,9 @@ export class CollectionsService {
         c.is_nsfw AS "isNSFW",
         c.is_live AS "isLive",
         c.created_at,
-        c.num_images AS total_images,
-        c.num_votes  AS total_votes,
+        c.num_images AS "totalImages",
+        c.num_votes  AS "totalVotes",
+        c.created_at AS "createdAt",
         COALESCE((
           SELECT json_agg(filepath)
           FROM (
@@ -159,16 +164,16 @@ export class CollectionsService {
       ({
         owner_username,
         thumbnail_images,
-        total_images,
-        total_votes,
+        totalImages,
+        totalVotes,
         ...collection
       }) => ({
         ...collection,
         createdBy: owner_username,
-        totalImages: Number(total_images),
-        totalVotes: Number(total_votes),
+        totalImages: Number(totalImages),
+        totalVotes: Number(totalVotes),
         thumbnailImages: thumbnail_images,
-        isValid: this.isValid(total_images),
+        isValid: this.isValid(totalImages),
       }),
     );
 

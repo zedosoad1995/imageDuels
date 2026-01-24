@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { getCollections } from "../../Api/collections";
-import { IGetCollections } from "../../Types/collection";
+import { CollectionModeType, IGetCollections } from "../../Types/collection";
 import { Tabs, Title } from "@mantine/core";
 import { CollectionsGrid } from "./Components/CollectionsGrid/CollectionsStack";
 import { usePage } from "../../Hooks/usePage";
@@ -8,15 +8,61 @@ import { useMediaQuery } from "@mantine/hooks";
 import { MEDIA_QUERY_DESKTOP } from "../../Utils/breakpoints";
 import { useInfiniteScroll } from "../../Hooks/useInfiniteScroll";
 
+enum TabValue {
+  PUBLIC = "public",
+  PRIVATE = "private",
+  PERSONAL = "personal",
+}
+
 export const MyCollections = () => {
   usePage("my-collections");
   const isDesktop = useMediaQuery(MEDIA_QUERY_DESKTOP);
 
-  const [collections, setCollections] = useState<
+  const [publicCollections, setPublicCollections] = useState<
     IGetCollections["collections"]
   >([]);
-  const [cursor, setCursor] = useState<IGetCollections["nextCursor"]>(null);
+  const [privateCollections, setPrivateCollections] = useState<
+    IGetCollections["collections"]
+  >([]);
+  const [personalCollections, setPersonalCollections] = useState<
+    IGetCollections["collections"]
+  >([]);
+  const [publicCursor, setPublicCursor] =
+    useState<IGetCollections["nextCursor"]>(null);
+  const [privateCursor, setPrivateCursor] =
+    useState<IGetCollections["nextCursor"]>(null);
+  const [personalCursor, setPersonalCursor] =
+    useState<IGetCollections["nextCursor"]>(null);
+
+  const [currTab, setCurrTab] = useState<TabValue>(TabValue.PUBLIC);
+
   const [isLoading, setIsLoading] = useState(false);
+
+  const mapValues = {
+    public: {
+      cursor: publicCursor,
+      setCursor: setPublicCursor,
+      currCollections: publicCollections,
+      setCurrCollections: setPublicCollections,
+      mode: CollectionModeType.PUBLIC,
+    },
+    private: {
+      cursor: privateCursor,
+      setCursor: setPrivateCursor,
+      currCollections: privateCollections,
+      setCurrCollections: setPrivateCollections,
+      mode: CollectionModeType.PRIVATE,
+    },
+    personal: {
+      cursor: personalCursor,
+      setCursor: setPersonalCursor,
+      currCollections: personalCollections,
+      setCurrCollections: setPersonalCollections,
+      mode: CollectionModeType.PERSONAL,
+    },
+  };
+
+  const { cursor, setCursor, setCurrCollections, mode } = mapValues[currTab];
 
   const sentinelRef = useInfiniteScroll({
     hasMore: Boolean(cursor),
@@ -26,9 +72,10 @@ export const MyCollections = () => {
       getCollections({
         onlySelf: true,
         cursor,
+        mode: mode,
       })
         .then(({ collections, nextCursor }) => {
-          setCollections((prev) => [...prev, ...collections]);
+          setCurrCollections((prev) => [...prev, ...collections]);
           setCursor(nextCursor);
         })
         .finally(() => {
@@ -40,45 +87,15 @@ export const MyCollections = () => {
 
   useEffect(() => {
     setIsLoading(true);
-    getCollections({ onlySelf: true })
+    getCollections({ onlySelf: true, mode: CollectionModeType.PUBLIC })
       .then(({ collections, nextCursor }) => {
-        setCollections(collections);
+        setCurrCollections(collections);
         setCursor(nextCursor);
       })
       .finally(() => {
         setIsLoading(false);
       });
   }, []);
-
-  const {
-    personal: personalCollections,
-    private: privateCollections,
-    public: publicCollections,
-  } = useMemo(
-    () =>
-      collections.reduce(
-        (acc, el) => {
-          if (el.mode === "PERSONAL") {
-            acc.personal.push(el);
-          } else if (el.mode === "PRIVATE") {
-            acc.private.push(el);
-          } else if (el.mode === "PUBLIC") {
-            acc.public.push(el);
-          }
-
-          return acc;
-        },
-        {
-          personal: [],
-          private: [],
-          public: [],
-        } as Record<
-          "personal" | "private" | "public",
-          IGetCollections["collections"]
-        >
-      ),
-    [collections]
-  );
 
   return (
     <>
@@ -87,11 +104,36 @@ export const MyCollections = () => {
           My Collections
         </Title>
       )}
-      <Tabs defaultValue={"public"} keepMounted={true}>
+      <Tabs
+        defaultValue={currTab}
+        keepMounted={true}
+        onChange={(value) => {
+          if (!value) return;
+
+          setCurrTab(value as TabValue);
+
+          const { setCurrCollections, mode, currCollections, setCursor } =
+            mapValues[value as TabValue];
+
+          if (currCollections.length === 0) {
+            getCollections({
+              onlySelf: true,
+              mode,
+            })
+              .then(({ collections, nextCursor }) => {
+                setCurrCollections(collections);
+                setCursor(nextCursor);
+              })
+              .finally(() => {
+                setIsLoading(false);
+              });
+          }
+        }}
+      >
         <Tabs.List>
-          <Tabs.Tab value="public">Public</Tabs.Tab>
-          <Tabs.Tab value="private">Private</Tabs.Tab>
-          <Tabs.Tab value="personal">Personal</Tabs.Tab>
+          <Tabs.Tab value={TabValue.PUBLIC}>Public</Tabs.Tab>
+          <Tabs.Tab value={TabValue.PRIVATE}>Private</Tabs.Tab>
+          <Tabs.Tab value={TabValue.PERSONAL}>Personal</Tabs.Tab>
         </Tabs.List>
 
         <Tabs.Panel value="public" pt={8}>
@@ -106,6 +148,7 @@ export const MyCollections = () => {
           <CollectionsGrid collections={personalCollections} />
         </Tabs.Panel>
       </Tabs>
+      <div ref={sentinelRef} style={{ height: 1 }} />
     </>
   );
 };

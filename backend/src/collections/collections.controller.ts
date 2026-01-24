@@ -40,7 +40,7 @@ import {
 import { unlink } from 'fs';
 import { generateRandomString } from 'src/common/helpers/random';
 import { LoggedUser, UserId } from 'src/users/users.decorator';
-import { User } from '@prisma/client';
+import { CollectionModeEnum, User } from '@prisma/client';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { ProfileCompletedGuard } from 'src/users/guards/profileCompleted.guard';
 
@@ -64,12 +64,14 @@ export class CollectionsController {
     @Query('search')
     search: string | undefined,
     @Query('cursor') cursor?: string,
+    @Query('mode') mode?: CollectionModeEnum,
   ) {
     const { collections, nextCursor } = await this.collectionsService.getMany({
       onlySelf,
       userId: onlySelf ? user?.id : undefined,
       showNSFW: user?.canSeeNSFW,
-      showAllModes: user?.role === 'ADMIN',
+      showAllModes: (user?.role === 'ADMIN' && !mode) || !onlySelf,
+      mode,
       orderBy,
       search,
       cursor,

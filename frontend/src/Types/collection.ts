@@ -1,4 +1,8 @@
-export type CollectionModeType = "PUBLIC" | "PRIVATE" | "PERSONAL";
+export enum CollectionModeType {
+  PUBLIC = "PUBLIC",
+  PRIVATE = "PRIVATE",
+  PERSONAL = "PERSONAL",
+}
 
 export interface ICollection {
   id: string;
@@ -19,6 +23,7 @@ export interface IGetCollectionsQuery {
   orderBy?: IGetCollectionsOrderBy;
   search?: string;
   cursor?: string | null;
+  mode?: CollectionModeType;
 }
 
 export type IGetCollections = {
