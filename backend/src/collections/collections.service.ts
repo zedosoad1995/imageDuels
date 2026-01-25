@@ -38,8 +38,6 @@ export class CollectionsService {
 
     const decodedCursor = decodeCursor(cursor);
 
-    console.log(decodeCursor);
-
     const isCursorValid =
       !!decodedCursor &&
       !!orderByOptions &&
@@ -72,14 +70,11 @@ export class CollectionsService {
     }
 
     const trimmedSearch = search?.trim();
-    if (trimmedSearch) {
-      const like = `%${trimmedSearch}%`;
-
+    if (trimmedSearch && trimmedSearch.length > 1) {
       where.push(Prisma.sql`
-        (
-          c.title ILIKE ${like}
-          OR c.description ILIKE ${like}
-          OR c.question ILIKE ${like}
+        search_tsv @@ to_tsquery(
+          'simple',
+          regexp_replace(trim(${trimmedSearch}), '[[:space:]]+', ':* & ', 'g') || ':*'
         )
       `);
     }
