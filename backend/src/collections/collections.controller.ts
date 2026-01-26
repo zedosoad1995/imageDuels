@@ -70,7 +70,7 @@ export class CollectionsController {
       onlySelf,
       userId: onlySelf ? user?.id : undefined,
       showNSFW: user?.canSeeNSFW,
-      showAllModes: (user?.role === 'ADMIN' && !mode) || onlySelf,
+      showAllModes: user?.role === 'ADMIN' && !mode,
       mode,
       orderBy,
       search,

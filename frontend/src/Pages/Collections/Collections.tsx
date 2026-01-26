@@ -146,7 +146,7 @@ export const Collections = () => {
                 <Group mt={2} pl={0} gap={8}>
                   <Text fw={700}>{title}</Text>
                   {user?.role === "ADMIN" && mode !== "PUBLIC" && (
-                    <Badge size="xs" variant="light" color="gray">
+                    <Badge size="xs" variant="light" color="blue">
                       {mode.toLowerCase()}
                     </Badge>
                   )}

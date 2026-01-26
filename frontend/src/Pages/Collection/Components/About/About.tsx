@@ -1,7 +1,16 @@
-import { Button, Stack, Text, Textarea, TextInput } from "@mantine/core";
+import {
+  Button,
+  Stack,
+  Text,
+  Textarea,
+  TextInput,
+  NumberInput,
+  Checkbox,
+  Group,
+} from "@mantine/core";
 import { IGetCollection } from "../../../../Types/collection";
 import { ModeSelect } from "../../../../Components/ModeSelect/ModeSelect";
-import { useContext, useState } from "react";
+import { useContext, useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router";
 import { deleteCollection, editCollection } from "../../../../Api/collections";
 import { notifications } from "@mantine/notifications";
@@ -15,6 +24,7 @@ import {
 import { CollectionContext } from "../../../../Contexts/CollectionContext";
 import { UserContext } from "../../../../Contexts/UserContext";
 import { Switch } from "../../../../Components/Switch/Switch";
+import { CollectionModeType } from "../../../../Types/collection";
 
 interface Props {
   collection: IGetCollection;
@@ -27,11 +37,14 @@ export const About = ({ collection }: Props) => {
   const { user } = useContext(UserContext);
 
   const [isLoading, setIsLoading] = useState(false);
+  const [votesPerImage, setVotesPerImage] = useState<number | null>(1);
+  const [isUnlimitedVotes, setIsUnlimitedVotes] = useState(false);
 
   const {
     register,
     control,
     getValues,
+    watch,
     formState: { isValid },
   } = useForm<EditCollectionType>({
     resolver: zodResolver(editCollectionSchema),
@@ -43,6 +56,22 @@ export const About = ({ collection }: Props) => {
       isNSFW: collection.isNSFW,
     },
   });
+
+  const mode = watch("mode");
+
+  // Update votes per image based on mode
+  useEffect(() => {
+    if (mode === CollectionModeType.PUBLIC) {
+      setVotesPerImage(1);
+      setIsUnlimitedVotes(false);
+    } else if (mode === CollectionModeType.PRIVATE) {
+      setVotesPerImage(1);
+      setIsUnlimitedVotes(false);
+    } else if (mode === CollectionModeType.PERSONAL) {
+      setIsUnlimitedVotes(true);
+      setVotesPerImage(null);
+    }
+  }, [mode]);
 
   const handleClickEdit = async () => {
     if (!id) {
@@ -156,6 +185,55 @@ export const About = ({ collection }: Props) => {
           <ModeSelect value={value} onChange={onChange} />
         )}
       />
+
+      {mode === CollectionModeType.PUBLIC ? (
+        <NumberInput
+          label="Votes per image"
+          value={1}
+          disabled
+          descriptionProps={{ style: { width: "max-content" } }}
+          w={400}
+          description="Public collections require 1 vote per image. This is an approximation - the system may collect more votes per image to optimize the matching algorithm."
+        />
+      ) : (
+        <Stack gap="xs">
+          <Group gap="md" align="flex-end" wrap="nowrap">
+            <div style={{ position: "relative" }}>
+              <NumberInput
+                label="Votes per image"
+                description="This is an approximation - the system may collect more votes per
+            image to optimize the matching algorithm."
+                value={votesPerImage ?? undefined}
+                onChange={(value) =>
+                  setVotesPerImage(typeof value === "number" ? value : null)
+                }
+                disabled={isUnlimitedVotes}
+                min={1}
+                placeholder={isUnlimitedVotes ? "Unlimited" : "1"}
+                descriptionProps={{ style: { width: "max-content" } }}
+                w={200}
+              />
+            </div>
+            <Checkbox
+              label="Unlimited votes"
+              checked={isUnlimitedVotes}
+              styles={{ input: { cursor: "pointer" } }}
+              onChange={(e) => {
+                setIsUnlimitedVotes(e.currentTarget.checked);
+                if (e.currentTarget.checked) {
+                  setVotesPerImage(null);
+                } else {
+                  setVotesPerImage(1);
+                }
+              }}
+              style={{
+                marginBottom: 8,
+              }}
+            />
+          </Group>
+        </Stack>
+      )}
+
       <Controller
         name="isNSFW"
         control={control}
@@ -168,12 +246,18 @@ export const About = ({ collection }: Props) => {
         )}
       />
 
-      <Button onClick={handleClickEdit} loading={isLoading} disabled={!isValid}>
-        Save
-      </Button>
-      <Button onClick={openDeleteModal} color="red">
-        Delete
-      </Button>
+      <Group mt="md" gap="sm">
+        <Button
+          onClick={handleClickEdit}
+          loading={isLoading}
+          disabled={!isValid}
+        >
+          Save
+        </Button>
+        <Button onClick={openDeleteModal} color="red">
+          Delete
+        </Button>
+      </Group>
     </Stack>
   );
 };
