@@ -6,6 +6,7 @@ import {
   IGetCollections,
   IGetCollectionsQuery,
   IEditCollectionBody,
+  IGetMyCollectionStats,
 } from "../Types/collection";
 
 export const getCollections = (
@@ -23,6 +24,10 @@ export const getCollection = (
   return api.get(`/collections/${id}`, {
     params: cursor ? { cursor } : {},
   });
+};
+
+export const getMyCollectionStats = (): Promise<IGetMyCollectionStats> => {
+  return api.get("/collections/me/stats");
 };
 
 export const createCollection = (

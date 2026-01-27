@@ -49,6 +49,12 @@ export type IGetCollection = ICollection & {
   nextCursor: string | null;
 };
 
+export type IGetMyCollectionStats = {
+  publicCount: number;
+  privateCount: number;
+  personalCount: number;
+};
+
 export interface ICreateCollectionBody {
   title: string;
   mode: CollectionModeType;

@@ -337,6 +337,25 @@ export class CollectionsService {
     return numImages >= 2;
   }
 
+  async getMyStats(userId: string) {
+    const countsByMode = await prisma.collection.groupBy({
+      where: {
+        ownerId: userId,
+      },
+      by: ['mode'],
+      _count: true,
+    });
+
+    return {
+      publicCount:
+        countsByMode.find(({ mode }) => mode === 'PUBLIC')?._count ?? 0,
+      privateCount:
+        countsByMode.find(({ mode }) => mode === 'PRIVATE')?._count ?? 0,
+      personalCount:
+        countsByMode.find(({ mode }) => mode === 'PERSONAL')?._count ?? 0,
+    };
+  }
+
   async create(collection: CreateCollectionDto, userId: string) {
     const foundCollection = await prisma.collection.findFirst({
       where: {

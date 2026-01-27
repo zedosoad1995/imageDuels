@@ -125,6 +125,11 @@ export class CollectionsController {
     });
   }
 
+  @Get('me/stats')
+  async getMeStats(@UserId() userId: string) {
+    return this.collectionsService.getMyStats(userId);
+  }
+
   @UseGuards(AuthGuard(true), ProfileCompletedGuard)
   @UsePipes(new ZodValidationPipe(createCollectionSchema))
   @Post('')

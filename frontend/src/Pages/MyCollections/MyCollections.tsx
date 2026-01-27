@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { getCollections } from "../../Api/collections";
+import { getCollections, getMyCollectionStats } from "../../Api/collections";
 import { CollectionModeType, IGetCollections } from "../../Types/collection";
-import { Tabs, Title } from "@mantine/core";
+import { Badge, Tabs, Title } from "@mantine/core";
 import { CollectionsGrid } from "./Components/CollectionsGrid/CollectionsStack";
 import { usePage } from "../../Hooks/usePage";
 import { useMediaQuery } from "@mantine/hooks";
@@ -33,6 +33,12 @@ export const MyCollections = () => {
     useState<IGetCollections["nextCursor"]>(null);
   const [personalCursor, setPersonalCursor] =
     useState<IGetCollections["nextCursor"]>(null);
+  const [publicCollectionsCount, setPublicCollectionsCount] =
+    useState<number>(0);
+  const [privateCollectionsCount, setPrivateCollectionsCount] =
+    useState<number>(0);
+  const [personalCollectionsCount, setPersonalCollectionsCount] =
+    useState<number>(0);
 
   const [currTab, setCurrTab] = useState<TabValue>(TabValue.PUBLIC);
 
@@ -86,6 +92,16 @@ export const MyCollections = () => {
   });
 
   useEffect(() => {
+    getMyCollectionStats().then(
+      ({ publicCount, privateCount, personalCount }) => {
+        setPublicCollectionsCount(publicCount);
+        setPrivateCollectionsCount(privateCount);
+        setPersonalCollectionsCount(personalCount);
+      }
+    );
+  }, []);
+
+  useEffect(() => {
     setIsLoading(true);
     getCollections({ onlySelf: true, mode: CollectionModeType.PUBLIC })
       .then(({ collections, nextCursor }) => {
@@ -131,9 +147,51 @@ export const MyCollections = () => {
         }}
       >
         <Tabs.List>
-          <Tabs.Tab value={TabValue.PUBLIC}>Public</Tabs.Tab>
-          <Tabs.Tab value={TabValue.PRIVATE}>Private</Tabs.Tab>
-          <Tabs.Tab value={TabValue.PERSONAL}>Personal</Tabs.Tab>
+          <Tabs.Tab
+            value={TabValue.PUBLIC}
+            rightSection={
+              <Badge
+                size="md"
+                variant="light"
+                radius="xl"
+                style={{ cursor: "pointer", padding: "0px 6px" }}
+              >
+                {publicCollectionsCount}
+              </Badge>
+            }
+          >
+            Public
+          </Tabs.Tab>
+          <Tabs.Tab
+            value={TabValue.PRIVATE}
+            rightSection={
+              <Badge
+                size="md"
+                variant="light"
+                radius="xl"
+                style={{ cursor: "pointer", padding: "0px 6px" }}
+              >
+                {privateCollectionsCount}
+              </Badge>
+            }
+          >
+            Private
+          </Tabs.Tab>
+          <Tabs.Tab
+            value={TabValue.PERSONAL}
+            rightSection={
+              <Badge
+                size="md"
+                variant="light"
+                radius="xl"
+                style={{ cursor: "pointer", padding: "0px 6px" }}
+              >
+                {personalCollectionsCount}
+              </Badge>
+            }
+          >
+            Personal
+          </Tabs.Tab>
         </Tabs.List>
 
         <Tabs.Panel value="public" pt={8}>
