@@ -15,6 +15,8 @@ import {
 } from "../../Utils/breakpoints";
 import { useInfiniteScroll } from "../../Hooks/useInfiniteScroll";
 
+const MAX_WIDTH = 1400;
+
 export const Feed = () => {
   const { loggedIn } = useContext(UserContext);
   const navigate = useNavigate();
@@ -120,7 +122,7 @@ export const Feed = () => {
   return (
     <>
       {isDesktop && (
-        <Title order={2} pb="sm">
+        <Title order={2} pb="sm" maw={MAX_WIDTH} mx="auto">
           Duels
         </Title>
       )}
