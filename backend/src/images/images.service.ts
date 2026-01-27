@@ -11,7 +11,7 @@ import {
   VOLATILITY_INI,
 } from './constants/rating';
 import { randInt } from 'src/common/helpers/random';
-import { Image, Prisma } from '@prisma/client';
+import { Image, Prisma, User } from '@prisma/client';
 import { imageSize } from 'image-size';
 import * as fs from 'node:fs';
 
@@ -44,9 +44,13 @@ export class ImagesService {
     });
   }
 
-  async getBulkMatchesImages(collectionIds: string[]) {
+  async getBulkMatchesImages(
+    collectionIds: string[],
+    userId: string | undefined,
+    isAdmin: boolean | undefined,
+  ) {
     const res = await Promise.allSettled(
-      collectionIds.map((id) => this.getMatchImages(id)),
+      collectionIds.map((id) => this.getMatchImages(id, userId, isAdmin)),
     );
 
     return res.filter((val) => val.status === 'fulfilled').map((r) => r.value);
@@ -54,27 +58,42 @@ export class ImagesService {
 
   async getMatchImages(
     collectionId: string,
+    userId: string | undefined,
+    isAdmin: boolean | undefined,
   ): Promise<
     [
       Pick<Image, 'id' | 'filepath' | 'numVotes'>,
       Pick<Image, 'id' | 'filepath' | 'numVotes'>,
     ]
   > {
-    const lowVoteImages = await prisma.image.findMany({
-      where: {
-        collectionId,
-      },
-      select: {
-        id: true,
-        filepath: true,
-        numVotes: true,
-        rating: true,
-      },
-      orderBy: {
-        numVotes: 'asc',
-      },
-      take: 20,
-    });
+    const lowVoteImages = await prisma.$queryRaw<
+      {
+        id: string;
+        filepath: string;
+        numVotes: number;
+        rating: number;
+      }[]
+    >(Prisma.sql`
+      SELECT i.id, i.filepath, i.num_votes AS "numVotes", i.rating
+      FROM images i
+      INNER JOIN collections c ON c.id = i.collection_id
+      WHERE
+        i.collection_id = ${collectionId}
+        AND (
+          ${userId}::text IS NULL 
+          OR ${isAdmin} IS TRUE
+          OR c.max_user_votes_per_image IS NULL 
+            OR NOT EXISTS (
+              SELECT 1 
+              FROM duels 
+              WHERE voter_id = ${userId} AND image1_id = i.id
+              OFFSET (c.max_user_votes_per_image - 1) 
+              LIMIT 1 
+            )
+        )
+      ORDER BY i.num_votes ASC
+      LIMIT 5
+    `);
 
     if (lowVoteImages.length < 2) {
       throw new BadRequestException('There are not enough images');

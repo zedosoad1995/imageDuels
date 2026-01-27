@@ -8,6 +8,7 @@ export const editCollectionSchema = z.object({
   description: z.string(),
   mode: customEnum(["PERSONAL", "PRIVATE", "PUBLIC"] as CollectionModeType[]),
   isNSFW: z.boolean(),
+  maxUserVotesPerImage: z.number().min(1).max(200).nullable(),
 });
 
 export type EditCollectionType = z.infer<typeof editCollectionSchema>;

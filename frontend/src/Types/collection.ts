@@ -14,6 +14,7 @@ export interface ICollection {
   isLive: boolean;
   isValid: boolean;
   createdBy: string;
+  maxUserVotesPerImage: number | null;
 }
 
 export type IGetCollectionsOrderBy = "new" | "popular";
@@ -54,6 +55,7 @@ export interface ICreateCollectionBody {
   description: string | null;
   question: string | null;
   isNSFW: boolean;
+  maxUserVotesPerImage?: number | null;
 }
 
 export type IEditCollectionBody = Partial<ICreateCollectionBody> & {

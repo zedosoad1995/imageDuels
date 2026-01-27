@@ -9,6 +9,7 @@ export const createCollectionSchema = z
     description: z.string().optional(),
     mode: customEnum(Object.values(CollectionModeEnum)),
     isNSFW: z.boolean(),
+    maxUserVotesPerImage: z.number().optional().nullable().default(null),
   })
   .strict();
 

@@ -9,6 +9,7 @@ const collectionSchema = z.object({
   isNSFW: z.boolean(),
   isLive: z.boolean(),
   isValid: z.boolean(),
+  maxUserVotesPerImage: z.number().optional().nullable(),
 });
 
 export const collectionResSchema = z.object({

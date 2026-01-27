@@ -10,6 +10,7 @@ export const editCollectionSchema = z
     mode: customEnum(Object.values(CollectionModeEnum)),
     isNSFW: z.boolean(),
     isLive: z.boolean(),
+    maxUserVotesPerImage: z.number().min(1).max(200).nullable(),
   })
   .partial();
 

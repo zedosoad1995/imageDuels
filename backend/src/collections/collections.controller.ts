@@ -170,15 +170,18 @@ export class CollectionsController {
 
   @Get(':collectionId/duels')
   async getDuel(
-    @UserId() userId: string | undefined,
+    @LoggedUser({ fetchUser: true }) user: User | null,
     @Param('collectionId') collectionId: string,
   ) {
-    const [image1, image2] =
-      await this.imagesService.getMatchImages(collectionId);
+    const [image1, image2] = await this.imagesService.getMatchImages(
+      collectionId,
+      user?.id,
+      user?.role === 'ADMIN',
+    );
 
     let token: string | undefined;
 
-    if (userId) {
+    if (user?.id) {
       token = await this.duelsService.generateToken(image1.id, image2.id);
     }
 

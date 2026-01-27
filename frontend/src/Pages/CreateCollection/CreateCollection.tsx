@@ -76,12 +76,11 @@ export const CreateCollection = () => {
       description,
       question,
       isNSFW,
+      maxUserVotesPerImage: isUnlimitedVotes ? null : votesPerImage,
     });
 
     navigate(`/collections/${collection.id}`);
   };
-
-  // TODO: Should NSFW switch be shown when user is safe for work?
 
   return (
     <>
@@ -115,6 +114,8 @@ export const CreateCollection = () => {
           <NumberInput
             label="Votes per image"
             value={1}
+            max={200}
+            min={1}
             disabled
             descriptionProps={{ style: { width: "max-content" } }}
             w={400}
@@ -133,6 +134,7 @@ export const CreateCollection = () => {
                     setVotesPerImage(typeof value === "number" ? value : null)
                   }
                   disabled={isUnlimitedVotes}
+                  max={200}
                   min={1}
                   placeholder={isUnlimitedVotes ? "Unlimited" : "1"}
                   descriptionProps={{ style: { width: "max-content" } }}

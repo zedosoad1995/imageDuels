@@ -42,6 +42,8 @@ export class DuelsController {
 
     const duels = await this.imagesService.getBulkMatchesImages(
       collections.map(({ id }) => id),
+      user?.id,
+      user?.role === 'ADMIN',
     );
 
     const tokens = await Promise.all(

@@ -54,6 +54,7 @@ export const About = ({ collection }: Props) => {
       question: collection.question ?? "",
       mode: collection.mode,
       isNSFW: collection.isNSFW,
+      maxUserVotesPerImage: collection.maxUserVotesPerImage || null,
     },
   });
 
@@ -62,16 +63,26 @@ export const About = ({ collection }: Props) => {
   // Update votes per image based on mode
   useEffect(() => {
     if (mode === CollectionModeType.PUBLIC) {
-      setVotesPerImage(1);
+      const isSameMode = collection.mode === CollectionModeType.PUBLIC;
+
+      setVotesPerImage(isSameMode ? collection.maxUserVotesPerImage ?? 1 : 1);
       setIsUnlimitedVotes(false);
     } else if (mode === CollectionModeType.PRIVATE) {
-      setVotesPerImage(1);
-      setIsUnlimitedVotes(false);
+      const isSameMode = collection.mode === CollectionModeType.PRIVATE;
+
+      setVotesPerImage(isSameMode ? collection.maxUserVotesPerImage : 1);
+      setIsUnlimitedVotes(
+        isSameMode ? collection.maxUserVotesPerImage === null : false
+      );
     } else if (mode === CollectionModeType.PERSONAL) {
-      setIsUnlimitedVotes(true);
-      setVotesPerImage(null);
+      const isSameMode = collection.mode === CollectionModeType.PERSONAL;
+
+      setVotesPerImage(isSameMode ? collection.maxUserVotesPerImage : null);
+      setIsUnlimitedVotes(
+        isSameMode ? collection.maxUserVotesPerImage === null : true
+      );
     }
-  }, [mode]);
+  }, [mode, collection.mode, collection.maxUserVotesPerImage]);
 
   const handleClickEdit = async () => {
     if (!id) {
@@ -82,9 +93,26 @@ export const About = ({ collection }: Props) => {
 
     try {
       setIsLoading(true);
-      await editCollection(id, { title, description, mode, question, isNSFW });
+      await editCollection(id, {
+        title,
+        description,
+        mode,
+        question,
+        isNSFW,
+        maxUserVotesPerImage: isUnlimitedVotes ? null : votesPerImage,
+      });
       setCollection((val) =>
-        val ? { ...val, title, description, mode, question, isNSFW } : undefined
+        val
+          ? {
+              ...val,
+              title,
+              description,
+              mode,
+              question,
+              isNSFW,
+              maxUserVotesPerImage: isUnlimitedVotes ? null : votesPerImage,
+            }
+          : undefined
       );
       notifications.show({ message: "Collection edited successfully" });
     } finally {
@@ -134,16 +162,19 @@ export const About = ({ collection }: Props) => {
               />
             )}
           />
-          <Button
-            onClick={handleClickEdit}
-            loading={isLoading}
-            disabled={!isValid}
-          >
-            Edit
-          </Button>
-          <Button onClick={openDeleteModal} color="red">
-            Delete
-          </Button>
+
+          <Group mt="md" gap="sm">
+            <Button
+              onClick={handleClickEdit}
+              loading={isLoading}
+              disabled={!isValid}
+            >
+              Save
+            </Button>
+            <Button onClick={openDeleteModal} color="red">
+              Delete
+            </Button>
+          </Group>
         </Stack>
       );
     }
@@ -190,6 +221,8 @@ export const About = ({ collection }: Props) => {
         <NumberInput
           label="Votes per image"
           value={1}
+          max={200}
+          min={1}
           disabled
           descriptionProps={{ style: { width: "max-content" } }}
           w={400}
@@ -208,6 +241,7 @@ export const About = ({ collection }: Props) => {
                   setVotesPerImage(typeof value === "number" ? value : null)
                 }
                 disabled={isUnlimitedVotes}
+                max={200}
                 min={1}
                 placeholder={isUnlimitedVotes ? "Unlimited" : "1"}
                 descriptionProps={{ style: { width: "max-content" } }}
