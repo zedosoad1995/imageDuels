@@ -16,6 +16,7 @@ import {
   UploadedFile,
   UseInterceptors,
   Patch,
+  BadRequestException,
 } from '@nestjs/common';
 import { CollectionsService } from './collections.service';
 import { AuthGuard } from 'src/auth/auth.guard';
@@ -31,18 +32,24 @@ import {
 } from './dto/collection.dto';
 import { DuelsService } from 'src/duels/duels.service';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
+import { diskStorage, memoryStorage } from 'multer';
 import { IGetCollectionsOrderBy } from './collections.type';
 import {
   EditCollectionDto,
   editCollectionSchema,
 } from './dto/editCollection.dto';
 import { unlink } from 'fs';
-import { generateRandomString } from 'src/common/helpers/random';
 import { LoggedUser, UserId } from 'src/users/users.decorator';
 import { CollectionModeEnum, User } from '@prisma/client';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { ProfileCompletedGuard } from 'src/users/guards/profileCompleted.guard';
+
+const ALLOWED_MIMES = new Set([
+  'image/jpeg',
+  'image/png',
+  'image/webp',
+  'image/svg+xml',
+]);
 
 const UPLOAD_FOLDER = './uploads';
 
@@ -157,13 +164,21 @@ export class CollectionsController {
   @Post(':collectionId/add-image')
   @UseInterceptors(
     FileInterceptor('image', {
-      storage: diskStorage({
-        destination: UPLOAD_FOLDER,
-        filename: (req, file, cb) => {
-          const ext = file.originalname.split('.').pop();
-          cb(null, `${Date.now()}-${generateRandomString(12)}.${ext}`);
-        },
-      }),
+      storage: memoryStorage(),
+      limits: {
+        fileSize: 25 * 1024 * 1024, // 25MB cap (tune)
+      },
+      fileFilter: (req, file, cb) => {
+        if (!ALLOWED_MIMES.has(file.mimetype)) {
+          return cb(
+            new BadRequestException(
+              `Unsupported type: ${file.mimetype}`,
+            ) as any,
+            false,
+          );
+        }
+        cb(null, true);
+      },
     }),
   )
   addImage(

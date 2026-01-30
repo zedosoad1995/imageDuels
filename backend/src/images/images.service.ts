@@ -10,10 +10,25 @@ import {
   RD_INI,
   VOLATILITY_INI,
 } from './constants/rating';
-import { randInt } from 'src/common/helpers/random';
+import { generateRandomString, randInt } from 'src/common/helpers/random';
 import { Image, Prisma, User } from '@prisma/client';
 import { imageSize } from 'image-size';
-import * as fs from 'node:fs';
+import * as fsPromises from 'fs/promises';
+import * as path from 'path';
+import * as sharp from 'sharp';
+
+const UPLOAD_FOLDER = './uploads';
+
+const MAX_DIM = 1920;
+const WEBP_QUALITY = 75;
+const JPEG_FALLBACK_QUALITY = 65;
+
+// safety: reject insane pixel counts (prevents some decompression bombs)
+const MAX_INPUT_PIXELS = 120e6; // 120 megapixels (tune)
+
+function makeId() {
+  return `${Date.now()}-${generateRandomString(12)}`;
+}
 
 @Injectable()
 export class ImagesService {
@@ -28,20 +43,80 @@ export class ImagesService {
       );
     }
 
-    const fileBuffer = await fs.promises.readFile(imageFile.path);
-    const { width, height } = imageSize(fileBuffer);
+    const baseName = makeId();
 
-    return prisma.image.create({
-      data: {
-        filepath: imageFile.filename,
-        rating: RATING_INI,
-        ratingDeviation: RD_INI,
-        volatility: VOLATILITY_INI,
-        collectionId,
-        height,
-        width,
-      },
-    });
+    if (imageFile.mimetype === 'image/svg+xml') {
+      const { width, height } = imageSize(imageFile.buffer);
+
+      const svgPath = path.join(UPLOAD_FOLDER, `${baseName}.svg`);
+      await fsPromises.writeFile(svgPath, imageFile.buffer);
+
+      return prisma.image.create({
+        data: {
+          filepath: `${baseName}.svg`,
+          rating: RATING_INI,
+          ratingDeviation: RD_INI,
+          volatility: VOLATILITY_INI,
+          collectionId,
+          width,
+          height,
+        },
+      });
+    }
+
+    try {
+      // Raster: resize -> encode webp + jpeg
+      let pipeline = sharp(imageFile.buffer, {
+        failOnError: false,
+        limitInputPixels: MAX_INPUT_PIXELS,
+      });
+
+      pipeline = pipeline.resize(MAX_DIM, MAX_DIM, {
+        fit: 'inside',
+        withoutEnlargement: true,
+      });
+
+      const webpBuf = await pipeline
+        .clone()
+        .webp({ quality: WEBP_QUALITY })
+        .toBuffer();
+      const jpgBuf = await pipeline
+        .clone()
+        .jpeg({ quality: JPEG_FALLBACK_QUALITY, mozjpeg: true })
+        .toBuffer();
+
+      // final dimensions: ask sharp from one of the outputs (webpBuf)
+      const outMeta = await sharp(webpBuf).metadata();
+      if (!outMeta.width || !outMeta.height) {
+        throw new BadRequestException('Could not read output image dimensions');
+      }
+
+      await Promise.all([
+        fsPromises.writeFile(
+          path.join(UPLOAD_FOLDER, `${baseName}.webp`),
+          webpBuf,
+        ),
+        fsPromises.writeFile(
+          path.join(UPLOAD_FOLDER, `${baseName}.jpg`),
+          jpgBuf,
+        ),
+      ]);
+
+      return prisma.image.create({
+        data: {
+          filepath: `${baseName}.webp`,
+          rating: RATING_INI,
+          ratingDeviation: RD_INI,
+          volatility: VOLATILITY_INI,
+          collectionId,
+          width: outMeta.width,
+          height: outMeta.height,
+        },
+      });
+    } catch (e) {
+      console.error(e);
+      throw new BadRequestException('Invalid or unsupported image file');
+    }
   }
 
   async getBulkMatchesImages(

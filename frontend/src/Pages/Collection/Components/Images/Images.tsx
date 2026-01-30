@@ -89,9 +89,8 @@ export const Images = ({ collection }: Props) => {
         files.map((file) =>
           limit(async () => {
             try {
-              if (file.size > 1 * 1024 * 1024) {
+              if (file.size > 2 * 1024 * 1024) {
                 const options: Options = {
-                  maxSizeMB: 1,
                   maxWidthOrHeight: 1920,
                   useWebWorker: true,
                 };
