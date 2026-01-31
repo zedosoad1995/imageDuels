@@ -22,11 +22,49 @@ export const MasonryGrid = <T extends object>({
   cols,
   gap = 4,
 }: Props<T>) => {
-  const { width: screenWidth } = useViewportSize();
+  const { width: screenWidth, height: screenHeight } = useViewportSize();
 
   const parentContainerRef = useRef<HTMLDivElement | null>(null);
 
   const [parentWidth, setParentWidth] = useState(0);
+
+  const scrollYRef = useRef(0);
+  const [windowKey, setWindowKey] = useState(0); // triggers rerender when needed
+
+  const listTopOnPageRef = useRef(0);
+
+  useEffect(() => {
+    const measure = () => {
+      const el = parentContainerRef.current;
+      if (!el) return;
+      const rect = el.getBoundingClientRect();
+      listTopOnPageRef.current = window.scrollY + rect.top;
+    };
+
+    measure();
+    window.addEventListener("resize", measure);
+    return () => window.removeEventListener("resize", measure);
+  }, []);
+
+  useEffect(() => {
+    let raf: number | null = null;
+
+    const onScroll = () => {
+      scrollYRef.current = window.scrollY;
+      if (raf !== null) return;
+
+      raf = requestAnimationFrame(() => {
+        setWindowKey((k) => k + 1);
+        raf = null;
+      });
+    };
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      if (raf !== null) cancelAnimationFrame(raf);
+    };
+  }, []);
 
   const numCols = useMemo(() => {
     if (typeof cols === "number") {
@@ -145,6 +183,31 @@ export const MasonryGrid = <T extends object>({
     };
   }, [debouncedUpdateParentWidth]);
 
+  const layoutItems = useMemo(() => {
+    return transformedData.map(
+      ({ colNum, hwRatio, normalizedStartY, rowNum }, i) => {
+        const translateX = colNum * (imgWidth + gap);
+        const translateY = normalizedStartY * imgWidth + gap * rowNum;
+        const imgHeight = hwRatio * imgWidth;
+        const imgBottom = translateY + imgHeight;
+        const { key, props } = data[i];
+        return { key, props, translateX, translateY, imgHeight, imgBottom };
+      }
+    );
+  }, [transformedData, imgWidth, gap, data]);
+
+  const filteredData = useMemo(() => {
+    const BUFFER = 500;
+    const containerTop = listTopOnPageRef.current - scrollYRef.current;
+
+    return layoutItems.filter(({ translateY, imgBottom }) => {
+      return !(
+        containerTop + imgBottom < -BUFFER ||
+        containerTop + translateY > screenHeight + BUFFER
+      );
+    });
+  }, [windowKey, layoutItems, screenHeight]);
+
   return (
     <div
       ref={parentContainerRef}
@@ -153,30 +216,23 @@ export const MasonryGrid = <T extends object>({
         height: parentHeightNormalized * imgWidth + numGapsParent * gap,
       }}
     >
-      {transformedData.map(
-        ({ colNum, hwRatio, normalizedStartY, rowNum }, i) => {
-          const translateX = colNum * (imgWidth + gap);
-          const translateY = normalizedStartY * imgWidth + gap * rowNum;
-
-          const { key, props } = data[i];
-
-          return (
-            <div
-              style={{
-                position: "absolute",
-                top: 0,
-                left: 0,
-                width: imgWidth,
-                height: hwRatio * imgWidth,
-                transform: `translate(${translateX}px, ${translateY}px)`,
-              }}
-              key={key}
-            >
-              <BaseItem {...props} />
-            </div>
-          );
-        }
-      )}
+      {filteredData.map(({ imgHeight, key, props, translateX, translateY }) => {
+        return (
+          <div
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              width: imgWidth,
+              height: imgHeight,
+              transform: `translate(${translateX}px, ${translateY}px)`,
+            }}
+            key={key}
+          >
+            <BaseItem {...props} />
+          </div>
+        );
+      })}
     </div>
   );
 };
