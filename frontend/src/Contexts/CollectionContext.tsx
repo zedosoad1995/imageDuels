@@ -13,7 +13,10 @@ interface CollectionContextProps {
     React.SetStateAction<IGetCollection | undefined>
   >;
   isLoading: boolean;
-  fetchCollection: (options?: { useCursor?: boolean }) => Promise<void>;
+  fetchCollection: (options?: {
+    useCursor?: boolean;
+    orderBy?: "new" | "best-rated" | "worst-rated";
+  }) => Promise<void>;
 }
 
 export const CollectionContext = createContext<CollectionContextProps>({
@@ -29,10 +32,23 @@ export const CollectionProvider = ({
 }: CollectionProviderProps) => {
   const [collection, setCollection] = useState<IGetCollection>();
   const [isLoading, setIsLoading] = useState(false);
+  const [currentOrderBy, setCurrentOrderBy] = useState<
+    "new" | "best-rated" | "worst-rated"
+  >("best-rated");
 
-  const fetchCollection = async (options: { useCursor?: boolean } = {}) => {
+  const fetchCollection = async (
+    options: {
+      useCursor?: boolean;
+      orderBy?: "new" | "best-rated" | "worst-rated";
+    } = {}
+  ) => {
     if (!collectionId) {
       return;
+    }
+
+    const orderBy = options.orderBy ?? currentOrderBy;
+    if (options.orderBy && options.orderBy !== currentOrderBy) {
+      setCurrentOrderBy(options.orderBy);
     }
 
     let cursor: string | null | undefined;
@@ -42,7 +58,7 @@ export const CollectionProvider = ({
 
     try {
       setIsLoading(true);
-      const collectionRes = await getCollection(collectionId, cursor);
+      const collectionRes = await getCollection(collectionId, cursor, orderBy);
 
       if (options.useCursor) {
         setCollection((curr) => ({
@@ -58,6 +74,7 @@ export const CollectionProvider = ({
   };
 
   useEffect(() => {
+    setCurrentOrderBy("best-rated");
     fetchCollection();
   }, [collectionId]);
 

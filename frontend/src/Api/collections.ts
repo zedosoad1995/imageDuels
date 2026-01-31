@@ -19,10 +19,14 @@ export const getCollections = (
 
 export const getCollection = (
   id: string,
-  cursor?: string | null
+  cursor?: string | null,
+  orderBy?: "new" | "best-rated" | "worst-rated"
 ): Promise<IGetCollection> => {
+  const params: { cursor?: string; orderBy?: string } = {};
+  if (cursor) params.cursor = cursor;
+  if (orderBy) params.orderBy = orderBy;
   return api.get(`/collections/${id}`, {
-    params: cursor ? { cursor } : {},
+    params,
   });
 };
 

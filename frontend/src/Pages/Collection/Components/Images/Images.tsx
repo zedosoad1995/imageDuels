@@ -1,8 +1,8 @@
-import { useContext, useMemo, useRef, useState } from "react";
+import { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { useParams } from "react-router";
 import { addImageToCollection } from "../../../../Api/collections";
 import imageCompression, { Options } from "browser-image-compression";
-import { Button } from "@mantine/core";
+import { Button, Group, Select } from "@mantine/core";
 import classes from "./Images.module.css";
 import { IGetCollection } from "../../../../Types/collection";
 import { notifications } from "@mantine/notifications";
@@ -40,14 +40,32 @@ export const Images = ({ collection }: Props) => {
     useState(false);
   const [failedUploadedImages, setFailedUploadedImages] = useState<File[]>([]);
 
+  const [sortBy, setSortBy] = useState<"new" | "best-rated" | "worst-rated">(
+    "best-rated"
+  );
+
+  useEffect(() => {
+    setSortBy("best-rated");
+  }, [id]);
+
   const sentinelRef = useInfiniteScroll({
     hasMore: Boolean(collection.nextCursor),
     isLoading: isLoadingApiCall,
     onLoadMore: () => {
-      fetchCollection({ useCursor: true });
+      fetchCollection({ useCursor: true, orderBy: sortBy });
     },
     rootMargin: "2000px",
   });
+
+  const handleSortChange = (value: string | null) => {
+    if (
+      value &&
+      (value === "new" || value === "best-rated" || value === "worst-rated")
+    ) {
+      setSortBy(value);
+      fetchCollection({ orderBy: value });
+    }
+  };
 
   const onFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files?.length || !id) return;
@@ -115,7 +133,7 @@ export const Images = ({ collection }: Props) => {
         setIsOpenImgUploadFailureModal(true);
       }
 
-      fetchCollection();
+      fetchCollection({ orderBy: sortBy });
 
       const { numSuccess, numFailures } = res.reduce(
         (acc, val) => {
@@ -196,11 +214,27 @@ export const Images = ({ collection }: Props) => {
 
   return (
     <>
-      {collection.belongsToMe && (
-        <Button className={classes.uploadBtn} onClick={handleButtonClick}>
-          Upload images
-        </Button>
-      )}
+      <Group className={classes.controls} gap="sm" align="center">
+        {collection.belongsToMe && (
+          <Button onClick={handleButtonClick}>Upload images</Button>
+        )}
+        <Select
+          value={sortBy}
+          onChange={handleSortChange}
+          data={[
+            {
+              group: "Sort By",
+              items: [
+                { value: "best-rated", label: "Best rated" },
+                { value: "new", label: "Newest" },
+                { value: "worst-rated", label: "Worst rated" },
+              ],
+            },
+          ]}
+          searchable={false}
+          className={classes.sortSelect}
+        />
+      </Group>
       <input
         type="file"
         ref={inputRef}

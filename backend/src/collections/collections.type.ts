@@ -2,6 +2,8 @@ import { CollectionModeEnum } from '@prisma/client';
 
 export type IGetCollectionsOrderBy = 'new' | 'popular';
 
+export type IGetCollectionOrderBy = 'new' | 'best-rated' | 'worst-rated';
+
 export interface IGetCollections {
   onlySelf?: boolean;
   userId?: string;

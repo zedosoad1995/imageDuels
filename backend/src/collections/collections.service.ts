@@ -6,7 +6,11 @@ import {
 import { prisma } from 'src/common/helpers/prisma';
 import { CreateCollectionDto } from './dto/createCollection.dto';
 import { Prisma } from '@prisma/client';
-import { IGetCollections, IGetCollectionsOrderBy } from './collections.type';
+import {
+  IGetCollectionOrderBy,
+  IGetCollections,
+  IGetCollectionsOrderBy,
+} from './collections.type';
 import { EditCollectionDto } from './dto/editCollection.dto';
 import { decodeCursor, encodeCursor } from 'src/common/helpers/cursor';
 
@@ -242,6 +246,7 @@ export class CollectionsService {
 
   async getOne(
     collectionId: string,
+    orderBy: IGetCollectionOrderBy,
     userId: string | undefined,
     cursor: string | null | undefined,
   ) {
@@ -250,11 +255,13 @@ export class CollectionsService {
     const decodedCursor = decodeCursor(cursor);
 
     const whereImagesClause: Prisma.ImageWhereInput = {};
+    let orderByClause: Prisma.ImageOrderByWithRelationInput[] = [];
 
     const isCursorValid =
       decodedCursor &&
       decodedCursor.lastRating !== undefined &&
-      decodedCursor.lastId;
+      decodedCursor.lastId &&
+      decodedCursor.nextImageIndex !== undefined;
 
     if (isCursorValid) {
       whereImagesClause.OR = [
@@ -266,42 +273,34 @@ export class CollectionsService {
       ];
     }
 
-    const [collection, startPosition] = await Promise.all([
-      prisma.collection.findUnique({
-        where: {
-          id: collectionId,
-        },
-        include: {
-          images: {
-            select: {
-              id: true,
-              filepath: true,
-              numVotes: true,
-              rating: true,
-              height: true,
-              width: true,
-            },
-            where: whereImagesClause,
-            orderBy: [{ rating: 'desc' }, { id: 'desc' }],
-            take: NUM_IMAGES,
+    if (orderBy === 'best-rated') {
+      orderByClause = [{ rating: 'desc' }, { id: 'desc' }];
+    } else if (orderBy === 'worst-rated') {
+      orderByClause = [{ rating: 'asc' }, { id: 'asc' }];
+    } else {
+      orderByClause = [{ createdAt: 'desc' }, { id: 'desc' }];
+    }
+
+    const collection = await prisma.collection.findUnique({
+      where: {
+        id: collectionId,
+      },
+      include: {
+        images: {
+          select: {
+            id: true,
+            filepath: true,
+            numVotes: true,
+            rating: true,
+            height: true,
+            width: true,
           },
+          where: whereImagesClause,
+          orderBy: orderByClause,
+          take: NUM_IMAGES,
         },
-      }),
-      isCursorValid
-        ? prisma.image.count({
-            where: {
-              collectionId,
-              OR: [
-                { rating: { gt: decodedCursor.lastRating as number } },
-                {
-                  rating: decodedCursor.lastRating as number,
-                  id: { gte: decodedCursor.lastId as string },
-                },
-              ],
-            },
-          })
-        : Promise.resolve(0),
-    ]);
+      },
+    });
 
     if (!collection) {
       throw new NotFoundException(
@@ -311,9 +310,15 @@ export class CollectionsService {
 
     const lastImage = collection.images.at(-1);
 
+    const startPosition = (decodedCursor?.nextImageIndex as number) ?? 0;
+
     const nextCursor =
       lastImage && collection.images.length === NUM_IMAGES
-        ? encodeCursor({ lastRating: lastImage.rating, lastId: lastImage.id })
+        ? encodeCursor({
+            lastRating: lastImage.rating,
+            lastId: lastImage.id,
+            nextImageIndex: collection.images.length + startPosition,
+          })
         : null;
 
     const transformedCollection = {

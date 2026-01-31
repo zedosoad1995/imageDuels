@@ -33,7 +33,10 @@ import {
 import { DuelsService } from 'src/duels/duels.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage, memoryStorage } from 'multer';
-import { IGetCollectionsOrderBy } from './collections.type';
+import {
+  IGetCollectionOrderBy,
+  IGetCollectionsOrderBy,
+} from './collections.type';
 import {
   EditCollectionDto,
   editCollectionSchema,
@@ -94,10 +97,13 @@ export class CollectionsController {
   async getOne(
     @LoggedUser({ fetchUser: true }) user: User | null,
     @Param('collectionId') collectionId: string,
+    @Query('orderBy', new DefaultValuePipe('best-rated'))
+    orderBy: IGetCollectionOrderBy,
     @Query('cursor') cursor?: string,
   ) {
     const collection = await this.collectionsService.getOne(
       collectionId,
+      orderBy,
       user?.id,
       cursor,
     );
