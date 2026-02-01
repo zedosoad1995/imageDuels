@@ -22,6 +22,10 @@ export const collectionResSchema = z.object({
       percentile: z.number(),
       height: z.number(),
       width: z.number(),
+      hasPlaceholder: z.boolean(),
+      availableWidths: z.array(z.number()),
+      availableFormats: z.array(z.string()),
+      isSvg: z.boolean(),
     }),
   ),
   belongsToMe: z.boolean(),
@@ -34,6 +38,14 @@ export const manyCollectionsResSchema = z.array(
     createdBy: z.string(),
     totalImages: z.number(),
     totalVotes: z.number(),
-    thumbnailImages: z.array(z.string()),
+    thumbnailImages: z.array(
+      z.object({
+        filepath: z.string(),
+        hasPlaceholder: z.boolean(),
+        availableWidths: z.array(z.number()),
+        availableFormats: z.array(z.string()),
+        isSvg: z.boolean(),
+      }),
+    ),
   }),
 );

@@ -23,7 +23,6 @@ export const CollectionsGrid = ({ collections }: Props) => {
           thumbnailImages,
           totalVotes,
           totalImages,
-          mode,
           isNSFW,
           isLive,
           isValid,

@@ -7,6 +7,7 @@ import { getImageURL } from "../../../../../../Utils/image";
 import VotingIcon from "../../../../../../assets/svgs/ballot.svg?react";
 import ScoreIcon from "../../../../../../assets/svgs/leaderboard.svg?react";
 import classes from "./ImageCard.module.css";
+import { Image } from "../../../../../../Components/Image/Image";
 
 interface Props {
   filepath: string;
@@ -14,6 +15,10 @@ interface Props {
   percentile: number;
   numVotes: number;
   imageId: string;
+  hasPlaceholder: boolean;
+  availableWidths: number[];
+  availableFormats: string[];
+  isSvg: boolean;
   onClick: () => void;
 }
 
@@ -23,6 +28,9 @@ export const ImageCard = ({
   imageId,
   percentile,
   numVotes,
+  availableWidths,
+  hasPlaceholder,
+  isSvg,
   onClick,
 }: Props) => {
   const { fetchCollection } = useContext(CollectionContext);
@@ -63,9 +71,18 @@ export const ImageCard = ({
           onClick={openDeleteModal}
         />
       )}
-      <img
-        src={getImageURL(filepath)}
-        style={{ display: "block", width: "100%", cursor: "pointer" }}
+      <Image
+        filepath={filepath}
+        availableWidths={availableWidths}
+        hasPlaceholder={hasPlaceholder}
+        isSvg={isSvg}
+        style={{
+          display: "block",
+          width: "100%",
+          height: "100%",
+          cursor: "pointer",
+        }}
+        sizes="(max-width: 599px) 100vw, (max-width: 799px) 49vw, (max-width: 1199px) 46vw, (max-width: 1499px) 31vw, (max-width: 1499px) 24vw, 450px"
         onClick={onClick}
       />
       <Group

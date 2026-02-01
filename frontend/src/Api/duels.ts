@@ -7,8 +7,20 @@ export const feed = (
 ): Promise<{
   duels: {
     token: string | undefined;
-    image1: string;
-    image2: string;
+    image1: {
+      filepath: string;
+      hasPlaceholder: boolean;
+      availableWidths: number[];
+      availableFormats: string[];
+      isSvg: boolean;
+    };
+    image2: {
+      filepath: string;
+      hasPlaceholder: boolean;
+      availableWidths: number[];
+      availableFormats: string[];
+      isSvg: boolean;
+    };
     collectionId: string;
     collectionName: string;
   }[];

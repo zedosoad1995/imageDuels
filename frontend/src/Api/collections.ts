@@ -7,6 +7,7 @@ import {
   IGetCollectionsQuery,
   IEditCollectionBody,
   IGetMyCollectionStats,
+  IGetDuel,
 } from "../Types/collection";
 
 export const getCollections = (
@@ -61,8 +62,6 @@ export const addImageToCollection = (
   return api.post(`/collections/${id}/add-image`, formData);
 };
 
-export const getDuel = (
-  id: string
-): Promise<{ token: string | undefined; image1: string; image2: string }> => {
+export const getDuel = (id: string): Promise<IGetDuel> => {
   return api.get(`/collections/${id}/duels`);
 };

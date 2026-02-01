@@ -31,7 +31,13 @@ export type IGetCollections = {
   collections: (ICollection & {
     totalImages: number;
     totalVotes: number;
-    thumbnailImages: string[];
+    thumbnailImages: {
+      filepath: string;
+      hasPlaceholder: boolean;
+      availableWidths: number[];
+      availableFormats: string[];
+      isSvg: boolean;
+    }[];
   })[];
   nextCursor: string | null;
 };
@@ -44,6 +50,10 @@ export type IGetCollection = ICollection & {
     percentile: number;
     height: number;
     width: number;
+    hasPlaceholder: boolean;
+    availableWidths: number[];
+    availableFormats: string[];
+    isSvg: boolean;
   }[];
   belongsToMe: boolean;
   nextCursor: string | null;
@@ -66,4 +76,22 @@ export interface ICreateCollectionBody {
 
 export type IEditCollectionBody = Partial<ICreateCollectionBody> & {
   isLive?: boolean;
+};
+
+export type IGetDuel = {
+  token: string | undefined;
+  image1: {
+    filepath: string;
+    hasPlaceholder: boolean;
+    availableWidths: number[];
+    availableFormats: string[];
+    isSvg: boolean;
+  };
+  image2: {
+    filepath: string;
+    hasPlaceholder: boolean;
+    availableWidths: number[];
+    availableFormats: string[];
+    isSvg: boolean;
+  };
 };

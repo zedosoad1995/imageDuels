@@ -4,10 +4,11 @@ import { useCallback, useContext, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import classes from "./Vote.module.css";
 import { vote, VoteOutcome } from "../../../../Api/duels";
-import { IGetCollection } from "../../../../Types/collection";
+import { IGetCollection, IGetDuel } from "../../../../Types/collection";
 import { UserContext } from "../../../../Contexts/UserContext";
 import { modals } from "@mantine/modals";
 import { getImageURL } from "../../../../Utils/image";
+import { Image } from "../../../../Components/Image/Image";
 
 interface Props {
   collection: IGetCollection;
@@ -17,8 +18,8 @@ export const Vote = ({ collection }: Props) => {
   const navigate = useNavigate();
 
   const { id: collectionId } = useParams();
-  const [image1, setImage1] = useState("");
-  const [image2, setImage2] = useState("");
+  const [image1, setImage1] = useState<IGetDuel["image1"]>();
+  const [image2, setImage2] = useState<IGetDuel["image2"]>();
   const [token, setDuelToken] = useState<string>();
   const { loggedIn } = useContext(UserContext);
 
@@ -110,7 +111,11 @@ export const Vote = ({ collection }: Props) => {
               position: "relative",
             }}
           >
-            <img
+            <Image
+              filepath={image1?.filepath ?? ""}
+              availableWidths={image1?.availableWidths ?? []}
+              hasPlaceholder={image1?.hasPlaceholder ?? false}
+              isSvg={image1?.isSvg ?? false}
               style={{
                 position: "absolute",
                 inset: 0,
@@ -121,9 +126,14 @@ export const Vote = ({ collection }: Props) => {
                 opacity: 0.4,
                 transform: "scale(1.1)",
               }}
-              src={getImageURL(image1)}
+              objectFit="cover"
+              sizes="(max-width: 799px) 47vw, (max-width: 1240px) 43vw, 550px"
             />
-            <img
+            <Image
+              filepath={image1?.filepath ?? ""}
+              availableWidths={image1?.availableWidths ?? []}
+              hasPlaceholder={image1?.hasPlaceholder ?? false}
+              isSvg={image1?.isSvg ?? false}
               style={{
                 position: "absolute",
                 inset: 0,
@@ -132,7 +142,8 @@ export const Vote = ({ collection }: Props) => {
                 objectFit: "contain",
                 zIndex: 1,
               }}
-              src={getImageURL(image1)}
+              objectFit="contain"
+              sizes="(max-width: 799px) 47vw, (max-width: 1240px) 43vw, 550px"
             />
           </Card.Section>
         </Card>
@@ -151,7 +162,11 @@ export const Vote = ({ collection }: Props) => {
               position: "relative",
             }}
           >
-            <img
+            <Image
+              filepath={image2?.filepath ?? ""}
+              availableWidths={image2?.availableWidths ?? []}
+              hasPlaceholder={image2?.hasPlaceholder ?? false}
+              isSvg={image2?.isSvg ?? false}
               style={{
                 position: "absolute",
                 inset: 0,
@@ -162,9 +177,14 @@ export const Vote = ({ collection }: Props) => {
                 opacity: 0.4,
                 transform: "scale(1.1)",
               }}
-              src={getImageURL(image2)}
+              objectFit="cover"
+              sizes="(max-width: 799px) 47vw, (max-width: 1240px) 43vw, 550px"
             />
-            <img
+            <Image
+              filepath={image2?.filepath ?? ""}
+              availableWidths={image2?.availableWidths ?? []}
+              hasPlaceholder={image2?.hasPlaceholder ?? false}
+              isSvg={image2?.isSvg ?? false}
               style={{
                 position: "absolute",
                 inset: 0,
@@ -173,7 +193,8 @@ export const Vote = ({ collection }: Props) => {
                 objectFit: "contain",
                 zIndex: 1,
               }}
-              src={getImageURL(image2)}
+              objectFit="contain"
+              sizes="(max-width: 799px) 47vw, (max-width: 1240px) 43vw, 550px"
             />
           </Card.Section>
         </Card>

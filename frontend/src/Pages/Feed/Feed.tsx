@@ -14,6 +14,7 @@ import {
   MEDIA_QUERY_TABLET,
 } from "../../Utils/breakpoints";
 import { useInfiniteScroll } from "../../Hooks/useInfiniteScroll";
+import { Image } from "../../Components/Image/Image";
 
 const MAX_WIDTH = 1400;
 
@@ -26,8 +27,20 @@ export const Feed = () => {
   const [duels, setDuels] = useState<
     | {
         token: string | undefined;
-        image1: string;
-        image2: string;
+        image1: {
+          filepath: string;
+          hasPlaceholder: boolean;
+          availableWidths: number[];
+          availableFormats: string[];
+          isSvg: boolean;
+        };
+        image2: {
+          filepath: string;
+          hasPlaceholder: boolean;
+          availableWidths: number[];
+          availableFormats: string[];
+          isSvg: boolean;
+        };
         collectionId: string;
         collectionName: string;
       }[]
@@ -181,7 +194,8 @@ export const Feed = () => {
                           position: "relative",
                         }}
                       >
-                        <img
+                        <Image
+                          {...image1}
                           style={{
                             position: "absolute",
                             inset: 0,
@@ -192,9 +206,11 @@ export const Feed = () => {
                             opacity: 0.4,
                             transform: "scale(1.1)",
                           }}
-                          src={getImageURL(image1)}
+                          objectFit="cover"
+                          sizes="(max-width: 799px) 50vw, (max-width: 1500px) 46vw, 700px"
                         />
-                        <img
+                        <Image
+                          {...image1}
                           style={{
                             position: "absolute",
                             inset: 0,
@@ -203,7 +219,8 @@ export const Feed = () => {
                             objectFit: "contain",
                             zIndex: 1,
                           }}
-                          src={getImageURL(image1)}
+                          objectFit="contain"
+                          sizes="(max-width: 799px) 50vw, (max-width: 1500px) 46vw, 700px"
                         />
                       </Card.Section>
                     </Card>
@@ -222,7 +239,8 @@ export const Feed = () => {
                           position: "relative",
                         }}
                       >
-                        <img
+                        <Image
+                          {...image2}
                           style={{
                             position: "absolute",
                             inset: 0,
@@ -233,9 +251,11 @@ export const Feed = () => {
                             opacity: 0.4,
                             transform: "scale(1.1)",
                           }}
-                          src={getImageURL(image2)}
+                          objectFit="cover"
+                          sizes="(max-width: 799px) 50vw, (max-width: 1500px) 46vw, 700px"
                         />
-                        <img
+                        <Image
+                          {...image2}
                           style={{
                             position: "absolute",
                             inset: 0,
@@ -244,7 +264,8 @@ export const Feed = () => {
                             objectFit: "contain",
                             zIndex: 1,
                           }}
-                          src={getImageURL(image2)}
+                          objectFit="contain"
+                          sizes="(max-width: 799px) 50vw, (max-width: 1500px) 46vw, 700px"
                         />
                       </Card.Section>
                     </Card>

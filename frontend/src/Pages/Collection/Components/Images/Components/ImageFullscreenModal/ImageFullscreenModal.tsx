@@ -11,13 +11,13 @@ import {
   useState,
 } from "react";
 
-import { getImageURL } from "../../../../../../Utils/image";
 import VotingIcon from "../../../../../../assets/svgs/ballot.svg?react";
 import ScoreIcon from "../../../../../../assets/svgs/leaderboard.svg?react";
 import { IGetCollection } from "../../../../../../Types/collection";
 import classes from "./ImageFullscreenModal.module.css";
 import { MEDIA_QUERY_DESKTOP } from "../../../../../../Utils/breakpoints";
 import { CollectionContext } from "../../../../../../Contexts/CollectionContext";
+import { Image } from "../../../../../../Components/Image/Image";
 
 const WINDOW_SIZE = 40;
 const EDGE_THRESHOLD = 1;
@@ -75,7 +75,7 @@ export const ImageFullScreenModal = ({
   const rafRef = useRef<number | null>(null);
 
   useEffect(() => {
-    setStart((initIndex ?? 0) - Math.floor(WINDOW_SIZE / 2));
+    setStart(Math.max((initIndex ?? 0) - Math.floor(WINDOW_SIZE / 2), 0));
   }, [initIndex]);
 
   // Lock body scroll
@@ -296,12 +296,23 @@ export const ImageFullScreenModal = ({
         withControls={isLaptopOrTablet}
       >
         {windowedImages.map(
-          ({ filepath, numVotes, percentile, height, width, id }) => {
+          ({
+            filepath,
+            numVotes,
+            percentile,
+            height,
+            width,
+            id,
+            availableWidths,
+            hasPlaceholder,
+            isSvg: isSvgRaw,
+          }) => {
             if (!filepath || filepath.trim() === "") {
               return null;
             }
 
-            const isSvg = filepath.split("?")[0].toLowerCase().endsWith(".svg");
+            const isSvg =
+              isSvgRaw ?? filepath.split("?")[0].toLowerCase().endsWith(".svg");
 
             const maxDim = Math.max(height, width);
 
@@ -374,8 +385,11 @@ export const ImageFullScreenModal = ({
                       justifyContent: "center",
                     }}
                   >
-                    <img
-                      src={getImageURL(filepath)}
+                    <Image
+                      filepath={filepath}
+                      availableWidths={availableWidths}
+                      hasPlaceholder={hasPlaceholder}
+                      isSvg={isSvg}
                       style={{
                         margin: "0 auto",
                         objectFit: "contain",
@@ -386,6 +400,7 @@ export const ImageFullScreenModal = ({
                         height: transformedH,
                         width: transformedW,
                       }}
+                      sizes={`${width}px`}
                     />
                   </div>
 

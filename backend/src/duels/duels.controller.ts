@@ -18,6 +18,7 @@ import { ImagesService } from 'src/images/images.service';
 import { CollectionsService } from 'src/collections/collections.service';
 import { User } from '@prisma/client';
 import { LoggedUser, UserId } from 'src/users/users.decorator';
+import { pick } from 'src/common/helpers/general';
 
 @Controller('duels')
 export class DuelsController {
@@ -54,8 +55,20 @@ export class DuelsController {
 
     return {
       duels: duels.map((duel, index) => ({
-        image1: duel[0].filepath,
-        image2: duel[1].filepath,
+        image1: pick(duel[0], [
+          'availableFormats',
+          'availableWidths',
+          'filepath',
+          'hasPlaceholder',
+          'isSvg',
+        ]),
+        image2: pick(duel[1], [
+          'availableFormats',
+          'availableWidths',
+          'filepath',
+          'hasPlaceholder',
+          'isSvg',
+        ]),
         token: tokens[index],
         collectionId: collections[index].id,
         collectionName: collections[index].title,

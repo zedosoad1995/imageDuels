@@ -194,7 +194,21 @@ export const Images = ({ collection }: Props) => {
   const masonryData = useMemo(
     () =>
       collection.images.map(
-        ({ id, filepath, numVotes, percentile, height, width }, index) => ({
+        (
+          {
+            id,
+            filepath,
+            numVotes,
+            percentile,
+            height,
+            width,
+            availableFormats,
+            availableWidths,
+            hasPlaceholder,
+            isSvg,
+          },
+          index
+        ) => ({
           props: {
             canDelete: collection.belongsToMe || user?.role === "ADMIN",
             filepath,
@@ -202,6 +216,10 @@ export const Images = ({ collection }: Props) => {
             numVotes,
             percentile,
             onClick: handleImageClick(index),
+            availableFormats,
+            availableWidths,
+            hasPlaceholder,
+            isSvg,
           },
           height,
           width,
@@ -226,7 +244,6 @@ export const Images = ({ collection }: Props) => {
               group: "Sort By",
               items: [
                 { value: "best-rated", label: "Best rated" },
-                { value: "new", label: "Newest" },
                 { value: "worst-rated", label: "Worst rated" },
               ],
             },

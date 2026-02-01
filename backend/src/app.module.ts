@@ -8,6 +8,8 @@ import { CollectionsModule } from './collections/collections.module';
 import { ImagesModule } from './images/images.module';
 import { DuelsModule } from './duels/duels.module';
 import { ProvidersModule } from './providers/providers.module';
+import { join } from 'path';
+import { ServeStaticModule } from '@nestjs/serve-static';
 
 @Module({
   imports: [
@@ -17,6 +19,10 @@ import { ProvidersModule } from './providers/providers.module';
     CollectionsModule,
     ImagesModule,
     DuelsModule,
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'uploads'),
+      serveRoot: '/uploads',
+    }),
     ProvidersModule,
   ],
   controllers: [CollectionsController],

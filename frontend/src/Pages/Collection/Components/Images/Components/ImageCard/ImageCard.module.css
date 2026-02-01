@@ -2,6 +2,7 @@
   position: relative !important;
   overflow: auto;
   border-radius: 6px;
+  height: 100%;
 
   & .closeButton {
     display: none;

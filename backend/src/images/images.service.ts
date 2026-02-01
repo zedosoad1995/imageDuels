@@ -48,7 +48,11 @@ export class ImagesService {
     if (imageFile.mimetype === 'image/svg+xml') {
       const { width, height } = imageSize(imageFile.buffer);
 
-      const svgPath = path.join(UPLOAD_FOLDER, `${baseName}.svg`);
+      await fsPromises.mkdir(`${UPLOAD_FOLDER}/${baseName}`, {
+        recursive: true,
+      });
+
+      const svgPath = path.join(UPLOAD_FOLDER, `${baseName}/svg.svg`);
       await fsPromises.writeFile(svgPath, imageFile.buffer);
 
       return prisma.image.create({
@@ -60,57 +64,113 @@ export class ImagesService {
           collectionId,
           width,
           height,
+          isSvg: true,
         },
       });
     }
 
     try {
       // Raster: resize -> encode webp + jpeg
-      let pipeline = sharp(imageFile.buffer, {
+      const pipeline = sharp(imageFile.buffer, {
         failOnError: false,
         limitInputPixels: MAX_INPUT_PIXELS,
       });
 
-      pipeline = pipeline.resize(MAX_DIM, MAX_DIM, {
-        fit: 'inside',
-        withoutEnlargement: true,
+      const originalWidth = (await pipeline.metadata()).width;
+
+      const variants: {
+        buffer: Buffer<ArrayBufferLike>;
+        width: number;
+        format: string;
+        key: string;
+        contentType: string;
+      }[] = [];
+
+      const availableWidths = [400, 800, 1920].filter(
+        (val, i) => val <= originalWidth || i === 0,
+      );
+
+      await Promise.all(
+        availableWidths.flatMap((width) => {
+          const base = pipeline.resize({
+            width,
+            fit: 'inside',
+            withoutEnlargement: true,
+          });
+
+          const webpBuf = base
+            .clone()
+            .webp({ quality: WEBP_QUALITY })
+            .toBuffer()
+            .then((buffer) => {
+              variants.push({
+                width: width,
+                format: 'webp',
+                key: `${baseName}/w${width}.webp`,
+                contentType: 'image/webp',
+                buffer,
+              });
+            });
+
+          const jpgBuf = base
+            .clone()
+            .jpeg({ quality: JPEG_FALLBACK_QUALITY, mozjpeg: true })
+            .toBuffer()
+            .then((buffer) => {
+              variants.push({
+                width: width,
+                format: 'jpg',
+                key: `${baseName}/w${width}.jpg`,
+                contentType: 'image/jpeg',
+                buffer,
+              });
+            });
+
+          return [webpBuf, jpgBuf];
+        }),
+      );
+
+      const placeholderBuf = await pipeline
+        .resize({ width: 32, withoutEnlargement: true })
+        .jpeg({ quality: 35 })
+        .blur(8)
+        .toBuffer();
+
+      variants.push({
+        width: 32,
+        format: 'jpg',
+        key: `${baseName}/placeholder.jpg`,
+        contentType: 'image/jpeg',
+        buffer: placeholderBuf,
       });
 
-      const webpBuf = await pipeline
-        .clone()
-        .webp({ quality: WEBP_QUALITY })
-        .toBuffer();
-      const jpgBuf = await pipeline
-        .clone()
-        .jpeg({ quality: JPEG_FALLBACK_QUALITY, mozjpeg: true })
-        .toBuffer();
-
-      // final dimensions: ask sharp from one of the outputs (webpBuf)
-      const outMeta = await sharp(webpBuf).metadata();
+      const outMeta = await sharp(variants.at(-2)!.buffer).metadata();
       if (!outMeta.width || !outMeta.height) {
         throw new BadRequestException('Could not read output image dimensions');
       }
 
-      await Promise.all([
-        fsPromises.writeFile(
-          path.join(UPLOAD_FOLDER, `${baseName}.webp`),
-          webpBuf,
+      await fsPromises.mkdir(`${UPLOAD_FOLDER}/${baseName}`, {
+        recursive: true,
+      });
+
+      await Promise.all(
+        variants.map((v) =>
+          fsPromises.writeFile(path.join(UPLOAD_FOLDER, v.key), v.buffer),
         ),
-        fsPromises.writeFile(
-          path.join(UPLOAD_FOLDER, `${baseName}.jpg`),
-          jpgBuf,
-        ),
-      ]);
+      );
 
       return prisma.image.create({
         data: {
-          filepath: `${baseName}.webp`,
+          filepath: baseName,
           rating: RATING_INI,
           ratingDeviation: RD_INI,
           volatility: VOLATILITY_INI,
           collectionId,
           width: outMeta.width,
           height: outMeta.height,
+          availableWidths,
+          availableFormats: ['webp', 'jpg'],
+          hasPlaceholder: true,
         },
       });
     } catch (e) {
@@ -135,21 +195,20 @@ export class ImagesService {
     collectionId: string,
     userId: string | undefined,
     isAdmin: boolean | undefined,
-  ): Promise<
-    [
-      Pick<Image, 'id' | 'filepath' | 'numVotes'>,
-      Pick<Image, 'id' | 'filepath' | 'numVotes'>,
-    ]
-  > {
+  ) {
     const lowVoteImages = await prisma.$queryRaw<
       {
         id: string;
         filepath: string;
         numVotes: number;
         rating: number;
+        hasPlaceholder: boolean;
+        availableWidths: number[];
+        availableFormats: string[];
+        isSvg: boolean;
       }[]
     >(Prisma.sql`
-      SELECT i.id, i.filepath, i.num_votes AS "numVotes", i.rating
+      SELECT i.id, i.filepath, i.num_votes AS "numVotes", i.rating, i.has_placeholder AS "hasPlaceholder", i.available_widths AS "availableWidths", i.available_formats AS "availableFormats", i.is_svg AS "isSvg"
       FROM images i
       INNER JOIN collections c ON c.id = i.collection_id
       WHERE
@@ -188,9 +247,13 @@ export class ImagesService {
         numVotes: number;
         rating: number;
         votedDaysAgo: number | null;
+        hasPlaceholder: boolean;
+        availableWidths: number[];
+        availableFormats: string[];
+        isSvg: boolean;
       }[]
     >(Prisma.sql`
-      SELECT id, filepath, num_votes AS "numVotes", rating, (CURRENT_DATE - last_vote_at::date) AS "votedDaysAgo"
+      SELECT id, filepath, num_votes AS "numVotes", rating, (CURRENT_DATE - last_vote_at::date) AS "votedDaysAgo", has_placeholder AS "hasPlaceholder", available_widths AS "availableWidths", available_formats AS "availableFormats", is_svg AS "isSvg"
       FROM images
       WHERE collection_id = ${collectionId} AND (rating, id) < (${image1.rating}, ${image1.id})
       ORDER BY rating DESC
@@ -204,9 +267,13 @@ export class ImagesService {
         numVotes: number;
         rating: number;
         votedDaysAgo: number | null;
+        hasPlaceholder: boolean;
+        availableWidths: number[];
+        availableFormats: string[];
+        isSvg: boolean;
       }[]
     >(Prisma.sql`
-      SELECT id, filepath, num_votes AS "numVotes", rating, (CURRENT_DATE - last_vote_at::date) AS "votedDaysAgo"
+      SELECT id, filepath, num_votes AS "numVotes", rating, (CURRENT_DATE - last_vote_at::date) AS "votedDaysAgo", has_placeholder AS "hasPlaceholder", available_widths AS "availableWidths", available_formats AS "availableFormats", is_svg AS "isSvg"
       FROM images
       WHERE collection_id = ${collectionId} AND (rating, id) > (${image1.rating}, ${image1.id})
       ORDER BY rating ASC

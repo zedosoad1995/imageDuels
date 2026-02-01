@@ -43,20 +43,25 @@ model Collection {
 }
 
 model Image {
-  id              String     @id @default(uuid())
-  filepath        String
-  rating          Float
-  ratingDeviation Float      @map("rating_deviation")
-  volatility      Float
-  numVotes        Int        @default(0) @map("num_votes")
-  height          Int
-  width           Int
-  createdAt       DateTime   @default(now()) @map("created_at")
-  collectionId    String     @map("collection_id")
-  lastVoteAt      DateTime?  @map("last_vote_at")
-  duelsAsImage1   Duel[]     @relation("image1Relation")
-  duelsAsImage2   Duel[]     @relation("image2Relation")
-  collection      Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+  id               String    @id @default(uuid())
+  filepath         String
+  rating           Float
+  ratingDeviation  Float     @map("rating_deviation")
+  volatility       Float
+  numVotes         Int       @default(0) @map("num_votes")
+  height           Int
+  width            Int
+  createdAt        DateTime  @default(now()) @map("created_at")
+  collectionId     String    @map("collection_id")
+  lastVoteAt       DateTime? @map("last_vote_at")
+  isSvg            Boolean   @default(false) @map("is_svg")
+  availableWidths  Int[]     @default([]) @map("available_widths")
+  availableFormats String[]  @default([]) @map("available_formats")
+  hasPlaceholder   Boolean   @default(false) @map("has_placeholder")
+
+  duelsAsImage1 Duel[]     @relation("image1Relation")
+  duelsAsImage2 Duel[]     @relation("image2Relation")
+  collection    Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
 
   @@index([collectionId])
   @@map("images")

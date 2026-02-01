@@ -46,6 +46,7 @@ import { LoggedUser, UserId } from 'src/users/users.decorator';
 import { CollectionModeEnum, User } from '@prisma/client';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { ProfileCompletedGuard } from 'src/users/guards/profileCompleted.guard';
+import { pick } from 'src/common/helpers/general';
 
 const ALLOWED_MIMES = new Set([
   'image/jpeg',
@@ -211,7 +212,23 @@ export class CollectionsController {
       token = await this.duelsService.generateToken(image1.id, image2.id);
     }
 
-    return { token, image1: image1.filepath, image2: image2.filepath };
+    return {
+      token,
+      image1: pick(image1, [
+        'availableFormats',
+        'availableWidths',
+        'filepath',
+        'hasPlaceholder',
+        'isSvg',
+      ]),
+      image2: pick(image2, [
+        'availableFormats',
+        'availableWidths',
+        'filepath',
+        'hasPlaceholder',
+        'isSvg',
+      ]),
+    };
   }
 
   @UseGuards(AuthGuard(true), ProfileCompletedGuard)

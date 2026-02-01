@@ -155,7 +155,7 @@ export const CollectionChild = () => {
         </>
       )}
       <Tabs
-        defaultValue={loggedIn && collection.isValid ? "vote" : "images"}
+        defaultValue={loggedIn && collection.isValid ? "images" : "images"}
         keepMounted={false}
         onChange={(value) => {
           if (value === "images") {

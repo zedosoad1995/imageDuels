@@ -53,7 +53,6 @@ export class CollectionsService {
 
     if (!showAllModes) {
       if (mode) {
-        console.log(mode);
         where.push(Prisma.sql`c.mode = ${mode}::"CollectionModeEnum"`);
       } else {
         where.push(Prisma.sql`c.mode = 'PUBLIC'`);
@@ -123,7 +122,13 @@ export class CollectionsService {
         isLive: boolean;
         totalImages: number;
         totalVotes: number;
-        thumbnail_images: string[];
+        thumbnail_images: {
+          filepath: string;
+          hasPlaceholder: boolean;
+          availableWidths: number[];
+          availableFormats: string[];
+          isSvg: boolean;
+        }[];
         owner_username: string;
         createdAt: Date;
       }[]
@@ -140,16 +145,26 @@ export class CollectionsService {
         c.num_images AS "totalImages",
         c.num_votes  AS "totalVotes",
         c.created_at AS "createdAt",
-        COALESCE((
-          SELECT json_agg(filepath)
-          FROM (
-            SELECT filepath
-            FROM images
-            WHERE collection_id = c.id
-            ORDER BY rating DESC, id ASC
-            LIMIT 3
-          ) AS t
-        ), '[]'::json) AS thumbnail_images,
+        COALESCE(
+          (
+            SELECT jsonb_agg(to_jsonb(t) ORDER BY t.rating DESC, t.id ASC)
+            FROM (
+              SELECT
+                filepath,
+                has_placeholder AS "hasPlaceholder",
+                available_widths AS "availableWidths",
+                available_formats AS "availableFormats",
+                is_svg AS "isSvg",
+                rating,
+                id
+              FROM images
+              WHERE collection_id = c.id
+              ORDER BY rating DESC, id ASC
+              LIMIT 3
+            ) AS t
+          ),
+          '[]'::jsonb
+        ) AS thumbnail_images,
         u.username AS owner_username
       FROM collections c
       INNER JOIN users u
@@ -263,14 +278,25 @@ export class CollectionsService {
       decodedCursor.lastId &&
       decodedCursor.nextImageIndex !== undefined;
 
+    // TODO: order by newest
     if (isCursorValid) {
-      whereImagesClause.OR = [
-        { rating: { lt: decodedCursor.lastRating as number } },
-        {
-          rating: decodedCursor.lastRating as number,
-          id: { lt: decodedCursor.lastId as string },
-        },
-      ];
+      if (orderBy === 'best-rated') {
+        whereImagesClause.OR = [
+          { rating: { lt: decodedCursor.lastRating as number } },
+          {
+            rating: decodedCursor.lastRating as number,
+            id: { lt: decodedCursor.lastId as string },
+          },
+        ];
+      } else if (orderBy === 'worst-rated') {
+        whereImagesClause.OR = [
+          { rating: { gt: decodedCursor.lastRating as number } },
+          {
+            rating: decodedCursor.lastRating as number,
+            id: { gt: decodedCursor.lastId as string },
+          },
+        ];
+      }
     }
 
     if (orderBy === 'best-rated') {
@@ -294,6 +320,10 @@ export class CollectionsService {
             rating: true,
             height: true,
             width: true,
+            availableFormats: true,
+            availableWidths: true,
+            hasPlaceholder: true,
+            isSvg: true,
           },
           where: whereImagesClause,
           orderBy: orderByClause,
@@ -323,14 +353,27 @@ export class CollectionsService {
 
     const transformedCollection = {
       ...collection,
-      images: collection.images.map(({ rating, ...image }, index) => ({
-        ...image,
-        percentile:
-          collection.numImages > 1
-            ? (collection.numImages - (startPosition + index) - 1) /
-              (collection.numImages - 1)
-            : 1,
-      })),
+      images: collection.images.map(({ rating, ...image }, index) => {
+        let percentile = 0;
+
+        if (orderBy === 'best-rated') {
+          percentile =
+            collection.numImages > 1
+              ? (collection.numImages - (startPosition + index) - 1) /
+                (collection.numImages - 1)
+              : 1;
+        } else if (orderBy === 'worst-rated') {
+          percentile =
+            collection.numImages > 1
+              ? (startPosition + index) / (collection.numImages - 1)
+              : 1;
+        }
+
+        return {
+          ...image,
+          percentile,
+        };
+      }),
       belongsToMe: collection.ownerId === userId,
       nextCursor,
     };
