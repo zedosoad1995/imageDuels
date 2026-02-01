@@ -82,7 +82,7 @@ export const ImageCard = ({
           height: "100%",
           cursor: "pointer",
         }}
-        sizes="(max-width: 599px) 100vw, (max-width: 799px) 49vw, (max-width: 1199px) 46vw, (max-width: 1499px) 31vw, (max-width: 1499px) 24vw, 450px"
+        sizes="(max-width: 599px) 100vw, (max-width: 799px) 49vw, (max-width: 1199px) 46vw, (max-width: 1499px) 31vw, (max-width: 1800px) 24vw, 450px"
         onClick={onClick}
       />
       <Group

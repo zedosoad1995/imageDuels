@@ -57,7 +57,7 @@ export class ImagesService {
 
       return prisma.image.create({
         data: {
-          filepath: `${baseName}.svg`,
+          filepath: baseName,
           rating: RATING_INI,
           ratingDeviation: RD_INI,
           volatility: VOLATILITY_INI,

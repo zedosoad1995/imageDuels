@@ -46,12 +46,28 @@ export const Image = ({
     return null;
   }
 
-  if (!hasPlaceholder && !availableWidths.length) {
-    return <img src={baseUrl} style={style} onClick={onClick} />;
+  if (isSvg) {
+    return (
+      <img
+        src={baseUrl + "/svg.svg"}
+        style={style}
+        onClick={onClick}
+        loading="lazy"
+        decoding="async"
+      />
+    );
   }
 
-  if (isSvg) {
-    return <img src={baseUrl + "/svg.svg"} style={style} onClick={onClick} />;
+  if (!hasPlaceholder && !availableWidths.length) {
+    return (
+      <img
+        src={baseUrl}
+        style={style}
+        onClick={onClick}
+        loading="lazy"
+        decoding="async"
+      />
+    );
   }
 
   if (!availableWidths.length) {

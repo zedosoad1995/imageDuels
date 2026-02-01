@@ -22,6 +22,11 @@ import { ServeStaticModule } from '@nestjs/serve-static';
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'uploads'),
       serveRoot: '/uploads',
+      serveStaticOptions: {
+        maxAge: 1000 * 60 * 60 * 24 * 365,
+        immutable: true,
+        etag: true,
+      },
     }),
     ProvidersModule,
   ],
