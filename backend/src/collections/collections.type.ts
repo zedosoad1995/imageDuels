@@ -14,4 +14,5 @@ export interface IGetCollections {
   search?: string;
   limit?: number;
   cursor?: string | null | undefined;
+  isAdmin: boolean;
 }

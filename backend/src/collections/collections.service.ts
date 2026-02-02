@@ -26,6 +26,7 @@ export class CollectionsService {
     search,
     limit = 20,
     cursor,
+    isAdmin,
   }: IGetCollections) {
     const orderByOptions = orderBy
       ? {
@@ -64,8 +65,10 @@ export class CollectionsService {
     }
 
     if (!onlySelf) {
-      // Check if valid (Must have >= 2 images)
-      where.push(Prisma.sql`c.num_images >= 2`, Prisma.sql`c.is_live IS TRUE`);
+      if (!isAdmin) {
+        where.push(Prisma.sql`c.is_live IS TRUE`);
+      }
+      where.push(Prisma.sql`c.num_images >= 2`);
     }
 
     if (!showNSFW) {

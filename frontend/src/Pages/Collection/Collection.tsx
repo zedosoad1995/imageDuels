@@ -135,7 +135,10 @@ export const CollectionChild = () => {
                 variant="light"
                 color="gray"
                 style={{ cursor: "pointer" }}
-                onClick={handleClickOffline}
+                onPointerDown={(e) => {
+                  if (e.pointerType !== "mouse") return;
+                  handleClickOffline();
+                }}
               >
                 Offline
               </Badge>

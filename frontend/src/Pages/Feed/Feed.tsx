@@ -1,6 +1,15 @@
-import { Fragment, useContext, useEffect, useState } from "react";
+import { Fragment, useContext, useEffect, useRef, useState } from "react";
 import { feed, vote, VoteOutcome } from "../../Api/duels";
-import { Card, Divider, Flex, Group, Stack, Text, Title } from "@mantine/core";
+import {
+  Button,
+  Card,
+  Divider,
+  Flex,
+  Kbd,
+  Stack,
+  Text,
+  Title,
+} from "@mantine/core";
 import classes from "./Feed.module.css";
 import { UserContext } from "../../Contexts/UserContext";
 import { modals } from "@mantine/modals";
@@ -14,6 +23,9 @@ import {
 } from "../../Utils/breakpoints";
 import { useInfiniteScroll } from "../../Hooks/useInfiniteScroll";
 import { Image } from "../../Components/Image/Image";
+import DownArrowIcon from "../../assets/svgs/arrow-down.svg?react";
+import { DuelKeyboardHint } from "../../Components/KeyboardHints/KeyboardHints";
+import { useReelsPaging } from "../../Hooks/useReelsPaging";
 
 const MAX_WIDTH = 1400;
 
@@ -23,6 +35,9 @@ export const Feed = () => {
   const location = useLocation();
   usePage("feed");
   const isLaptopOrTablet = useMediaQuery(MEDIA_QUERY_TABLET);
+
+  const feedRef = useRef<HTMLDivElement | null>(null);
+  const itemRefs = useRef<Array<HTMLDivElement | null>>([]);
 
   const [duels, setDuels] = useState<
     | {
@@ -48,6 +63,16 @@ export const Feed = () => {
   >(null);
   const [cursor, setCursor] = useState<string | null | undefined>();
   const [isLoading, setIsLoading] = useState(false);
+  const [hasVoted, setHasVoted] = useState(false);
+
+  const [activeIndex, setActiveIndex] = useState(0);
+
+  const { scrollToIndex } = useReelsPaging({
+    feedRef,
+    itemRefs,
+    count: duels?.length ?? 0,
+    onIndexChange: setActiveIndex,
+  });
 
   const sentinelRef = useInfiniteScroll({
     hasMore: Boolean(cursor),
@@ -100,6 +125,8 @@ export const Feed = () => {
 
       await vote(token, outcome);
 
+      setHasVoted(true);
+
       getDuel(collectionId).then(({ token, image1, image2 }) => {
         setDuels((duels) => {
           if (!duels) return duels;
@@ -136,16 +163,38 @@ export const Feed = () => {
 
   return (
     <>
-      {isDesktop && (
+      {/* {isDesktop && (
         <Title order={2} pb="sm" maw={MAX_WIDTH} mx="auto">
           Duels
         </Title>
-      )}
-
-      <Stack gap={0}>
+      )} */}
+      <div
+        ref={feedRef}
+        tabIndex={0}
+        style={{
+          height: "100vh",
+          overflowY: "auto",
+          marginTop: -50,
+          marginBottom: -48,
+        }}
+        className={classes.hideScrollbar}
+      >
         {duels?.map(
           ({ image1, image2, token, collectionId, collectionName }, index) => (
-            <Fragment key={index}>
+            <div
+              key={index}
+              style={{
+                minHeight: "100vh",
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "center",
+                padding: 16,
+              }}
+              ref={(el) => {
+                itemRefs.current[index] = el;
+              }}
+              className={classes.feedEl}
+            >
               <div>
                 <div
                   style={{
@@ -157,29 +206,17 @@ export const Feed = () => {
                     marginRight: "auto",
                   }}
                 >
-                  <Group
-                    gap={4}
-                    mb={isLaptopOrTablet ? 12 : 6}
-                    justify="space-between"
-                  >
-                    <Text size={isLaptopOrTablet ? "xl" : "l"} fw={600} lh={1}>
-                      {collectionName}
-                    </Text>
-
-                    <Text
-                      size={isLaptopOrTablet ? "l" : "md"}
-                      fw={300}
-                      lh={1}
-                      c="dimmed"
-                      className={classes.gotoText}
+                  <Flex justify={"center"} mb={20}>
+                    <Button
+                      variant="light"
+                      color="gray"
+                      radius="xl"
+                      size="md"
                       onClick={handleClickCollection(collectionId)}
                     >
-                      <span className={classes.gotoTextSpan}>
-                        View collection
-                      </span>{" "}
-                      ➞
-                    </Text>
-                  </Group>
+                      {collectionName}
+                    </Button>
+                  </Flex>
                   <Flex gap={8}>
                     <Card
                       withBorder
@@ -272,15 +309,31 @@ export const Feed = () => {
                       </Card.Section>
                     </Card>
                   </Flex>
+                  <Flex justify={"center"} direction={"column"} gap={0} mt={18}>
+                    <Button
+                      variant="transparent"
+                      color="gray"
+                      mx={"auto"}
+                      radius={"xl"}
+                      onClick={() => {
+                        scrollToIndex(activeIndex + 1);
+                      }}
+                    >
+                      <Flex justify={"center"} align={"center"} gap={4}>
+                        <Text>Next Duel</Text>
+                        <DownArrowIcon height={14} width={14} />
+                      </Flex>
+                    </Button>
+                  </Flex>
                 </div>
               </div>
-              {index < duels.length - 1 && <Divider my={4} />}
-            </Fragment>
+              <DuelKeyboardHint hasVoted={hasVoted} autoHideMs={10000} />
+            </div>
           )
         )}
-      </Stack>
 
-      <div ref={sentinelRef} style={{ height: 1 }} />
+        <div ref={sentinelRef} style={{ height: 1 }} />
+      </div>
     </>
   );
 };

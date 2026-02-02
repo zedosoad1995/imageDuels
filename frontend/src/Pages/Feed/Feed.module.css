@@ -20,3 +20,20 @@
     }
   }
 }
+
+.hideScrollbar {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE / old Edge */
+}
+
+.hideScrollbar::-webkit-scrollbar {
+  display: none; /* Chrome / Safari */
+}
+
+.hideScrollbar:focus-visible {
+  outline: 0px;
+}
+
+.feedEl:focus-visible {
+  outline: 0px;
+}

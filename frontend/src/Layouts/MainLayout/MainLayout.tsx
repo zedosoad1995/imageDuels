@@ -78,7 +78,7 @@ export const MainLayout = () => {
       <>
         <AppShell
           navbar={{ width: 60, breakpoint: 1 }}
-          padding={{ sm: "lg", base: "sm" }}
+          padding={page === "feed" ? 0 : { sm: "lg", base: "sm" }}
         >
           <Sidebar />
 
@@ -121,7 +121,7 @@ export const MainLayout = () => {
   return (
     <>
       <AppShell
-        padding={8}
+        padding={page === "feed" ? 0 : 8}
         footer={{ height: showHeaderFooter ? 50 : 0 }}
         header={{ height: showHeaderFooter ? 48 : 0 }}
       >

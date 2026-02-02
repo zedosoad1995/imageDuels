@@ -86,6 +86,7 @@ export class CollectionsController {
       orderBy,
       search,
       cursor,
+      isAdmin: user?.role === 'ADMIN',
     });
 
     return {

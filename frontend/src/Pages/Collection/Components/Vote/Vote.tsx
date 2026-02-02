@@ -6,6 +6,8 @@ import {
   Group,
   Stack,
   Text,
+  Title,
+  Center,
 } from "@mantine/core";
 import { getDuel } from "../../../../Api/collections";
 import { useCallback, useContext, useEffect, useState } from "react";
@@ -38,12 +40,19 @@ export const Vote = ({ collection }: Props) => {
       return;
     }
 
-    getDuel(collectionId).then(({ token, image1, image2 }) => {
-      setImage1(image1);
-      setImage2(image2);
-      setDuelToken(token);
-    });
-  }, []);
+    getDuel(collectionId)
+      .then(({ token, image1, image2 }) => {
+        setImage1(image1);
+        setImage2(image2);
+        setDuelToken(token);
+      })
+      .catch(() => {
+        // Handle error case - no more duels available
+        setImage1(undefined);
+        setImage2(undefined);
+        setDuelToken(undefined);
+      });
+  }, [collectionId]);
 
   const openSignUpModal = () =>
     modals.openConfirmModal({
@@ -71,13 +80,20 @@ export const Vote = ({ collection }: Props) => {
         await vote(token, outcome);
       }
 
-      getDuel(collectionId).then(({ token, image1, image2 }) => {
-        setImage1(image1);
-        setImage2(image2);
-        setDuelToken(token);
-      });
+      getDuel(collectionId)
+        .then(({ token, image1, image2 }) => {
+          setImage1(image1);
+          setImage2(image2);
+          setDuelToken(token);
+        })
+        .catch(() => {
+          // Handle error case - no more duels available
+          setImage1(undefined);
+          setImage2(undefined);
+          setDuelToken(undefined);
+        });
     },
-    [token, collectionId]
+    [token, collectionId, loggedIn]
   );
 
   useEffect(() => {
@@ -95,8 +111,59 @@ export const Vote = ({ collection }: Props) => {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [handleVote]);
 
-  // TODO: Create placeholder when there aren't enough images (less than 2), or for other cases (e.g votes ran out)
   // TODO: Display 2 images to vote when not logged in, but when user clicks, show modal to sign up
+
+  const hasNoImages = !image1 || !image2;
+
+  if (hasNoImages) {
+    return (
+      <Container
+        size={"lg"}
+        px={0}
+        flex={1}
+        display="flex"
+        style={{
+          flexDirection: "column",
+          width: "100%",
+          justifyContent: "center",
+        }}
+      >
+        {collection.question && (
+          <Text fw={600} size="lg" pb={8}>
+            {collection.question}
+          </Text>
+        )}
+        <Card withBorder bg="#FAFAFA" radius={12} style={{ width: "100%" }}>
+          <Center
+            style={{
+              minHeight: isMobile ? "400px" : "500px",
+              flexDirection: "column",
+              gap: 16,
+            }}
+            p="xl"
+          >
+            <Title
+              order={2}
+              size={isMobile ? "h3" : "h2"}
+              ta="center"
+              c="dimmed"
+            >
+              All Caught Up!
+            </Title>
+            <Text
+              size={isMobile ? "sm" : "md"}
+              ta="center"
+              c="dimmed"
+              maw={400}
+            >
+              You've voted on all available image pairs in this collection.
+              Check back later for more duels, or explore other collections!
+            </Text>
+          </Center>
+        </Card>
+      </Container>
+    );
+  }
 
   return (
     <Container
@@ -325,11 +392,13 @@ export const Vote = ({ collection }: Props) => {
           </Card>
         </Flex>
       )}
-      <Group mt={isMobile ? 4 : 8} justify="center">
-        <Button variant="outline" px={64} onClick={handleVote("SKIP")}>
-          Skip
-        </Button>
-      </Group>
+      {!hasNoImages && (
+        <Group mt={isMobile ? 4 : 8} justify="center">
+          <Button variant="outline" px={64} onClick={handleVote("SKIP")}>
+            Skip
+          </Button>
+        </Group>
+      )}
     </Container>
   );
 };
