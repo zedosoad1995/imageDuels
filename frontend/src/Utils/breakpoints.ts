@@ -18,3 +18,4 @@ export const BREAKPOINT_TABLET = 650;
 export const MEDIA_QUERY_DESKTOP = `(min-width: ${BREAKPOINT_DESKTOP}px)`;
 export const MEDIA_QUERY_TABLET = `(min-width: ${BREAKPOINT_TABLET}px)`;
 export const MEDIA_QUERY_IS_MOBILE = `(max-width: ${BREAKPOINT_TABLET}px)`;
+export const MEDIA_QUERY_IS_MOBILE_OR_TABLET = `(max-width: ${BREAKPOINT_DESKTOP}px)`;

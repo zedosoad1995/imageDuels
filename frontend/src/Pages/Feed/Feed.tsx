@@ -17,15 +17,13 @@ import { useNavigate, useLocation } from "react-router";
 import { getDuel } from "../../Api/collections";
 import { useMediaQuery } from "@mantine/hooks";
 import { usePage } from "../../Hooks/usePage";
-import {
-  MEDIA_QUERY_DESKTOP,
-  MEDIA_QUERY_TABLET,
-} from "../../Utils/breakpoints";
+import { MEDIA_QUERY_DESKTOP } from "../../Utils/breakpoints";
 import { useInfiniteScroll } from "../../Hooks/useInfiniteScroll";
 import { Image } from "../../Components/Image/Image";
 import DownArrowIcon from "../../assets/svgs/arrow-down.svg?react";
 import { DuelKeyboardHint } from "../../Components/KeyboardHints/KeyboardHints";
 import { useReelsPaging } from "../../Hooks/useReelsPaging";
+import { VoteCards } from "./Components/VoteCards/VoteCards";
 
 const MAX_WIDTH = 1400;
 
@@ -34,7 +32,7 @@ export const Feed = () => {
   const navigate = useNavigate();
   const location = useLocation();
   usePage("feed");
-  const isLaptopOrTablet = useMediaQuery(MEDIA_QUERY_TABLET);
+  const isLaptopOrTablet = useMediaQuery(MEDIA_QUERY_DESKTOP);
 
   const feedRef = useRef<HTMLDivElement | null>(null);
   const itemRefs = useRef<Array<HTMLDivElement | null>>([]);
@@ -67,7 +65,7 @@ export const Feed = () => {
 
   const [activeIndex, setActiveIndex] = useState(0);
 
-  const { scrollToIndex } = useReelsPaging({
+  const { scrollToIndex, isLoading: isLoadingNextPage } = useReelsPaging({
     feedRef,
     itemRefs,
     count: duels?.length ?? 0,
@@ -111,8 +109,8 @@ export const Feed = () => {
       collectionId: string,
       index: number
     ) =>
-    async (event: React.MouseEvent<HTMLDivElement>) => {
-      event.stopPropagation();
+    async (event?: React.MouseEvent<HTMLDivElement>) => {
+      event?.stopPropagation();
 
       if (!loggedIn) {
         openSignUpModal();
@@ -144,7 +142,35 @@ export const Feed = () => {
           );
         });
       });
+      scrollToIndex(activeIndex + 1);
     };
+
+  useEffect(() => {
+    if (!loggedIn) return;
+
+    const handleKeyDown = async (event: KeyboardEvent) => {
+      if (!duels || isLoadingNextPage()) return;
+
+      if (event.key === "ArrowLeft") {
+        await handleVote(
+          "WIN",
+          duels[activeIndex].token,
+          duels[activeIndex].collectionId,
+          activeIndex
+        )();
+      } else if (event.key === "ArrowRight") {
+        await handleVote(
+          "LOSS",
+          duels[activeIndex].token,
+          duels[activeIndex].collectionId,
+          activeIndex
+        )();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [handleVote]);
 
   const openSignUpModal = () =>
     modals.openConfirmModal({
@@ -174,8 +200,8 @@ export const Feed = () => {
         style={{
           height: "100vh",
           overflowY: "auto",
-          marginTop: -50,
-          marginBottom: -48,
+          marginTop: isLaptopOrTablet ? 0 : -50,
+          marginBottom: isLaptopOrTablet ? 0 : -48,
         }}
         className={classes.hideScrollbar}
       >
@@ -188,22 +214,34 @@ export const Feed = () => {
                 display: "flex",
                 flexDirection: "column",
                 justifyContent: "center",
-                padding: 16,
+                paddingTop: isLaptopOrTablet ? 0 : 50,
+                paddingBottom: isLaptopOrTablet ? 0 : 48,
               }}
               ref={(el) => {
                 itemRefs.current[index] = el;
               }}
               className={classes.feedEl}
             >
-              <div>
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  flex: 1,
+                  paddingLeft: isLaptopOrTablet ? 16 : 8,
+                  paddingRight: isLaptopOrTablet ? 16 : 8,
+                  paddingTop: isLaptopOrTablet ? 16 : 0,
+                  paddingBottom: isLaptopOrTablet ? 16 : 0,
+                }}
+              >
                 <div
                   style={{
-                    marginBottom:
-                      index === duels.length - 1 ? 0 : verticalPadding,
-                    marginTop: verticalPadding / 2,
                     maxWidth: 1400,
                     marginLeft: "auto",
                     marginRight: "auto",
+                    display: "flex",
+                    flexDirection: "column",
+                    flex: 1,
+                    width: "100%",
                   }}
                 >
                   <Flex justify={"center"} mb={20}>
@@ -217,98 +255,14 @@ export const Feed = () => {
                       {collectionName}
                     </Button>
                   </Flex>
-                  <Flex gap={8}>
-                    <Card
-                      withBorder
-                      className={classes.imageCard}
-                      onClick={handleVote("WIN", token, collectionId, index)}
-                      bg="#FAFAFA"
-                      radius={12}
-                    >
-                      <Card.Section
-                        withBorder
-                        style={{
-                          display: "flex",
-                          aspectRatio: "1 / 1",
-                          position: "relative",
-                        }}
-                      >
-                        <Image
-                          {...image1}
-                          style={{
-                            position: "absolute",
-                            inset: 0,
-                            width: "100%",
-                            height: "100%",
-                            objectFit: "cover",
-                            filter: "blur(40px) brightness(1.2)",
-                            opacity: 0.4,
-                            transform: "scale(1.1)",
-                          }}
-                          objectFit="cover"
-                          sizes="(max-width: 799px) 50vw, (max-width: 1500px) 46vw, 700px"
-                        />
-                        <Image
-                          {...image1}
-                          style={{
-                            position: "absolute",
-                            inset: 0,
-                            width: "100%",
-                            height: "100%",
-                            objectFit: "contain",
-                            zIndex: 1,
-                          }}
-                          objectFit="contain"
-                          sizes="(max-width: 799px) 50vw, (max-width: 1500px) 46vw, 700px"
-                        />
-                      </Card.Section>
-                    </Card>
-                    <Card
-                      withBorder
-                      className={classes.imageCard}
-                      onClick={handleVote("LOSS", token, collectionId, index)}
-                      bg="#FAFAFA"
-                      radius={12}
-                    >
-                      <Card.Section
-                        withBorder
-                        style={{
-                          display: "flex",
-                          aspectRatio: "1 / 1",
-                          position: "relative",
-                        }}
-                      >
-                        <Image
-                          {...image2}
-                          style={{
-                            position: "absolute",
-                            inset: 0,
-                            width: "100%",
-                            height: "100%",
-                            objectFit: "cover",
-                            filter: "blur(40px) brightness(1.2)",
-                            opacity: 0.4,
-                            transform: "scale(1.1)",
-                          }}
-                          objectFit="cover"
-                          sizes="(max-width: 799px) 50vw, (max-width: 1500px) 46vw, 700px"
-                        />
-                        <Image
-                          {...image2}
-                          style={{
-                            position: "absolute",
-                            inset: 0,
-                            width: "100%",
-                            height: "100%",
-                            objectFit: "contain",
-                            zIndex: 1,
-                          }}
-                          objectFit="contain"
-                          sizes="(max-width: 799px) 50vw, (max-width: 1500px) 46vw, 700px"
-                        />
-                      </Card.Section>
-                    </Card>
-                  </Flex>
+                  <VoteCards
+                    collectionId={collectionId}
+                    handleVote={handleVote}
+                    image1={image1}
+                    image2={image2}
+                    index={index}
+                    token={token}
+                  />
                   <Flex justify={"center"} direction={"column"} gap={0} mt={18}>
                     <Button
                       variant="transparent"

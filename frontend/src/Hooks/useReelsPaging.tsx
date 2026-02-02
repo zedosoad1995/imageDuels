@@ -110,5 +110,9 @@ export function useReelsPaging({
     };
   }, [count, feedRef, scrollToIndex]);
 
-  return { scrollToIndex, getIndex: () => indexRef.current };
+  return {
+    scrollToIndex,
+    getIndex: () => indexRef.current,
+    isLoading: () => lockRef.current,
+  };
 }

@@ -1,12 +1,3 @@
-.imageCard {
-  cursor: pointer;
-  flex: 1;
-
-  &:hover {
-    box-shadow: var(--mantine-shadow-around);
-  }
-}
-
 .gotoText {
   cursor: pointer;
 
