@@ -11,3 +11,34 @@
   padding-top: var(--mantine-spacing-xxs);
   padding-bottom: var(--mantine-spacing-xxs);
 }
+
+.backButton {
+  & svg {
+    color: var(--mantine-color-gray-7);
+  }
+
+  &:hover {
+    background-color: var(--mantine-color-gray-0);
+  }
+}
+
+.tabsList {
+  @media (max-width: 650px) {
+    font-size: 0.875rem;
+  }
+}
+
+.tab {
+  @media (max-width: 650px) {
+    font-size: 0.875rem !important;
+    padding: 0.4rem 0.75rem !important;
+  }
+}
+
+.root {
+  @media (max-width: 650px) {
+    display: flex !important;
+    flex-direction: column !important;
+    flex: 1 !important;
+  }
+}

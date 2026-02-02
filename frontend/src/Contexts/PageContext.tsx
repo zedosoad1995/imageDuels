@@ -7,7 +7,8 @@ export type PageName =
   | "my-collections"
   | "settings"
   | "login"
-  | "register";
+  | "register"
+  | "collection";
 
 interface PageProviderProps {
   children: React.ReactNode;

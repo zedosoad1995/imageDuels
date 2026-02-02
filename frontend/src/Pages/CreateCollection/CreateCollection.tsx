@@ -12,7 +12,7 @@ import { useState, useEffect } from "react";
 import { ModeSelect } from "../../Components/ModeSelect/ModeSelect";
 import { CollectionModeType } from "../../Types/collection";
 import { createCollection } from "../../Api/collections";
-import { useNavigate } from "react-router";
+import { useNavigate, useLocation } from "react-router";
 import { Switch } from "../../Components/Switch/Switch";
 import { usePage } from "../../Hooks/usePage";
 import { useMediaQuery } from "@mantine/hooks";
@@ -20,6 +20,7 @@ import { MEDIA_QUERY_DESKTOP } from "../../Utils/breakpoints";
 
 export const CreateCollection = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   usePage("create-collection");
   const isDesktop = useMediaQuery(MEDIA_QUERY_DESKTOP);
 
@@ -79,7 +80,9 @@ export const CreateCollection = () => {
       maxUserVotesPerImage: isUnlimitedVotes ? null : votesPerImage,
     });
 
-    navigate(`/collections/${collection.id}`);
+    navigate(`/collections/${collection.id}`, {
+      state: { from: location.pathname },
+    });
   };
 
   return (
@@ -161,7 +164,7 @@ export const CreateCollection = () => {
           </Stack>
         )}
         <Switch
-          label="NSWF content (+18)"
+          label="NSFW content (+18)"
           checked={isNSFW}
           onChange={handleChangeSwitch(setIsNSFW)}
         />

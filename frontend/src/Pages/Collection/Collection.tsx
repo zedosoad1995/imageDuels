@@ -1,5 +1,5 @@
 import { useContext, useState } from "react";
-import { useParams } from "react-router";
+import { useParams, useNavigate, useLocation } from "react-router";
 import {
   ActionIcon,
   Badge,
@@ -22,15 +22,24 @@ import { editCollection } from "../../Api/collections";
 import MoreHorizontalIcon from "../../assets/svgs/more-horizontal.svg?react";
 import PauseIcon from "../../assets/svgs/pause.svg?react";
 import PlayIcon from "../../assets/svgs/play.svg?react";
+import ArrowBackIcon from "../../assets/svgs/arrow-back.svg?react";
 import { CopyItem } from "../../Components/CopyItem/CopyItem";
 import { usePage } from "../../Hooks/usePage";
+import classes from "./Collection.module.css";
+import { MEDIA_QUERY_IS_MOBILE } from "../../Utils/breakpoints";
+import { useMediaQuery } from "@mantine/hooks";
 
 export const CollectionChild = () => {
   const { collection, fetchCollection, setCollection } =
     useContext(CollectionContext);
   const { loggedIn, user } = useContext(UserContext);
+  const navigate = useNavigate();
+  const location = useLocation();
 
-  usePage(null);
+  const isMobile = useMediaQuery(MEDIA_QUERY_IS_MOBILE);
+  const isTablet = useMediaQuery("(max-width: 800px)");
+
+  usePage("collection");
 
   const [showSubtitle, setShowSubtitle] = useState(false);
 
@@ -69,7 +78,26 @@ export const CollectionChild = () => {
     <>
       <Group justify="space-between" wrap="nowrap">
         <Group gap={8}>
-          <Text fw={600} size="lg">
+          {isTablet && (
+            <ActionIcon
+              radius="xl"
+              size="sm"
+              variant="subtle"
+              onClick={() => {
+                // Check if we have state with previous location
+                const previousPath = location.state?.from;
+                if (previousPath) {
+                  navigate(previousPath);
+                } else {
+                  navigate("/");
+                }
+              }}
+              className={classes.backButton}
+            >
+              <ArrowBackIcon />
+            </ActionIcon>
+          )}
+          <Text fw={600} size={isMobile ? "md" : "lg"}>
             {collection.title}
           </Text>
           {collection.mode === "PRIVATE" && (
@@ -155,7 +183,12 @@ export const CollectionChild = () => {
         </>
       )}
       <Tabs
-        defaultValue={loggedIn && collection.isValid ? "images" : "images"}
+        defaultValue={loggedIn && collection.isValid ? "vote" : "images"}
+        classNames={{
+          list: classes.tabsList,
+          tab: classes.tab,
+          root: classes.root,
+        }}
         keepMounted={false}
         onChange={(value) => {
           if (value === "images") {
@@ -177,7 +210,11 @@ export const CollectionChild = () => {
             collection.description) && <Tabs.Tab value="about">About</Tabs.Tab>}
         </Tabs.List>
 
-        <Tabs.Panel value="vote" pt={8}>
+        <Tabs.Panel
+          value="vote"
+          pt={8}
+          style={{ display: "flex", flexDirection: "column", flex: 1 }}
+        >
           <Vote collection={collection} />
         </Tabs.Panel>
 

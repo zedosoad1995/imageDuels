@@ -10,12 +10,14 @@ import { useMediaQuery } from "@mantine/hooks";
 import { Footer } from "./components/Footer/Footer";
 import { Header } from "./components/Header/Header";
 import { MEDIA_QUERY_DESKTOP } from "../../Utils/breakpoints";
+import { usePage } from "../../Hooks/usePage";
 
 export const MainLayout = () => {
   const { user, logout, setUser } = useContext(UserContext);
   const isLaptopOrTablet = useMediaQuery(MEDIA_QUERY_DESKTOP);
 
   const navigate = useNavigate();
+  const page = usePage();
 
   const [username, setUsername] = useState("");
   const [isUniqueUsername, setIsUniqueUsername] = useState(false);
@@ -114,14 +116,20 @@ export const MainLayout = () => {
     );
   }
 
+  const showHeaderFooter = !["collection"].includes(page as string);
+
   return (
     <>
-      <AppShell padding="xs" footer={{ height: 50 }} header={{ height: 48 }}>
-        <Header />
+      <AppShell
+        padding={8}
+        footer={{ height: showHeaderFooter ? 50 : 0 }}
+        header={{ height: showHeaderFooter ? 48 : 0 }}
+      >
+        {showHeaderFooter && <Header />}
         <AppShell.Main className={classes.main}>
           <Outlet />
         </AppShell.Main>
-        <Footer />
+        {showHeaderFooter && <Footer />}
       </AppShell>
       <Modal
         opened={!!user && !user.isProfileCompleted}

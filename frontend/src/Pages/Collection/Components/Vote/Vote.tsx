@@ -1,4 +1,12 @@
-import { Button, Card, Container, Flex, Group, Text } from "@mantine/core";
+import {
+  Button,
+  Card,
+  Container,
+  Flex,
+  Group,
+  Stack,
+  Text,
+} from "@mantine/core";
 import { getDuel } from "../../../../Api/collections";
 import { useCallback, useContext, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
@@ -7,8 +15,9 @@ import { vote, VoteOutcome } from "../../../../Api/duels";
 import { IGetCollection, IGetDuel } from "../../../../Types/collection";
 import { UserContext } from "../../../../Contexts/UserContext";
 import { modals } from "@mantine/modals";
-import { getImageURL } from "../../../../Utils/image";
 import { Image } from "../../../../Components/Image/Image";
+import { useMediaQuery } from "@mantine/hooks";
+import { MEDIA_QUERY_IS_MOBILE } from "../../../../Utils/breakpoints";
 
 interface Props {
   collection: IGetCollection;
@@ -16,6 +25,7 @@ interface Props {
 
 export const Vote = ({ collection }: Props) => {
   const navigate = useNavigate();
+  const isMobile = useMediaQuery(MEDIA_QUERY_IS_MOBILE);
 
   const { id: collectionId } = useParams();
   const [image1, setImage1] = useState<IGetDuel["image1"]>();
@@ -89,117 +99,233 @@ export const Vote = ({ collection }: Props) => {
   // TODO: Display 2 images to vote when not logged in, but when user clicks, show modal to sign up
 
   return (
-    <Container size={"lg"}>
+    <Container
+      size={"lg"}
+      px={0}
+      flex={1}
+      display="flex"
+      style={{ flexDirection: "column", width: "100%" }}
+    >
       {collection.question && (
         <Text fw={600} size="lg" pb={8}>
           {collection.question}
         </Text>
       )}
-      <Flex gap={8}>
-        <Card
-          withBorder
-          className={classes.imageCard}
-          onClick={handleVote("WIN")}
-          bg="#FAFAFA"
-          radius={12}
-        >
-          <Card.Section
+      {isMobile && (
+        <Stack gap={4} align="center" style={{ width: "100%", flex: 1 }}>
+          <Card
             withBorder
-            style={{
-              display: "flex",
-              aspectRatio: "1 / 1",
-              position: "relative",
-            }}
+            className={classes.imageCard}
+            style={{ width: "100%" }}
+            onClick={handleVote("WIN")}
+            bg="#FAFAFA"
+            radius={12}
           >
-            <Image
-              filepath={image1?.filepath ?? ""}
-              availableWidths={image1?.availableWidths ?? []}
-              hasPlaceholder={image1?.hasPlaceholder ?? false}
-              isSvg={image1?.isSvg ?? false}
+            <Card.Section
+              withBorder
               style={{
-                position: "absolute",
-                inset: 0,
-                width: "100%",
-                height: "100%",
-                objectFit: "cover",
-                filter: "blur(40px) brightness(1.2)",
-                opacity: 0.4,
-                transform: "scale(1.1)",
+                display: "flex",
+                position: "relative",
+                flex: 1,
               }}
-              objectFit="cover"
-              sizes="(max-width: 799px) 47vw, (max-width: 1240px) 43vw, 550px"
-            />
-            <Image
-              filepath={image1?.filepath ?? ""}
-              availableWidths={image1?.availableWidths ?? []}
-              hasPlaceholder={image1?.hasPlaceholder ?? false}
-              isSvg={image1?.isSvg ?? false}
-              style={{
-                position: "absolute",
-                inset: 0,
-                width: "100%",
-                height: "100%",
-                objectFit: "contain",
-                zIndex: 1,
-              }}
-              objectFit="contain"
-              sizes="(max-width: 799px) 47vw, (max-width: 1240px) 43vw, 550px"
-            />
-          </Card.Section>
-        </Card>
-        <Card
-          withBorder
-          className={classes.imageCard}
-          onClick={handleVote("LOSS")}
-          bg="#FAFAFA"
-          radius={12}
-        >
-          <Card.Section
+            >
+              <Image
+                filepath={image1?.filepath ?? ""}
+                availableWidths={image1?.availableWidths ?? []}
+                hasPlaceholder={image1?.hasPlaceholder ?? false}
+                isSvg={image1?.isSvg ?? false}
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "cover",
+                  filter: "blur(40px) brightness(1.2)",
+                  opacity: 0.4,
+                  transform: "scale(1.1)",
+                }}
+                objectFit="cover"
+                sizes="(max-width: 799px) 47vw, (max-width: 1240px) 43vw, 550px"
+              />
+              <Image
+                filepath={image1?.filepath ?? ""}
+                availableWidths={image1?.availableWidths ?? []}
+                hasPlaceholder={image1?.hasPlaceholder ?? false}
+                isSvg={image1?.isSvg ?? false}
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "contain",
+                  zIndex: 1,
+                }}
+                objectFit="contain"
+                sizes="(max-width: 799px) 47vw, (max-width: 1240px) 43vw, 550px"
+              />
+            </Card.Section>
+          </Card>
+          <Card
             withBorder
-            style={{
-              display: "flex",
-              aspectRatio: "1 / 1",
-              position: "relative",
-            }}
+            className={classes.imageCard}
+            onClick={handleVote("LOSS")}
+            style={{ width: "100%" }}
+            bg="#FAFAFA"
+            radius={12}
           >
-            <Image
-              filepath={image2?.filepath ?? ""}
-              availableWidths={image2?.availableWidths ?? []}
-              hasPlaceholder={image2?.hasPlaceholder ?? false}
-              isSvg={image2?.isSvg ?? false}
+            <Card.Section
+              withBorder
               style={{
-                position: "absolute",
-                inset: 0,
-                width: "100%",
-                height: "100%",
-                objectFit: "cover",
-                filter: "blur(40px) brightness(1.2)",
-                opacity: 0.4,
-                transform: "scale(1.1)",
+                display: "flex",
+                position: "relative",
+                flex: 1,
               }}
-              objectFit="cover"
-              sizes="(max-width: 799px) 47vw, (max-width: 1240px) 43vw, 550px"
-            />
-            <Image
-              filepath={image2?.filepath ?? ""}
-              availableWidths={image2?.availableWidths ?? []}
-              hasPlaceholder={image2?.hasPlaceholder ?? false}
-              isSvg={image2?.isSvg ?? false}
+            >
+              <Image
+                filepath={image2?.filepath ?? ""}
+                availableWidths={image2?.availableWidths ?? []}
+                hasPlaceholder={image2?.hasPlaceholder ?? false}
+                isSvg={image2?.isSvg ?? false}
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "cover",
+                  filter: "blur(40px) brightness(1.2)",
+                  opacity: 0.4,
+                  transform: "scale(1.1)",
+                }}
+                objectFit="cover"
+                sizes="(max-width: 799px) 47vw, (max-width: 1240px) 43vw, 550px"
+              />
+              <Image
+                filepath={image2?.filepath ?? ""}
+                availableWidths={image2?.availableWidths ?? []}
+                hasPlaceholder={image2?.hasPlaceholder ?? false}
+                isSvg={image2?.isSvg ?? false}
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "contain",
+                  zIndex: 1,
+                }}
+                objectFit="contain"
+                sizes="(max-width: 799px) 47vw, (max-width: 1240px) 43vw, 550px"
+              />
+            </Card.Section>
+          </Card>
+        </Stack>
+      )}
+      {!isMobile && (
+        <Flex gap={8}>
+          <Card
+            withBorder
+            className={classes.imageCard}
+            onClick={handleVote("WIN")}
+            bg="#FAFAFA"
+            radius={12}
+          >
+            <Card.Section
+              withBorder
               style={{
-                position: "absolute",
-                inset: 0,
-                width: "100%",
-                height: "100%",
-                objectFit: "contain",
-                zIndex: 1,
+                display: "flex",
+                aspectRatio: "1 / 1",
+                position: "relative",
               }}
-              objectFit="contain"
-              sizes="(max-width: 799px) 47vw, (max-width: 1240px) 43vw, 550px"
-            />
-          </Card.Section>
-        </Card>
-      </Flex>
-      <Group mt={8} justify="center">
+            >
+              <Image
+                filepath={image1?.filepath ?? ""}
+                availableWidths={image1?.availableWidths ?? []}
+                hasPlaceholder={image1?.hasPlaceholder ?? false}
+                isSvg={image1?.isSvg ?? false}
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "cover",
+                  filter: "blur(40px) brightness(1.2)",
+                  opacity: 0.4,
+                  transform: "scale(1.1)",
+                }}
+                objectFit="cover"
+                sizes="(max-width: 799px) 47vw, (max-width: 1240px) 43vw, 550px"
+              />
+              <Image
+                filepath={image1?.filepath ?? ""}
+                availableWidths={image1?.availableWidths ?? []}
+                hasPlaceholder={image1?.hasPlaceholder ?? false}
+                isSvg={image1?.isSvg ?? false}
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "contain",
+                  zIndex: 1,
+                }}
+                objectFit="contain"
+                sizes="(max-width: 799px) 47vw, (max-width: 1240px) 43vw, 550px"
+              />
+            </Card.Section>
+          </Card>
+          <Card
+            withBorder
+            className={classes.imageCard}
+            onClick={handleVote("LOSS")}
+            bg="#FAFAFA"
+            radius={12}
+          >
+            <Card.Section
+              withBorder
+              style={{
+                display: "flex",
+                aspectRatio: "1 / 1",
+                position: "relative",
+              }}
+            >
+              <Image
+                filepath={image2?.filepath ?? ""}
+                availableWidths={image2?.availableWidths ?? []}
+                hasPlaceholder={image2?.hasPlaceholder ?? false}
+                isSvg={image2?.isSvg ?? false}
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "cover",
+                  filter: "blur(40px) brightness(1.2)",
+                  opacity: 0.4,
+                  transform: "scale(1.1)",
+                }}
+                objectFit="cover"
+                sizes="(max-width: 799px) 47vw, (max-width: 1240px) 43vw, 550px"
+              />
+              <Image
+                filepath={image2?.filepath ?? ""}
+                availableWidths={image2?.availableWidths ?? []}
+                hasPlaceholder={image2?.hasPlaceholder ?? false}
+                isSvg={image2?.isSvg ?? false}
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "contain",
+                  zIndex: 1,
+                }}
+                objectFit="contain"
+                sizes="(max-width: 799px) 47vw, (max-width: 1240px) 43vw, 550px"
+              />
+            </Card.Section>
+          </Card>
+        </Flex>
+      )}
+      <Group mt={isMobile ? 4 : 8} justify="center">
         <Button variant="outline" px={64} onClick={handleVote("SKIP")}>
           Skip
         </Button>

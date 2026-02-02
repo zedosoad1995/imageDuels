@@ -5,7 +5,7 @@ import {
   Textarea,
   TextInput,
   NumberInput,
-  Checkbox,
+  Radio,
   Group,
 } from "@mantine/core";
 import { IGetCollection } from "../../../../Types/collection";
@@ -156,7 +156,7 @@ export const About = ({ collection }: Props) => {
             control={control}
             render={({ field: { value, onChange } }) => (
               <Switch
-                label="NSWF content (+18)"
+                label="NSFW content (+18)"
                 checked={value}
                 onChange={onChange}
               />
@@ -224,18 +224,32 @@ export const About = ({ collection }: Props) => {
           max={200}
           min={1}
           disabled
-          descriptionProps={{ style: { width: "max-content" } }}
-          w={400}
+          styles={{
+            wrapper: {
+              width: 400,
+            },
+          }}
           description="Public collections require 1 vote per image. This is an approximation - the system may collect more votes per image to optimize the matching algorithm."
         />
       ) : (
-        <Stack gap="xs">
-          <Group gap="md" align="flex-end" wrap="nowrap">
-            <div style={{ position: "relative" }}>
+        <Radio.Group
+          label="Votes per image"
+          value={isUnlimitedVotes ? "unlimited" : "limited"}
+          onChange={(value) => {
+            if (value === "unlimited") {
+              setIsUnlimitedVotes(true);
+              setVotesPerImage(null);
+            } else {
+              setIsUnlimitedVotes(false);
+              setVotesPerImage(1);
+            }
+          }}
+        >
+          <Stack gap="xs" mt="xs">
+            <Radio value="limited" label="Limited" />
+            <div style={{ marginLeft: 24 }}>
               <NumberInput
-                label="Votes per image"
-                description="This is an approximation - the system may collect more votes per
-            image to optimize the matching algorithm."
+                description="This is an approximation - the system may collect more votes per image to optimize the matching algorithm."
                 value={votesPerImage ?? undefined}
                 onChange={(value) =>
                   setVotesPerImage(typeof value === "number" ? value : null)
@@ -243,29 +257,17 @@ export const About = ({ collection }: Props) => {
                 disabled={isUnlimitedVotes}
                 max={200}
                 min={1}
-                placeholder={isUnlimitedVotes ? "Unlimited" : "1"}
-                descriptionProps={{ style: { width: "max-content" } }}
-                w={200}
+                placeholder="1"
+                styles={{
+                  wrapper: {
+                    width: 200,
+                  },
+                }}
               />
             </div>
-            <Checkbox
-              label="Unlimited votes"
-              checked={isUnlimitedVotes}
-              styles={{ input: { cursor: "pointer" } }}
-              onChange={(e) => {
-                setIsUnlimitedVotes(e.currentTarget.checked);
-                if (e.currentTarget.checked) {
-                  setVotesPerImage(null);
-                } else {
-                  setVotesPerImage(1);
-                }
-              }}
-              style={{
-                marginBottom: 8,
-              }}
-            />
-          </Group>
-        </Stack>
+            <Radio value="unlimited" label="Unlimited" />
+          </Stack>
+        </Radio.Group>
       )}
 
       <Controller
@@ -273,7 +275,7 @@ export const About = ({ collection }: Props) => {
         control={control}
         render={({ field: { value, onChange } }) => (
           <Switch
-            label="NSWF content (+18)"
+            label="NSFW content (+18)"
             checked={value}
             onChange={onChange}
           />

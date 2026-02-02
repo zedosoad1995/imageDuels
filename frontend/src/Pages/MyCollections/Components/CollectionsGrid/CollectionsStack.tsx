@@ -1,6 +1,6 @@
 import { Badge, Grid, Group, Text } from "@mantine/core";
 import { IGetCollections } from "../../../../Types/collection";
-import { useNavigate } from "react-router";
+import { useNavigate, useLocation } from "react-router";
 import { Collage } from "../../../../Components/Collage/Collage";
 
 interface Props {
@@ -9,9 +9,10 @@ interface Props {
 
 export const CollectionsGrid = ({ collections }: Props) => {
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleClickCollection = (id: string) => () => {
-    navigate(`/collections/${id}`);
+    navigate(`/collections/${id}`, { state: { from: location.pathname } });
   };
 
   return (

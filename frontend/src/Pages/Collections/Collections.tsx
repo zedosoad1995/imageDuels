@@ -1,6 +1,6 @@
 import { useCallback, useContext, useEffect, useState } from "react";
 import { getCollections } from "../../Api/collections";
-import { useNavigate } from "react-router";
+import { useNavigate, useLocation } from "react-router";
 import {
   Text,
   Group,
@@ -30,6 +30,7 @@ const orderValues: { value: IGetCollectionsOrderBy; label: string }[] = [
 
 export const Collections = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user, loggedIn } = useContext(UserContext);
   usePage("collections");
 
@@ -79,7 +80,7 @@ export const Collections = () => {
   }, [orderBy, debouncedSearch, loggedIn]);
 
   const handleClickCollection = (id: string) => () => {
-    navigate(`/collections/${id}`);
+    navigate(`/collections/${id}`, { state: { from: location.pathname } });
   };
 
   const handleChangeOrderBy = (value: string) => {

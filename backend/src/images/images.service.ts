@@ -196,6 +196,7 @@ export class ImagesService {
     userId: string | undefined,
     isAdmin: boolean | undefined,
   ) {
+    console.log(userId, isAdmin, collectionId);
     const lowVoteImages = await prisma.$queryRaw<
       {
         id: string;
@@ -220,7 +221,7 @@ export class ImagesService {
             OR NOT EXISTS (
               SELECT 1 
               FROM duels 
-              WHERE voter_id = ${userId} AND image1_id = i.id
+              WHERE voter_id = ${userId} AND (image1_id = i.id OR image2_id = i.id)
               OFFSET (c.max_user_votes_per_image - 1) 
               LIMIT 1 
             )

@@ -47,6 +47,20 @@ export const MasonryGrid = <T extends object>({
   }, []);
 
   useEffect(() => {
+    const el = parentContainerRef.current;
+    if (!el) return;
+
+    const update = () => setParentWidth(el.offsetWidth);
+
+    update();
+
+    const ro = new ResizeObserver(() => update());
+    ro.observe(el);
+
+    return () => ro.disconnect();
+  }, []);
+
+  useEffect(() => {
     let raf: number | null = null;
 
     const onScroll = () => {

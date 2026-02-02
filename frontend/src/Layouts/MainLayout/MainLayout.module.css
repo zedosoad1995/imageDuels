@@ -2,6 +2,9 @@
   max-width: 1800px;
   margin: 0 auto;
   background-color: #ffffff;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
 }
 
 .header {

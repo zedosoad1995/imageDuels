@@ -1,11 +1,10 @@
 import { Fragment, useContext, useEffect, useState } from "react";
 import { feed, vote, VoteOutcome } from "../../Api/duels";
-import { getImageURL } from "../../Utils/image";
 import { Card, Divider, Flex, Group, Stack, Text, Title } from "@mantine/core";
 import classes from "./Feed.module.css";
 import { UserContext } from "../../Contexts/UserContext";
 import { modals } from "@mantine/modals";
-import { useNavigate } from "react-router";
+import { useNavigate, useLocation } from "react-router";
 import { getDuel } from "../../Api/collections";
 import { useMediaQuery } from "@mantine/hooks";
 import { usePage } from "../../Hooks/usePage";
@@ -21,6 +20,7 @@ const MAX_WIDTH = 1400;
 export const Feed = () => {
   const { loggedIn } = useContext(UserContext);
   const navigate = useNavigate();
+  const location = useLocation();
   usePage("feed");
   const isLaptopOrTablet = useMediaQuery(MEDIA_QUERY_TABLET);
 
@@ -74,7 +74,9 @@ export const Feed = () => {
   }, []);
 
   const handleClickCollection = (collectionId: string) => () => {
-    navigate(`/collections/${collectionId}`);
+    navigate(`/collections/${collectionId}`, {
+      state: { from: location.pathname },
+    });
   };
 
   const handleVote =
