@@ -41,7 +41,7 @@ export function useReelsPaging({
       const i = Math.max(0, Math.min(next, count - 1));
       indexRef.current = i;
       onIndexChange?.(i);
-      smoothScrollTo(feedRef.current!, i * window.innerHeight, 350);
+      smoothScrollTo(feedRef.current!, i * window.innerHeight, 300);
     },
     [count, itemRefs, onIndexChange]
   );

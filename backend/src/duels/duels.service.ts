@@ -92,6 +92,17 @@ export class DuelsService {
         },
       });
 
+      await ctx.$queryRaw(
+        Prisma.sql`
+          INSERT INTO user_votes (image_id, voter_id, num_votes)
+          VALUES
+            (${image1Id}, ${userId}, 1),
+            (${image2Id}, ${userId}, 1)
+          ON CONFLICT (voter_id, image_id)
+          DO UPDATE SET num_votes = user_votes.num_votes + 1;
+        `,
+      );
+
       const byId = new Map(images.map((r) => [r.id, r]));
       const img1 = byId.get(image1Id)!;
       const img2 = byId.get(image2Id)!;

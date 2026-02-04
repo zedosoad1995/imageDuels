@@ -196,7 +196,6 @@ export class ImagesService {
     userId: string | undefined,
     isAdmin: boolean | undefined,
   ) {
-    console.log(userId, isAdmin, collectionId);
     const lowVoteImages = await prisma.$queryRaw<
       {
         id: string;
@@ -218,13 +217,12 @@ export class ImagesService {
           ${userId}::text IS NULL 
           OR ${isAdmin} IS TRUE
           OR c.max_user_votes_per_image IS NULL 
-            OR NOT EXISTS (
-              SELECT 1 
-              FROM duels 
-              WHERE voter_id = ${userId} AND (image1_id = i.id OR image2_id = i.id)
-              OFFSET (c.max_user_votes_per_image - 1) 
-              LIMIT 1 
-            )
+          OR NOT EXISTS (
+            SELECT 1 
+            FROM user_votes
+            WHERE voter_id = ${userId} AND image_id = i.id AND num_votes >= c.max_user_votes_per_image
+            LIMIT 1 
+          )
         )
       ORDER BY i.num_votes ASC
       LIMIT 5
@@ -319,10 +317,10 @@ export class ImagesService {
     }
 
     if (Math.random() < 0.5) {
-      return [image2, image1];
+      return { duel: [image2, image1], collectionId };
     }
 
-    return [image1, image2];
+    return { duel: [image1, image2], collectionId };
   }
 
   async getOne(imageId: string): Promise<Image> {

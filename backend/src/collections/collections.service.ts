@@ -13,6 +13,8 @@ import {
 } from './collections.type';
 import { EditCollectionDto } from './dto/editCollection.dto';
 import { decodeCursor, encodeCursor } from 'src/common/helpers/cursor';
+import { randomUUID } from 'crypto';
+import { sampleN } from 'src/common/helpers/random';
 
 @Injectable()
 export class CollectionsService {
@@ -213,11 +215,13 @@ export class CollectionsService {
   async getManyForUserFeed({
     userId,
     showNSFW,
-    limit = 20,
+    isAdmin,
+    limit = 5,
     cursor,
   }: {
     userId?: string;
     showNSFW?: boolean;
+    isAdmin?: boolean;
     limit?: number;
     cursor?: string | null | undefined;
   }) {
@@ -226,7 +230,7 @@ export class CollectionsService {
     const isCursorValid = decodedCursor && decodedCursor.lastId;
 
     const whereCursor = isCursorValid
-      ? Prisma.sql`AND c.id > ${decodedCursor.lastId}`
+      ? Prisma.sql`AND c.id <> ${decodedCursor.lastId}`
       : Prisma.empty;
 
     const whereOwner = userId
@@ -237,20 +241,83 @@ export class CollectionsService {
       ? Prisma.empty
       : Prisma.sql`AND c.is_nsfw IS FALSE`;
 
-    const collections = await prisma.$queryRaw<{ id: string; title: string }[]>(
+    const randomId = randomUUID();
+
+    let collections = await prisma.$queryRaw<{ id: string; title: string }[]>(
       Prisma.sql`
-      SELECT c.id, c.title
-      FROM collections c
-      WHERE c.mode = 'PUBLIC'
-        AND c.is_live IS TRUE
-        AND c.num_images >= 2
-        ${whereNSFW}
-        ${whereOwner}
-        ${whereCursor}
-      ORDER BY c.id
-      LIMIT ${limit}
+      WITH candidates AS (
+        (  
+          SELECT c.id, c.title
+          FROM collections c
+          WHERE c.mode = 'PUBLIC'
+            AND c.is_live IS TRUE
+            AND c.num_images >= 2
+            AND c.id >= ${randomId}
+            AND (
+              ${userId}::text IS NULL 
+              OR ${isAdmin} IS TRUE
+              OR c.max_user_votes_per_image IS NULL 
+              OR EXISTS (
+                SELECT 1 
+                FROM user_votes uv
+                LEFT JOIN images i
+                  ON uv.image_id = i.id AND i.collection_id = c.id
+                WHERE (uv.voter_id = ${userId} AND uv.image_id = i.id AND uv.num_votes < c.max_user_votes_per_image) OR i.id IS NULL
+                OFFSET 1
+                LIMIT 1
+              )
+            )
+            ${whereNSFW}
+            ${whereOwner}
+            ${whereCursor}
+          ORDER BY c.id
+          LIMIT ${limit}
+        )
+        UNION ALL
+        (
+          SELECT c.id, c.title
+          FROM collections c
+          WHERE c.mode = 'PUBLIC'
+            AND c.is_live IS TRUE
+            AND c.num_images >= 2
+            AND c.id < ${randomId}
+            AND (
+              ${userId}::text IS NULL 
+              OR ${isAdmin} IS TRUE
+              OR c.max_user_votes_per_image IS NULL 
+              OR EXISTS (
+                SELECT 1 
+                FROM user_votes uv
+                INNER JOIN images i
+                  ON uv.image_id = i.id AND i.collection_id = c.id
+                WHERE (uv.voter_id = ${userId} AND uv.image_id = i.id AND uv.num_votes < c.max_user_votes_per_image) OR i.id IS NULL
+                OFFSET 1
+                LIMIT 1
+              )
+            )
+            ${whereNSFW}
+            ${whereOwner}
+            ${whereCursor}
+          ORDER BY c.id DESC
+          LIMIT ${limit}
+        )
+      )
+      SELECT *
+      FROM candidates
     `,
     );
+
+    if (collections.length < limit) {
+      const numRepetitions = Math.ceil(collections.length / limit);
+
+      for (let i = 1; i <= numRepetitions; i++) {
+        collections.push(...collections);
+      }
+
+      collections.splice(limit);
+    } else if (collections.length > limit) {
+      collections = sampleN(collections, limit);
+    }
 
     const lastCollection = collections.at(-1);
 

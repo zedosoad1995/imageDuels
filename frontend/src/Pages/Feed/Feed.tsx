@@ -1,31 +1,17 @@
-import { Fragment, useContext, useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { feed, vote, VoteOutcome } from "../../Api/duels";
-import {
-  Button,
-  Card,
-  Divider,
-  Flex,
-  Kbd,
-  Stack,
-  Text,
-  Title,
-} from "@mantine/core";
+import { Button, Flex, Text } from "@mantine/core";
 import classes from "./Feed.module.css";
 import { UserContext } from "../../Contexts/UserContext";
 import { modals } from "@mantine/modals";
 import { useNavigate, useLocation } from "react-router";
-import { getDuel } from "../../Api/collections";
 import { useMediaQuery } from "@mantine/hooks";
 import { usePage } from "../../Hooks/usePage";
 import { MEDIA_QUERY_DESKTOP } from "../../Utils/breakpoints";
-import { useInfiniteScroll } from "../../Hooks/useInfiniteScroll";
-import { Image } from "../../Components/Image/Image";
 import DownArrowIcon from "../../assets/svgs/arrow-down.svg?react";
 import { DuelKeyboardHint } from "../../Components/KeyboardHints/KeyboardHints";
 import { useReelsPaging } from "../../Hooks/useReelsPaging";
 import { VoteCards } from "./Components/VoteCards/VoteCards";
-
-const MAX_WIDTH = 1400;
 
 export const Feed = () => {
   const { loggedIn } = useContext(UserContext);
@@ -72,22 +58,21 @@ export const Feed = () => {
     onIndexChange: setActiveIndex,
   });
 
-  const sentinelRef = useInfiniteScroll({
-    hasMore: Boolean(cursor),
-    isLoading,
-    onLoadMore: () => {
-      setIsLoading(true);
-      feed(cursor)
-        .then(({ duels, nextCursor }) => {
-          setDuels((val) => (val ? [...val, ...duels] : null));
-          setCursor(nextCursor);
-        })
-        .finally(() => {
-          setIsLoading(false);
-        });
-    },
-    rootMargin: "2000px",
-  });
+  useEffect(() => {
+    if (isLoading || !duels?.length || activeIndex !== duels.length - 2) {
+      return;
+    }
+
+    setIsLoading(true);
+    feed(cursor)
+      .then(({ duels, nextCursor }) => {
+        setDuels((val) => (val ? [...val, ...duels] : null));
+        setCursor(nextCursor);
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
+  }, [duels, activeIndex]);
 
   useEffect(() => {
     feed().then(({ duels, nextCursor }) => {
@@ -103,12 +88,7 @@ export const Feed = () => {
   };
 
   const handleVote =
-    (
-      outcome: VoteOutcome,
-      token: string | undefined,
-      collectionId: string,
-      index: number
-    ) =>
+    (outcome: VoteOutcome, token: string | undefined) =>
     async (event?: React.MouseEvent<HTMLDivElement>) => {
       event?.stopPropagation();
 
@@ -125,23 +105,6 @@ export const Feed = () => {
 
       setHasVoted(true);
 
-      getDuel(collectionId).then(({ token, image1, image2 }) => {
-        setDuels((duels) => {
-          if (!duels) return duels;
-
-          return duels.map((duel, indexMap) =>
-            index === indexMap
-              ? {
-                  token,
-                  image1,
-                  image2,
-                  collectionId,
-                  collectionName: duel.collectionName,
-                }
-              : duel
-          );
-        });
-      });
       scrollToIndex(activeIndex + 1);
     };
 
@@ -152,19 +115,9 @@ export const Feed = () => {
       if (!duels || isLoadingNextPage()) return;
 
       if (event.key === "ArrowLeft") {
-        await handleVote(
-          "WIN",
-          duels[activeIndex].token,
-          duels[activeIndex].collectionId,
-          activeIndex
-        )();
+        await handleVote("WIN", duels[activeIndex].token)();
       } else if (event.key === "ArrowRight") {
-        await handleVote(
-          "LOSS",
-          duels[activeIndex].token,
-          duels[activeIndex].collectionId,
-          activeIndex
-        )();
+        await handleVote("LOSS", duels[activeIndex].token)();
       }
     };
 
@@ -183,9 +136,6 @@ export const Feed = () => {
         navigate("/register");
       },
     });
-
-  const verticalPadding = isLaptopOrTablet ? 32 : 24;
-  const isDesktop = useMediaQuery(MEDIA_QUERY_DESKTOP);
 
   return (
     <>
@@ -256,11 +206,9 @@ export const Feed = () => {
                     </Button>
                   </Flex>
                   <VoteCards
-                    collectionId={collectionId}
                     handleVote={handleVote}
                     image1={image1}
                     image2={image2}
-                    index={index}
                     token={token}
                   />
                   <Flex justify={"center"} direction={"column"} gap={0} mt={18}>
@@ -285,8 +233,6 @@ export const Feed = () => {
             </div>
           )
         )}
-
-        <div ref={sentinelRef} style={{ height: 1 }} />
       </div>
     </>
   );

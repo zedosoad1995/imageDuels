@@ -2,19 +2,13 @@ import { Card, Flex, Stack } from "@mantine/core";
 import classes from "./VoteCards.module.css";
 import { VoteOutcome } from "../../../../Api/duels";
 import { Image } from "../../../../Components/Image/Image";
-import {
-  MEDIA_QUERY_DESKTOP,
-  MEDIA_QUERY_IS_MOBILE,
-  MEDIA_QUERY_IS_MOBILE_OR_TABLET,
-} from "../../../../Utils/breakpoints";
+import { MEDIA_QUERY_IS_MOBILE_OR_TABLET } from "../../../../Utils/breakpoints";
 import { useMediaQuery } from "@mantine/hooks";
 
 interface Props {
   handleVote: (
     outcome: VoteOutcome,
-    token: string | undefined,
-    collectionId: string,
-    index: number
+    token: string | undefined
   ) => (event?: React.MouseEvent<HTMLDivElement>) => Promise<void>;
   token: string | undefined;
   image1: {
@@ -31,18 +25,9 @@ interface Props {
     availableFormats: string[];
     isSvg: boolean;
   };
-  collectionId: string;
-  index: number;
 }
 
-export const VoteCards = ({
-  handleVote,
-  token,
-  collectionId,
-  image1,
-  image2,
-  index,
-}: Props) => {
+export const VoteCards = ({ handleVote, token, image1, image2 }: Props) => {
   const isMobile = useMediaQuery(MEDIA_QUERY_IS_MOBILE_OR_TABLET);
 
   if (isMobile) {
@@ -51,7 +36,7 @@ export const VoteCards = ({
         <Card
           withBorder
           className={classes.imageCard}
-          onClick={handleVote("WIN", token, collectionId, index)}
+          onClick={handleVote("WIN", token)}
           bg="#FAFAFA"
           radius={12}
         >
@@ -97,7 +82,7 @@ export const VoteCards = ({
         <Card
           withBorder
           className={classes.imageCard}
-          onClick={handleVote("LOSS", token, collectionId, index)}
+          onClick={handleVote("LOSS", token)}
           bg="#FAFAFA"
           radius={12}
         >
@@ -155,7 +140,7 @@ export const VoteCards = ({
       <Card
         withBorder
         className={classes.imageCard}
-        onClick={handleVote("WIN", token, collectionId, index)}
+        onClick={handleVote("WIN", token)}
         bg="#FAFAFA"
         radius={12}
       >
@@ -201,7 +186,7 @@ export const VoteCards = ({
       <Card
         withBorder
         className={classes.imageCard}
-        onClick={handleVote("LOSS", token, collectionId, index)}
+        onClick={handleVote("LOSS", token)}
         bg="#FAFAFA"
         radius={12}
       >

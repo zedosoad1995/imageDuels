@@ -201,7 +201,9 @@ export class CollectionsController {
     @LoggedUser({ fetchUser: true }) user: User | null,
     @Param('collectionId') collectionId: string,
   ) {
-    const [image1, image2] = await this.imagesService.getMatchImages(
+    const {
+      duel: [image1, image2],
+    } = await this.imagesService.getMatchImages(
       collectionId,
       user?.id,
       user?.role === 'ADMIN',

@@ -13,3 +13,14 @@ export const generateRandomString = (length: number) => {
 
   return res;
 };
+
+export function sampleN<T>(arr: T[], n: number): T[] {
+  if (n > arr.length) throw new Error('n > array length');
+
+  const copy = arr.slice();
+  for (let i = copy.length - 1; i >= copy.length - n; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [copy[i], copy[j]] = [copy[j], copy[i]];
+  }
+  return copy.slice(copy.length - n);
+}

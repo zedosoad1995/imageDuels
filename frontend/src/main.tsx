@@ -68,16 +68,14 @@ const router = createBrowserRouter([
 ]);
 
 createRoot(document.getElementById("root")!).render(
-  <StrictMode>
-    <MantineProvider theme={createTheme(theme)}>
-      <Notifications />
-      <ModalsProvider>
-        <PageProvider>
-          <UserProvider>
-            <RouterProvider router={router} />
-          </UserProvider>
-        </PageProvider>
-      </ModalsProvider>
-    </MantineProvider>
-  </StrictMode>
+  <MantineProvider theme={createTheme(theme)}>
+    <Notifications />
+    <ModalsProvider>
+      <PageProvider>
+        <UserProvider>
+          <RouterProvider router={router} />
+        </UserProvider>
+      </PageProvider>
+    </ModalsProvider>
+  </MantineProvider>
 );

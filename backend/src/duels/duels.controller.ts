@@ -1,11 +1,12 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Get,
   HttpCode,
+  InternalServerErrorException,
   Post,
   Query,
-  Res,
   UseGuards,
   UsePipes,
 } from '@nestjs/common';
@@ -37,7 +38,8 @@ export class DuelsController {
       await this.collectionService.getManyForUserFeed({
         userId: user?.id,
         showNSFW: user?.canSeeNSFW,
-        limit: 20,
+        isAdmin: user?.role === 'ADMIN',
+        limit: 5,
         cursor,
       });
 
@@ -48,31 +50,38 @@ export class DuelsController {
     );
 
     const tokens = await Promise.all(
-      duels.map(([img1, img2]) =>
+      duels.map(({ duel: [img1, img2] }) =>
         this.duelsService.generateToken(img1.id, img2.id),
       ),
     );
 
     return {
-      duels: duels.map((duel, index) => ({
-        image1: pick(duel[0], [
-          'availableFormats',
-          'availableWidths',
-          'filepath',
-          'hasPlaceholder',
-          'isSvg',
-        ]),
-        image2: pick(duel[1], [
-          'availableFormats',
-          'availableWidths',
-          'filepath',
-          'hasPlaceholder',
-          'isSvg',
-        ]),
-        token: tokens[index],
-        collectionId: collections[index].id,
-        collectionName: collections[index].title,
-      })),
+      duels: duels.map(({ duel, collectionId }, index) => {
+        const collection = collections.find(({ id }) => id === collectionId);
+        if (!collection) {
+          throw new InternalServerErrorException();
+        }
+
+        return {
+          image1: pick(duel[0], [
+            'availableFormats',
+            'availableWidths',
+            'filepath',
+            'hasPlaceholder',
+            'isSvg',
+          ]),
+          image2: pick(duel[1], [
+            'availableFormats',
+            'availableWidths',
+            'filepath',
+            'hasPlaceholder',
+            'isSvg',
+          ]),
+          token: tokens[index],
+          collectionId: collection.id,
+          collectionName: collection.title,
+        };
+      }),
       nextCursor,
     };
   }
