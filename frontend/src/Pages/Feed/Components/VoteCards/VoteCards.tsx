@@ -1,4 +1,4 @@
-import { Card, Flex, Stack } from "@mantine/core";
+import { Card, Flex, Stack, Checkbox } from "@mantine/core";
 import classes from "./VoteCards.module.css";
 import { VoteOutcome } from "../../../../Api/duels";
 import { Image } from "../../../../Components/Image/Image";
@@ -17,6 +17,7 @@ interface Props {
     availableWidths: number[];
     availableFormats: string[];
     isSvg: boolean;
+    winProb?: number;
   };
   image2: {
     filepath: string;
@@ -24,10 +25,20 @@ interface Props {
     availableWidths: number[];
     availableFormats: string[];
     isSvg: boolean;
+    winProb?: number;
   };
+  isProcessingVote?: boolean;
+  winnerImage?: "image1" | "image2";
 }
 
-export const VoteCards = ({ handleVote, token, image1, image2 }: Props) => {
+export const VoteCards = ({
+  handleVote,
+  token,
+  image1,
+  image2,
+  isProcessingVote = false,
+  winnerImage,
+}: Props) => {
   const isMobile = useMediaQuery(MEDIA_QUERY_IS_MOBILE_OR_TABLET);
 
   if (isMobile) {
@@ -39,6 +50,12 @@ export const VoteCards = ({ handleVote, token, image1, image2 }: Props) => {
           onClick={handleVote("WIN", token)}
           bg="#FAFAFA"
           radius={12}
+          style={{
+            boxShadow:
+              isProcessingVote && winnerImage === "image1"
+                ? "0 0 6px 4px rgba(0, 0, 0, 0.5)"
+                : undefined,
+          }}
         >
           <Card.Section
             withBorder
@@ -49,6 +66,64 @@ export const VoteCards = ({ handleVote, token, image1, image2 }: Props) => {
               flex: 1,
             }}
           >
+            {isProcessingVote && (
+              <>
+                {winnerImage === "image1" && (
+                  <Checkbox
+                    radius="xl"
+                    checked
+                    variant="filled"
+                    size="md"
+                    style={{
+                      position: "absolute",
+                      zIndex: 100,
+                      left: "10px",
+                      top: "10px",
+                    }}
+                    styles={{
+                      input: {
+                        backgroundColor: "#fff",
+                        border: 0,
+                      },
+                      icon: {
+                        color: "#000",
+                      },
+                    }}
+                  />
+                )}
+                <div
+                  style={{
+                    width: "100%",
+                    backgroundColor: "#00000060",
+                    zIndex: 99,
+                  }}
+                ></div>
+                {image1.winProb !== undefined && (
+                  <p
+                    style={{
+                      position: "absolute",
+                      top: "50%",
+                      left: "50%",
+                      transform: "translateX(-50%) translateY(-50%)",
+                      color: "white",
+                      fontSize: 60,
+                      fontWeight: 600,
+                      zIndex: 100,
+                      margin: 0,
+                    }}
+                  >
+                    {(image1.winProb * 100).toFixed(1)}
+                    <span
+                      style={{
+                        fontSize: 30,
+                      }}
+                    >
+                      %
+                    </span>
+                  </p>
+                )}
+              </>
+            )}
             <Image
               {...image1}
               style={{
@@ -85,6 +160,12 @@ export const VoteCards = ({ handleVote, token, image1, image2 }: Props) => {
           onClick={handleVote("LOSS", token)}
           bg="#FAFAFA"
           radius={12}
+          style={{
+            boxShadow:
+              isProcessingVote && winnerImage === "image2"
+                ? "0 0 6px 4px rgba(0, 0, 0, 0.5)"
+                : undefined,
+          }}
         >
           <Card.Section
             withBorder
@@ -95,6 +176,64 @@ export const VoteCards = ({ handleVote, token, image1, image2 }: Props) => {
               flex: 1,
             }}
           >
+            {isProcessingVote && (
+              <>
+                {winnerImage === "image2" && (
+                  <Checkbox
+                    radius="xl"
+                    checked
+                    variant="filled"
+                    size="md"
+                    style={{
+                      position: "absolute",
+                      zIndex: 100,
+                      left: "10px",
+                      top: "10px",
+                    }}
+                    styles={{
+                      input: {
+                        backgroundColor: "#fff",
+                        border: 0,
+                      },
+                      icon: {
+                        color: "#000",
+                      },
+                    }}
+                  />
+                )}
+                <div
+                  style={{
+                    width: "100%",
+                    backgroundColor: "#00000060",
+                    zIndex: 99,
+                  }}
+                ></div>
+                {image2.winProb !== undefined && (
+                  <p
+                    style={{
+                      position: "absolute",
+                      top: "50%",
+                      left: "50%",
+                      transform: "translateX(-50%) translateY(-50%)",
+                      color: "white",
+                      fontSize: 60,
+                      fontWeight: 600,
+                      zIndex: 100,
+                      margin: 0,
+                    }}
+                  >
+                    {(image2.winProb * 100).toFixed(1)}
+                    <span
+                      style={{
+                        fontSize: 30,
+                      }}
+                    >
+                      %
+                    </span>
+                  </p>
+                )}
+              </>
+            )}
             <Image
               {...image2}
               style={{
@@ -143,6 +282,12 @@ export const VoteCards = ({ handleVote, token, image1, image2 }: Props) => {
         onClick={handleVote("WIN", token)}
         bg="#FAFAFA"
         radius={12}
+        style={{
+          boxShadow:
+            isProcessingVote && winnerImage === "image1"
+              ? "0 0 6px 4px rgba(0, 0, 0, 0.5)"
+              : undefined,
+        }}
       >
         <Card.Section
           withBorder
@@ -153,6 +298,64 @@ export const VoteCards = ({ handleVote, token, image1, image2 }: Props) => {
             flex: 1,
           }}
         >
+          {isProcessingVote && (
+            <>
+              {winnerImage === "image1" && (
+                <Checkbox
+                  radius="xl"
+                  checked
+                  variant="filled"
+                  size="lg"
+                  style={{
+                    position: "absolute",
+                    zIndex: 100,
+                    left: "15px",
+                    top: "15px",
+                  }}
+                  styles={{
+                    input: {
+                      backgroundColor: "#fff",
+                      border: 0,
+                    },
+                    icon: {
+                      color: "#000",
+                    },
+                  }}
+                />
+              )}
+              <div
+                style={{
+                  width: "100%",
+                  backgroundColor: "#00000060",
+                  zIndex: 99,
+                }}
+              ></div>
+              {image1.winProb !== undefined && (
+                <p
+                  style={{
+                    position: "absolute",
+                    top: "50%",
+                    left: "50%",
+                    transform: "translateX(-50%) translateY(-50%)",
+                    color: "white",
+                    fontSize: 100,
+                    fontWeight: 600,
+                    zIndex: 100,
+                    margin: 0,
+                  }}
+                >
+                  {(image1.winProb * 100).toFixed(1)}
+                  <span
+                    style={{
+                      fontSize: 50,
+                    }}
+                  >
+                    %
+                  </span>
+                </p>
+              )}
+            </>
+          )}
           <Image
             {...image1}
             style={{
@@ -189,6 +392,12 @@ export const VoteCards = ({ handleVote, token, image1, image2 }: Props) => {
         onClick={handleVote("LOSS", token)}
         bg="#FAFAFA"
         radius={12}
+        style={{
+          boxShadow:
+            isProcessingVote && winnerImage === "image2"
+              ? "0 0 6px 4px rgba(0, 0, 0, 0.5)"
+              : undefined,
+        }}
       >
         <Card.Section
           withBorder
@@ -199,6 +408,64 @@ export const VoteCards = ({ handleVote, token, image1, image2 }: Props) => {
             flex: 1,
           }}
         >
+          {isProcessingVote && (
+            <>
+              {winnerImage === "image2" && (
+                <Checkbox
+                  radius="xl"
+                  checked
+                  variant="filled"
+                  size="lg"
+                  style={{
+                    position: "absolute",
+                    zIndex: 100,
+                    left: "15px",
+                    top: "15px",
+                  }}
+                  styles={{
+                    input: {
+                      backgroundColor: "#fff",
+                      border: 0,
+                    },
+                    icon: {
+                      color: "#000",
+                    },
+                  }}
+                />
+              )}
+              <div
+                style={{
+                  width: "100%",
+                  backgroundColor: "#00000060",
+                  zIndex: 99,
+                }}
+              ></div>
+              {image2.winProb !== undefined && (
+                <p
+                  style={{
+                    position: "absolute",
+                    top: "50%",
+                    left: "50%",
+                    transform: "translateX(-50%) translateY(-50%)",
+                    color: "white",
+                    fontSize: 100,
+                    fontWeight: 600,
+                    zIndex: 100,
+                    margin: 0,
+                  }}
+                >
+                  {(image2.winProb * 100).toFixed(1)}
+                  <span
+                    style={{
+                      fontSize: 50,
+                    }}
+                  >
+                    %
+                  </span>
+                </p>
+              )}
+            </>
+          )}
           <Image
             {...image2}
             style={{

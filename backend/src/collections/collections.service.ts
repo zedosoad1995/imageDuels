@@ -243,11 +243,13 @@ export class CollectionsService {
 
     const randomId = randomUUID();
 
-    let collections = await prisma.$queryRaw<{ id: string; title: string }[]>(
+    let collections = await prisma.$queryRaw<
+      { id: string; title: string; question?: string }[]
+    >(
       Prisma.sql`
       WITH candidates AS (
         (  
-          SELECT c.id, c.title
+          SELECT c.id, c.title, c.question
           FROM collections c
           WHERE c.mode = 'PUBLIC'
             AND c.is_live IS TRUE
@@ -275,7 +277,7 @@ export class CollectionsService {
         )
         UNION ALL
         (
-          SELECT c.id, c.title
+          SELECT c.id, c.title, c.question
           FROM collections c
           WHERE c.mode = 'PUBLIC'
             AND c.is_live IS TRUE

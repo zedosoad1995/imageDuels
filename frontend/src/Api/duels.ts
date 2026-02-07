@@ -13,6 +13,7 @@ export const feed = (
       availableWidths: number[];
       availableFormats: string[];
       isSvg: boolean;
+      winProb?: number;
     };
     image2: {
       filepath: string;
@@ -20,9 +21,11 @@ export const feed = (
       availableWidths: number[];
       availableFormats: string[];
       isSvg: boolean;
+      winProb?: number;
     };
     collectionId: string;
     collectionName: string;
+    collectionQuestion?: string;
   }[];
   nextCursor: string | null;
 }> => {

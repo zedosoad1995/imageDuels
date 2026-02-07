@@ -86,6 +86,7 @@ export type IGetDuel = {
     availableWidths: number[];
     availableFormats: string[];
     isSvg: boolean;
+    winProb?: number;
   };
   image2: {
     filepath: string;
@@ -93,5 +94,6 @@ export type IGetDuel = {
     availableWidths: number[];
     availableFormats: string[];
     isSvg: boolean;
+    winProb?: number;
   };
 };

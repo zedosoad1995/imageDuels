@@ -1,6 +1,6 @@
 import { useContext, useEffect, useRef, useState } from "react";
 import { feed, vote, VoteOutcome } from "../../Api/duels";
-import { Button, Flex, Text } from "@mantine/core";
+import { Button, Flex, Text, Checkbox } from "@mantine/core";
 import classes from "./Feed.module.css";
 import { UserContext } from "../../Contexts/UserContext";
 import { modals } from "@mantine/modals";
@@ -32,6 +32,7 @@ export const Feed = () => {
           availableWidths: number[];
           availableFormats: string[];
           isSvg: boolean;
+          winProb?: number;
         };
         image2: {
           filepath: string;
@@ -39,15 +40,19 @@ export const Feed = () => {
           availableWidths: number[];
           availableFormats: string[];
           isSvg: boolean;
+          winProb?: number;
         };
         collectionId: string;
         collectionName: string;
+        collectionQuestion?: string;
       }[]
     | null
   >(null);
   const [cursor, setCursor] = useState<string | null | undefined>();
   const [isLoading, setIsLoading] = useState(false);
   const [hasVoted, setHasVoted] = useState(false);
+  const [isProcessingVote, setIsProcessingVote] = useState(false);
+  const [winnerImage, setWinnerImage] = useState<"image1" | "image2">();
 
   const [activeIndex, setActiveIndex] = useState(0);
 
@@ -101,9 +106,21 @@ export const Feed = () => {
         return;
       }
 
+      if (isProcessingVote) {
+        return;
+      }
+
+      setWinnerImage(outcome === "WIN" ? "image1" : "image2");
+      setIsProcessingVote(true);
+
       await vote(token, outcome);
 
       setHasVoted(true);
+
+      await new Promise((promise) => setTimeout(promise, 1000));
+
+      setIsProcessingVote(false);
+      setWinnerImage(undefined);
 
       scrollToIndex(activeIndex + 1);
     };
@@ -156,7 +173,17 @@ export const Feed = () => {
         className={classes.hideScrollbar}
       >
         {duels?.map(
-          ({ image1, image2, token, collectionId, collectionName }, index) => (
+          (
+            {
+              image1,
+              image2,
+              token,
+              collectionId,
+              collectionName,
+              collectionQuestion,
+            },
+            index
+          ) => (
             <div
               key={index}
               style={{
@@ -205,11 +232,21 @@ export const Feed = () => {
                       {collectionName}
                     </Button>
                   </Flex>
+                  <Text
+                    fw={600}
+                    size={isLaptopOrTablet ? "28px" : "22px"}
+                    pb={16}
+                    style={{ textAlign: "center" }}
+                  >
+                    {collectionQuestion || "Which image is better?"}
+                  </Text>
                   <VoteCards
                     handleVote={handleVote}
                     image1={image1}
                     image2={image2}
                     token={token}
+                    isProcessingVote={isProcessingVote}
+                    winnerImage={winnerImage}
                   />
                   <Flex justify={"center"} direction={"column"} gap={0} mt={18}>
                     <Button

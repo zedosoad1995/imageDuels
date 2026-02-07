@@ -223,6 +223,7 @@ export class CollectionsController {
         'filepath',
         'hasPlaceholder',
         'isSvg',
+        'winProb',
       ]),
       image2: pick(image2, [
         'availableFormats',
@@ -230,6 +231,7 @@ export class CollectionsController {
         'filepath',
         'hasPlaceholder',
         'isSvg',
+        'winProb',
       ]),
     };
   }

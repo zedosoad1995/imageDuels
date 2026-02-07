@@ -16,6 +16,7 @@ import { imageSize } from 'image-size';
 import * as fsPromises from 'fs/promises';
 import * as path from 'path';
 import * as sharp from 'sharp';
+import { Glicko2Service } from 'src/providers/rating/glicko2/glicko2.service';
 
 const UPLOAD_FOLDER = './uploads';
 
@@ -32,6 +33,8 @@ function makeId() {
 
 @Injectable()
 export class ImagesService {
+  constructor(private readonly glicko2: Glicko2Service) {}
+
   async create(collectionId: string, imageFile: Express.Multer.File) {
     const collection = await prisma.collection.findUnique({
       where: { id: collectionId },
@@ -202,13 +205,26 @@ export class ImagesService {
         filepath: string;
         numVotes: number;
         rating: number;
+        ratingDeviation: number;
+        volatility: number;
+        winProb: number;
         hasPlaceholder: boolean;
         availableWidths: number[];
         availableFormats: string[];
         isSvg: boolean;
       }[]
     >(Prisma.sql`
-      SELECT i.id, i.filepath, i.num_votes AS "numVotes", i.rating, i.has_placeholder AS "hasPlaceholder", i.available_widths AS "availableWidths", i.available_formats AS "availableFormats", i.is_svg AS "isSvg"
+      SELECT 
+        i.id, 
+        i.filepath, 
+        i.num_votes AS "numVotes", 
+        i.rating,
+        i.rating_deviation AS "ratingDeviation",
+        i.volatility,
+        i.has_placeholder AS "hasPlaceholder", 
+        i.available_widths AS "availableWidths", 
+        i.available_formats AS "availableFormats", 
+        i.is_svg AS "isSvg"
       FROM images i
       INNER JOIN collections c ON c.id = i.collection_id
       WHERE
@@ -239,12 +255,15 @@ export class ImagesService {
 
     const image1 = lowestVotesImages[randInt(lowestVotesImages.length - 1)];
 
-    const candidateImagesLow = await prisma.$queryRaw<
+    const candidateImages = await prisma.$queryRaw<
       {
         id: string;
         filepath: string;
         numVotes: number;
         rating: number;
+        ratingDeviation: number;
+        volatility: number;
+        winProb: number;
         votedDaysAgo: number | null;
         hasPlaceholder: boolean;
         availableWidths: number[];
@@ -252,34 +271,47 @@ export class ImagesService {
         isSvg: boolean;
       }[]
     >(Prisma.sql`
-      SELECT id, filepath, num_votes AS "numVotes", rating, (CURRENT_DATE - last_vote_at::date) AS "votedDaysAgo", has_placeholder AS "hasPlaceholder", available_widths AS "availableWidths", available_formats AS "availableFormats", is_svg AS "isSvg"
-      FROM images
-      WHERE collection_id = ${collectionId} AND (rating, id) < (${image1.rating}, ${image1.id})
-      ORDER BY rating DESC
-      LIMIT 100
+      SELECT *
+      FROM (
+        (
+          SELECT 
+            id, 
+            filepath, 
+            num_votes AS "numVotes", 
+            rating, 
+            rating_deviation AS "ratingDeviation",
+            volatility,
+            (CURRENT_DATE - last_vote_at::date) AS "votedDaysAgo", 
+            has_placeholder AS "hasPlaceholder", 
+            available_widths AS "availableWidths", 
+            available_formats AS "availableFormats", 
+            is_svg AS "isSvg"
+          FROM images
+          WHERE collection_id = ${collectionId} AND (rating, id) < (${image1.rating}, ${image1.id})
+          ORDER BY rating DESC
+          LIMIT 100
+        )
+        UNION ALL
+        (
+          SELECT 
+            id, 
+            filepath, 
+            num_votes AS "numVotes", 
+            rating, 
+            rating_deviation AS "ratingDeviation",
+            volatility,
+            (CURRENT_DATE - last_vote_at::date) AS "votedDaysAgo", 
+            has_placeholder AS "hasPlaceholder", 
+            available_widths AS "availableWidths", 
+            available_formats AS "availableFormats", 
+            is_svg AS "isSvg"
+          FROM images
+          WHERE collection_id = ${collectionId} AND (rating, id) > (${image1.rating}, ${image1.id})
+          ORDER BY rating ASC
+          LIMIT 100
+        )
+      )
     `);
-
-    const candidateImagesHigh = await prisma.$queryRaw<
-      {
-        id: string;
-        filepath: string;
-        numVotes: number;
-        rating: number;
-        votedDaysAgo: number | null;
-        hasPlaceholder: boolean;
-        availableWidths: number[];
-        availableFormats: string[];
-        isSvg: boolean;
-      }[]
-    >(Prisma.sql`
-      SELECT id, filepath, num_votes AS "numVotes", rating, (CURRENT_DATE - last_vote_at::date) AS "votedDaysAgo", has_placeholder AS "hasPlaceholder", available_widths AS "availableWidths", available_formats AS "availableFormats", is_svg AS "isSvg"
-      FROM images
-      WHERE collection_id = ${collectionId} AND (rating, id) > (${image1.rating}, ${image1.id})
-      ORDER BY rating ASC
-      LIMIT 100
-    `);
-
-    const candidateImages = [...candidateImagesLow, ...candidateImagesHigh];
 
     const maxVotedDaysAgo =
       Math.max(...candidateImages.map((i) => i.votedDaysAgo ?? 0)) || 1;
@@ -315,6 +347,9 @@ export class ImagesService {
         break;
       }
     }
+
+    image1.winProb = this.glicko2.getWinProbability(image1, image2);
+    image2.winProb = 1 - image1.winProb;
 
     if (Math.random() < 0.5) {
       return { duel: [image2, image1], collectionId };

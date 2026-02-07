@@ -69,6 +69,7 @@ export class DuelsController {
             'filepath',
             'hasPlaceholder',
             'isSvg',
+            'winProb',
           ]),
           image2: pick(duel[1], [
             'availableFormats',
@@ -76,10 +77,12 @@ export class DuelsController {
             'filepath',
             'hasPlaceholder',
             'isSvg',
+            'winProb',
           ]),
           token: tokens[index],
           collectionId: collection.id,
           collectionName: collection.title,
+          collectionQuestion: collection.question,
         };
       }),
       nextCursor,
