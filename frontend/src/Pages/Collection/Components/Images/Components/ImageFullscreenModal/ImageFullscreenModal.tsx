@@ -312,7 +312,7 @@ export const ImageFullScreenModal = ({
             }
 
             const isSvg =
-              isSvgRaw ?? filepath.split("?")[0].toLowerCase().endsWith(".svg");
+              filepath.split("?")[0].toLowerCase().endsWith(".svg") || isSvgRaw;
 
             const maxDim = Math.max(height, width);
 
@@ -328,6 +328,8 @@ export const ImageFullScreenModal = ({
                 transformedW = width;
               }
             }
+
+            console.log(transformedH, transformedW);
 
             return (
               <Carousel.Slide
@@ -389,7 +391,7 @@ export const ImageFullScreenModal = ({
                       filepath={filepath}
                       availableWidths={availableWidths}
                       hasPlaceholder={hasPlaceholder}
-                      isSvg={isSvg}
+                      isSvg={isSvgRaw}
                       style={{
                         margin: "0 auto",
                         objectFit: "contain",
