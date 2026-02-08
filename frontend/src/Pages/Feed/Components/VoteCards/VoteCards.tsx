@@ -72,6 +72,7 @@ export const VoteCards = ({
                   <Checkbox
                     radius="xl"
                     checked
+                    readOnly
                     variant="filled"
                     size="md"
                     style={{
@@ -182,6 +183,7 @@ export const VoteCards = ({
                   <Checkbox
                     radius="xl"
                     checked
+                    readOnly
                     variant="filled"
                     size="md"
                     style={{
@@ -304,6 +306,7 @@ export const VoteCards = ({
                 <Checkbox
                   radius="xl"
                   checked
+                  readOnly
                   variant="filled"
                   size="lg"
                   style={{
@@ -414,6 +417,7 @@ export const VoteCards = ({
                 <Checkbox
                   radius="xl"
                   checked
+                  readOnly
                   variant="filled"
                   size="lg"
                   style={{

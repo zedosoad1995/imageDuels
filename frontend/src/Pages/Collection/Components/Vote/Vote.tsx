@@ -90,7 +90,7 @@ export const Vote = ({ collection }: Props) => {
       setWinnerImage(outcome === "WIN" ? "image1" : "image2");
 
       setIsProcessingVote(true);
-      await new Promise((promise) => setTimeout(promise, 1000));
+      await new Promise((promise) => setTimeout(promise, 800));
 
       getDuel(collectionId)
         .then(({ token, image1, image2 }) => {
@@ -109,7 +109,7 @@ export const Vote = ({ collection }: Props) => {
           setWinnerImage(undefined);
         });
     },
-    [token, collectionId, loggedIn]
+    [token, collectionId, loggedIn, isProcessingVote]
   );
 
   useEffect(() => {
@@ -222,6 +222,7 @@ export const Vote = ({ collection }: Props) => {
                     <Checkbox
                       radius="xl"
                       checked
+                      readOnly
                       variant="filled"
                       size="md"
                       style={{
@@ -339,6 +340,7 @@ export const Vote = ({ collection }: Props) => {
                     <Checkbox
                       radius="xl"
                       checked
+                      readOnly
                       variant="filled"
                       size="md"
                       style={{
@@ -459,6 +461,7 @@ export const Vote = ({ collection }: Props) => {
                     <Checkbox
                       radius="xl"
                       checked
+                      readOnly
                       variant="filled"
                       size="lg"
                       style={{
@@ -575,6 +578,7 @@ export const Vote = ({ collection }: Props) => {
                     <Checkbox
                       radius="xl"
                       checked
+                      readOnly
                       variant="filled"
                       size="lg"
                       style={{

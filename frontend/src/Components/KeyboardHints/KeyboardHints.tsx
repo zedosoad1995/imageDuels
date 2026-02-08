@@ -1,4 +1,10 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 
 type Props = {
   hasVoted: boolean;
@@ -40,18 +46,21 @@ export function DuelKeyboardHint({
     unmountTimerRef.current = null;
   };
 
-  const beginHide = () => {
-    if (phase !== "shown") return;
-    clearTimers();
-    setPhase("hiding");
-    markSeen();
-
-    // after fade, unmount
-    unmountTimerRef.current = window.setTimeout(() => {
-      setPhase("hidden");
+  const beginHide = useCallback(() => {
+    setPhase((currentPhase) => {
+      if (currentPhase !== "shown") return currentPhase;
       clearTimers();
-    }, fadeMs);
-  };
+      markSeen();
+
+      // after fade, unmount
+      unmountTimerRef.current = window.setTimeout(() => {
+        setPhase("hidden");
+        clearTimers();
+      }, fadeMs);
+
+      return "hiding";
+    });
+  }, [fadeMs, storageKey]);
 
   useEffect(() => {
     const isTouch =
@@ -73,13 +82,13 @@ export function DuelKeyboardHint({
 
     return () => clearTimers();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [beginHide]);
 
   // Hide as soon as user votes
   useEffect(() => {
     if (phase === "shown" && hasVoted) beginHide();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hasVoted, phase]);
+  }, [hasVoted, phase, beginHide]);
 
   // Hide on first keyboard interaction
   useEffect(() => {
@@ -88,7 +97,7 @@ export function DuelKeyboardHint({
     window.addEventListener("keydown", onKeyDown, { once: true });
     return () => window.removeEventListener("keydown", onKeyDown);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [phase]);
+  }, [phase, beginHide]);
 
   // Don’t render at all when hidden
 

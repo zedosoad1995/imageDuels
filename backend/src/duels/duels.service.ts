@@ -44,6 +44,7 @@ export class DuelsService {
     return this.jwtService.signAsync({
       image1: imgId1,
       image2: imgId2,
+      rand: Math.random(),
     });
   }
 

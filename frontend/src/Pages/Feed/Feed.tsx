@@ -1,6 +1,13 @@
-import { useContext, useEffect, useRef, useState } from "react";
+import {
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { feed, vote, VoteOutcome } from "../../Api/duels";
-import { Button, Flex, Text, Checkbox } from "@mantine/core";
+import { Button, Flex, Text } from "@mantine/core";
 import classes from "./Feed.module.css";
 import { UserContext } from "../../Contexts/UserContext";
 import { modals } from "@mantine/modals";
@@ -60,7 +67,12 @@ export const Feed = () => {
     feedRef,
     itemRefs,
     count: duels?.length ?? 0,
-    onIndexChange: setActiveIndex,
+    onIndexChange: (i: number) => {
+      setWinnerImage(undefined);
+      setIsProcessingVote(false);
+      setActiveIndex(i);
+      setHasVoted(true);
+    },
   });
 
   useEffect(() => {
@@ -92,38 +104,42 @@ export const Feed = () => {
     });
   };
 
-  const handleVote =
+  const handleVote = useCallback(
     (outcome: VoteOutcome, token: string | undefined) =>
-    async (event?: React.MouseEvent<HTMLDivElement>) => {
-      event?.stopPropagation();
+      async (event?: React.MouseEvent<HTMLDivElement>) => {
+        event?.stopPropagation();
 
-      if (!loggedIn) {
-        openSignUpModal();
-        return;
-      }
+        if (!loggedIn) {
+          openSignUpModal();
+          return;
+        }
 
-      if (!token) {
-        return;
-      }
+        if (!token) {
+          return;
+        }
 
-      if (isProcessingVote) {
-        return;
-      }
+        if (isProcessingVote) {
+          return;
+        }
 
-      setWinnerImage(outcome === "WIN" ? "image1" : "image2");
-      setIsProcessingVote(true);
+        setWinnerImage(outcome === "WIN" ? "image1" : "image2");
+        setIsProcessingVote(true);
 
-      await vote(token, outcome);
+        await vote(token, outcome);
 
-      setHasVoted(true);
+        setHasVoted(true);
 
-      await new Promise((promise) => setTimeout(promise, 1000));
+        await new Promise((promise) => setTimeout(promise, 300));
 
-      setIsProcessingVote(false);
-      setWinnerImage(undefined);
+        setIsProcessingVote(false);
+        setWinnerImage(undefined);
 
-      scrollToIndex(activeIndex + 1);
-    };
+        scrollToIndex(activeIndex + 1);
+
+        await new Promise((promise) => setTimeout(promise, 300));
+      },
+    [activeIndex, loggedIn, isProcessingVote]
+  );
 
   useEffect(() => {
     if (!loggedIn) return;
@@ -154,6 +170,15 @@ export const Feed = () => {
       },
     });
 
+  const [virtualizedDuels, offsetIndex] = useMemo(() => {
+    if (!duels) return [duels, 0];
+
+    return [
+      duels.slice(Math.max(activeIndex - 5, 0), activeIndex + 5),
+      Math.max(activeIndex - 5, 0),
+    ];
+  }, [duels?.length, activeIndex]);
+
   return (
     <>
       {/* {isDesktop && (
@@ -172,7 +197,12 @@ export const Feed = () => {
         }}
         className={classes.hideScrollbar}
       >
-        {duels?.map(
+        <div
+          style={{
+            height: `${offsetIndex * 100}vh`,
+          }}
+        ></div>
+        {virtualizedDuels?.map(
           (
             {
               image1,
@@ -185,7 +215,7 @@ export const Feed = () => {
             index
           ) => (
             <div
-              key={index}
+              key={token}
               style={{
                 minHeight: "100vh",
                 display: "flex",
@@ -195,7 +225,7 @@ export const Feed = () => {
                 paddingBottom: isLaptopOrTablet ? 0 : 48,
               }}
               ref={(el) => {
-                itemRefs.current[index] = el;
+                itemRefs.current[index + offsetIndex] = el;
               }}
               className={classes.feedEl}
             >
@@ -255,7 +285,7 @@ export const Feed = () => {
                       mx={"auto"}
                       radius={"xl"}
                       onClick={() => {
-                        scrollToIndex(activeIndex + 1);
+                        scrollToIndex(activeIndex + 1 - offsetIndex);
                       }}
                     >
                       <Flex justify={"center"} align={"center"} gap={4}>

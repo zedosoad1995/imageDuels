@@ -103,7 +103,7 @@ export class CollectionsService {
 
       if (isCursorValid) {
         where.push(
-          Prisma.sql`((c.num_votes, c.id) < (${decodedCursor.lastTotalVotes}, ${decodedCursor.lastId})`,
+          Prisma.sql`(c.num_votes, c.id) < (${decodedCursor.lastTotalVotes}, ${decodedCursor.lastId})`,
         );
       }
     }
