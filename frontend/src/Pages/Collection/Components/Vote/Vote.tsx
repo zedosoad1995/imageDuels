@@ -9,6 +9,7 @@ import {
   Title,
   Center,
   Checkbox,
+  Skeleton,
 } from "@mantine/core";
 import { getDuel } from "../../../../Api/collections";
 import { useCallback, useContext, useEffect, useRef, useState } from "react";
@@ -21,6 +22,8 @@ import { modals } from "@mantine/modals";
 import { Image } from "../../../../Components/Image/Image";
 import { useMediaQuery } from "@mantine/hooks";
 import { MEDIA_QUERY_IS_MOBILE } from "../../../../Utils/breakpoints";
+
+const VOTE_ANIMATION_TIME = 500;
 
 interface Props {
   collection: IGetCollection;
@@ -38,6 +41,7 @@ export const Vote = ({ collection }: Props) => {
   const [duelToken, setDuelToken] = useState<string>();
   const [winnerImage, setWinnerImage] = useState<"image1" | "image2">();
   const [isProcessingVote, setIsProcessingVote] = useState(false);
+  const [hasLoaded, setHasLoaded] = useState(false);
   const { loggedIn } = useContext(UserContext);
 
   const nextSwapRef = useRef<{
@@ -62,6 +66,9 @@ export const Vote = ({ collection }: Props) => {
         setImage1(undefined);
         setImage2(undefined);
         setDuelToken(undefined);
+      })
+      .finally(() => {
+        setHasLoaded(true);
       });
   }, [collectionId]);
 
@@ -98,7 +105,9 @@ export const Vote = ({ collection }: Props) => {
       setIsProcessingVote(true);
       setWinnerImage(outcome === "WIN" ? "image1" : "image2");
 
-      const timerP = new Promise<void>((r) => setTimeout(r, 800));
+      const timerP = new Promise<void>((r) =>
+        setTimeout(r, VOTE_ANIMATION_TIME)
+      );
 
       const fetchP = vote(duelToken, outcome).then(() =>
         getDuel(collectionId)
@@ -155,6 +164,78 @@ export const Vote = ({ collection }: Props) => {
   }, [handleVote]);
 
   // TODO: Display 2 images to vote when not logged in, but when user clicks, show modal to sign up
+
+  if (!hasLoaded) {
+    return (
+      <Container
+        size={"lg"}
+        px={0}
+        flex={1}
+        display="flex"
+        style={{ flexDirection: "column", width: "100%" }}
+      >
+        <Skeleton height={28} width={200} mb={8} />
+        {isMobile ? (
+          <Stack gap={4} align="center" style={{ width: "100%", flex: 1 }}>
+            <Card withBorder bg="#FAFAFA" radius={12} style={{ width: "100%" }}>
+              <Card.Section
+                withBorder
+                style={{
+                  display: "flex",
+                  position: "relative",
+                  minHeight: "400px",
+                }}
+              >
+                <Skeleton height="100%" width="100%" />
+              </Card.Section>
+            </Card>
+            <Card withBorder bg="#FAFAFA" radius={12} style={{ width: "100%" }}>
+              <Card.Section
+                withBorder
+                style={{
+                  display: "flex",
+                  position: "relative",
+                  minHeight: "400px",
+                }}
+              >
+                <Skeleton height="100%" width="100%" />
+              </Card.Section>
+            </Card>
+          </Stack>
+        ) : (
+          <Flex gap={8}>
+            <Card withBorder bg="#FAFAFA" radius={12} style={{ flex: 1 }}>
+              <Card.Section
+                withBorder
+                style={{
+                  display: "flex",
+                  aspectRatio: "1 / 1",
+                  position: "relative",
+                }}
+              >
+                <Skeleton height="100%" width="100%" />
+              </Card.Section>
+            </Card>
+            <Card withBorder bg="#FAFAFA" radius={12} style={{ flex: 1 }}>
+              <Card.Section
+                withBorder
+                style={{
+                  display: "flex",
+                  aspectRatio: "1 / 1",
+                  position: "relative",
+                }}
+              >
+                <Skeleton height="100%" width="100%" />
+              </Card.Section>
+            </Card>
+          </Flex>
+        )}
+        <Group mt={isMobile ? 4 : 8} justify="center">
+          <Skeleton height={36} width={128} />
+        </Group>
+      </Container>
+    );
+  }
 
   const hasNoImages = !image1 || !image2;
 

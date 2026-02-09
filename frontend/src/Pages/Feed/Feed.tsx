@@ -20,6 +20,9 @@ import { DuelKeyboardHint } from "../../Components/KeyboardHints/KeyboardHints";
 import { useReelsPaging } from "../../Hooks/useReelsPaging";
 import { VoteCards } from "./Components/VoteCards/VoteCards";
 
+const SHOW_PERC = true;
+const VOTE_ANIMATION_TIME = 500;
+
 export const Feed = () => {
   const { loggedIn } = useContext(UserContext);
   const navigate = useNavigate();
@@ -68,8 +71,10 @@ export const Feed = () => {
     itemRefs,
     count: duels?.length ?? 0,
     onIndexChange: (i: number) => {
-      setWinnerImage(undefined);
-      setIsProcessingVote(false);
+      if (SHOW_PERC) {
+        setWinnerImage(undefined);
+        setIsProcessingVote(false);
+      }
       setActiveIndex(i);
       setHasVoted(true);
     },
@@ -134,17 +139,23 @@ export const Feed = () => {
           return;
         }
 
-        setWinnerImage(outcome === "WIN" ? "image1" : "image2");
-        setIsProcessingVote(true);
+        if (SHOW_PERC) {
+          setWinnerImage(outcome === "WIN" ? "image1" : "image2");
+          setIsProcessingVote(true);
+        }
 
         setHasVoted(true);
         vote(token, outcome);
 
-        setTimeout(() => {
-          setIsProcessingVote(false);
-          setWinnerImage(undefined);
+        if (SHOW_PERC) {
+          setTimeout(() => {
+            setIsProcessingVote(false);
+            setWinnerImage(undefined);
+            scrollToIndex(activeIndex + 1);
+          }, VOTE_ANIMATION_TIME);
+        } else {
           scrollToIndex(activeIndex + 1);
-        }, 300);
+        }
       },
     [activeIndex, loggedIn, isProcessingVote, duels, cursor]
   );
@@ -177,11 +188,6 @@ export const Feed = () => {
 
   return (
     <>
-      {/* {isDesktop && (
-        <Title order={2} pb="sm" maw={MAX_WIDTH} mx="auto">
-          Duels
-        </Title>
-      )} */}
       <div
         ref={feedRef}
         tabIndex={0}
@@ -271,8 +277,8 @@ export const Feed = () => {
                     image1={image1}
                     image2={image2}
                     token={token}
-                    isProcessingVote={isProcessingVote}
-                    winnerImage={winnerImage}
+                    isProcessingVote={SHOW_PERC ? isProcessingVote : false}
+                    winnerImage={SHOW_PERC ? winnerImage : undefined}
                   />
                   <Flex justify={"center"} direction={"column"} gap={0} mt={18}>
                     <Button
