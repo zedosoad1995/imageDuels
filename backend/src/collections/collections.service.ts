@@ -164,7 +164,7 @@ export class CollectionsService {
                 id
               FROM images
               WHERE collection_id = c.id
-              ORDER BY rating DESC, id ASC
+              ORDER BY rating DESC, id DESC
               LIMIT 3
             ) AS t
           ),

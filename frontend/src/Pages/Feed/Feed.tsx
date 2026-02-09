@@ -298,10 +298,10 @@ export const Feed = () => {
                   </Flex>
                 </div>
               </div>
-              <DuelKeyboardHint hasVoted={hasVoted} autoHideMs={10000} />
             </div>
           )
         )}
+        <DuelKeyboardHint hasVoted={hasVoted} autoHideMs={10000} />
       </div>
     </>
   );

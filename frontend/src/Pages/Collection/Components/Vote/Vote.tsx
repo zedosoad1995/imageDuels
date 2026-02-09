@@ -22,6 +22,7 @@ import { modals } from "@mantine/modals";
 import { Image } from "../../../../Components/Image/Image";
 import { useMediaQuery } from "@mantine/hooks";
 import { MEDIA_QUERY_IS_MOBILE } from "../../../../Utils/breakpoints";
+import { DuelKeyboardHint } from "../../../../Components/KeyboardHints/KeyboardHints";
 
 const VOTE_ANIMATION_TIME = 500;
 
@@ -42,6 +43,7 @@ export const Vote = ({ collection }: Props) => {
   const [winnerImage, setWinnerImage] = useState<"image1" | "image2">();
   const [isProcessingVote, setIsProcessingVote] = useState(false);
   const [hasLoaded, setHasLoaded] = useState(false);
+  const [hasVoted, setHasVoted] = useState(false);
   const { loggedIn } = useContext(UserContext);
 
   const nextSwapRef = useRef<{
@@ -98,7 +100,20 @@ export const Vote = ({ collection }: Props) => {
         return;
       }
 
+      setHasVoted(true);
+
       if (outcome === "SKIP") {
+        await getDuel(collectionId)
+          .then(({ token, image1, image2 }) => {
+            setImage1(image1);
+            setImage2(image2);
+            setDuelToken(token);
+          })
+          .catch(() => {
+            setImage1(undefined);
+            setImage2(undefined);
+            setDuelToken(undefined);
+          });
         return;
       }
 
@@ -156,6 +171,12 @@ export const Vote = ({ collection }: Props) => {
         await handleVote("WIN")();
       } else if (event.key === "ArrowRight") {
         await handleVote("LOSS")();
+      } else if (
+        event.key === " " ||
+        event.key === "Spacebar" ||
+        event.key === "ArrowDown"
+      ) {
+        await handleVote("SKIP")();
       }
     };
 
@@ -861,6 +882,25 @@ export const Vote = ({ collection }: Props) => {
           </Button>
         </Group>
       )}
+      <DuelKeyboardHint
+        hasVoted={hasVoted}
+        autoHideMs={10000}
+        storageKey="votes.keyboardHint.seen"
+        info={[
+          {
+            keys: ["←"],
+            label: "Choose left image",
+          },
+          {
+            keys: ["→"],
+            label: "Choose right image",
+          },
+          {
+            keys: ["↓", "Space"],
+            label: "Skip",
+          },
+        ]}
+      />
     </Container>
   );
 };

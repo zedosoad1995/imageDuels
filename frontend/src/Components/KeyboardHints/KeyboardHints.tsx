@@ -12,6 +12,7 @@ type Props = {
   storageKey?: string;
   autoHideMs?: number;
   fadeMs?: number; // fade out duration
+  info?: { keys: string[]; label: string }[];
 };
 
 type Phase = "hidden" | "shown" | "hiding";
@@ -22,6 +23,20 @@ export function DuelKeyboardHint({
   storageKey = "duels.keyboardHint.seen",
   autoHideMs = 4500,
   fadeMs = 380,
+  info = [
+    {
+      keys: ["←"],
+      label: "Choose left image",
+    },
+    {
+      keys: ["→"],
+      label: "Choose right image",
+    },
+    {
+      keys: ["↓", "Space"],
+      label: "Next duel",
+    },
+  ],
 }: Props) {
   const [phase, setPhase] = useState<Phase>("hidden");
 
@@ -103,9 +118,9 @@ export function DuelKeyboardHint({
 
   const opacity = useMemo(() => {
     // Base opacity when shown
-    const base = 0.5;
+    const base = 0.9;
     // Boost opacity on hover/touch/intent
-    const boosted = 0.9;
+    const boosted = 1;
     const shownOpacity = isBoosted ? boosted : base;
 
     // Fade out to 0 when hiding
@@ -133,9 +148,9 @@ export function DuelKeyboardHint({
           transition: `opacity ${fadeMs}ms ease`,
         }}
       >
-        <HintRow keys={["←"]} label="Choose left image" />
-        <HintRow keys={["→"]} label="Choose right image" />
-        <HintRow keys={["↓", "Space"]} label="Next duel" />
+        {info.map(({ keys, label }) => (
+          <HintRow key={label} keys={keys} label={label} />
+        ))}
       </div>
     </div>
   );
@@ -170,7 +185,7 @@ const styles: Record<string, React.CSSProperties> = {
     padding: "14px 16px",
     borderRadius: 14,
     border: "1px solid rgba(255,255,255,0.10)",
-    background: "rgba(10, 10, 12, 0.62)",
+    background: "rgba(10, 10, 12)",
     backdropFilter: "blur(10px)",
     WebkitBackdropFilter: "blur(10px)",
     boxShadow: "0 16px 40px rgba(0,0,0,0.30)",
