@@ -11,7 +11,7 @@ import {
   Checkbox,
 } from "@mantine/core";
 import { getDuel } from "../../../../Api/collections";
-import { useCallback, useContext, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import classes from "./Vote.module.css";
 import { vote, VoteOutcome } from "../../../../Api/duels";
@@ -33,10 +33,18 @@ export const Vote = ({ collection }: Props) => {
   const { id: collectionId } = useParams();
   const [image1, setImage1] = useState<IGetDuel["image1"]>();
   const [image2, setImage2] = useState<IGetDuel["image2"]>();
-  const [token, setDuelToken] = useState<string>();
+  const [nextImage1, setNextImage1] = useState<IGetDuel["image1"]>();
+  const [nextImage2, setNextImage2] = useState<IGetDuel["image2"]>();
+  const [duelToken, setDuelToken] = useState<string>();
   const [winnerImage, setWinnerImage] = useState<"image1" | "image2">();
   const [isProcessingVote, setIsProcessingVote] = useState(false);
   const { loggedIn } = useContext(UserContext);
+
+  const nextSwapRef = useRef<{
+    token?: string;
+    image1?: IGetDuel["image1"];
+    image2?: IGetDuel["image1"];
+  }>({});
 
   useEffect(() => {
     if (!collectionId) {
@@ -75,7 +83,7 @@ export const Vote = ({ collection }: Props) => {
         openSignUpModal();
       }
 
-      if (!token || !collectionId) {
+      if (!duelToken || !collectionId) {
         return;
       }
 
@@ -83,33 +91,52 @@ export const Vote = ({ collection }: Props) => {
         return;
       }
 
-      if (outcome !== "SKIP") {
-        await vote(token, outcome);
+      if (outcome === "SKIP") {
+        return;
       }
 
+      setIsProcessingVote(true);
       setWinnerImage(outcome === "WIN" ? "image1" : "image2");
 
-      setIsProcessingVote(true);
-      await new Promise((promise) => setTimeout(promise, 800));
+      const timerP = new Promise<void>((r) => setTimeout(r, 800));
 
-      getDuel(collectionId)
-        .then(({ token, image1, image2 }) => {
+      const fetchP = vote(duelToken, outcome).then(() =>
+        getDuel(collectionId)
+          .then(({ token, image1, image2 }) => {
+            nextSwapRef.current = { token, image1, image2 };
+
+            setNextImage1(image1);
+            setNextImage2(image2);
+            setDuelToken(token);
+          })
+          .catch(() => {
+            nextSwapRef.current = {
+              token: undefined,
+              image1: undefined,
+              image2: undefined,
+            };
+            setNextImage1(undefined);
+            setNextImage2(undefined);
+            setDuelToken(undefined);
+          })
+      );
+
+      Promise.all([timerP, fetchP])
+        .then(() => {
+          const { token, image1, image2 } = nextSwapRef.current;
+
           setImage1(image1);
           setImage2(image2);
           setDuelToken(token);
         })
-        .catch(() => {
-          // Handle error case - no more duels available
-          setImage1(undefined);
-          setImage2(undefined);
-          setDuelToken(undefined);
-        })
         .finally(() => {
-          setIsProcessingVote(false);
+          setNextImage1(undefined);
+          setNextImage2(undefined);
           setWinnerImage(undefined);
+          setIsProcessingVote(false);
         });
     },
-    [token, collectionId, loggedIn, isProcessingVote]
+    [duelToken, collectionId, loggedIn, isProcessingVote]
   );
 
   useEffect(() => {
@@ -310,6 +337,25 @@ export const Vote = ({ collection }: Props) => {
                 objectFit="contain"
                 sizes="(max-width: 799px) 47vw, (max-width: 1240px) 43vw, 550px"
               />
+              {nextImage1 && (
+                <Image
+                  filepath={nextImage1?.filepath ?? ""}
+                  availableWidths={nextImage1?.availableWidths ?? []}
+                  hasPlaceholder={nextImage1?.hasPlaceholder ?? false}
+                  isSvg={nextImage1?.isSvg ?? false}
+                  style={{
+                    position: "absolute",
+                    inset: 0,
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "contain",
+                    zIndex: 1,
+                    visibility: "hidden",
+                  }}
+                  objectFit="contain"
+                  sizes="(max-width: 799px) 47vw, (max-width: 1240px) 43vw, 550px"
+                />
+              )}
             </Card.Section>
           </Card>
           <Card
@@ -428,6 +474,25 @@ export const Vote = ({ collection }: Props) => {
                 objectFit="contain"
                 sizes="(max-width: 799px) 47vw, (max-width: 1240px) 43vw, 550px"
               />
+              {nextImage2 && (
+                <Image
+                  filepath={nextImage2?.filepath ?? ""}
+                  availableWidths={nextImage2?.availableWidths ?? []}
+                  hasPlaceholder={nextImage2?.hasPlaceholder ?? false}
+                  isSvg={nextImage2?.isSvg ?? false}
+                  style={{
+                    position: "absolute",
+                    inset: 0,
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "contain",
+                    zIndex: 1,
+                    visibility: "hidden",
+                  }}
+                  objectFit="contain"
+                  sizes="(max-width: 799px) 47vw, (max-width: 1240px) 43vw, 550px"
+                />
+              )}
             </Card.Section>
           </Card>
         </Stack>
@@ -531,7 +596,7 @@ export const Vote = ({ collection }: Props) => {
                   transform: "scale(1.1)",
                 }}
                 objectFit="cover"
-                sizes="(max-width: 799px) 47vw, (max-width: 1240px) 43vw, 550px"
+                sizes="100vw"
               />
               <Image
                 filepath={image1?.filepath ?? ""}
@@ -547,8 +612,27 @@ export const Vote = ({ collection }: Props) => {
                   zIndex: 1,
                 }}
                 objectFit="contain"
-                sizes="(max-width: 799px) 47vw, (max-width: 1240px) 43vw, 550px"
+                sizes="100vw"
               />
+              {nextImage1 && (
+                <Image
+                  filepath={nextImage1?.filepath ?? ""}
+                  availableWidths={nextImage1?.availableWidths ?? []}
+                  hasPlaceholder={nextImage1?.hasPlaceholder ?? false}
+                  isSvg={nextImage1?.isSvg ?? false}
+                  style={{
+                    position: "absolute",
+                    inset: 0,
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "contain",
+                    zIndex: 1,
+                    visibility: "hidden",
+                  }}
+                  objectFit="contain"
+                  sizes="100vw"
+                />
+              )}
             </Card.Section>
           </Card>
           <Card
@@ -648,7 +732,7 @@ export const Vote = ({ collection }: Props) => {
                   transform: "scale(1.1)",
                 }}
                 objectFit="cover"
-                sizes="(max-width: 799px) 47vw, (max-width: 1240px) 43vw, 550px"
+                sizes="100vw"
               />
               <Image
                 filepath={image2?.filepath ?? ""}
@@ -664,8 +748,27 @@ export const Vote = ({ collection }: Props) => {
                   zIndex: 1,
                 }}
                 objectFit="contain"
-                sizes="(max-width: 799px) 47vw, (max-width: 1240px) 43vw, 550px"
+                sizes="100vw"
               />
+              {nextImage2 && (
+                <Image
+                  filepath={nextImage2?.filepath ?? ""}
+                  availableWidths={nextImage2?.availableWidths ?? []}
+                  hasPlaceholder={nextImage2?.hasPlaceholder ?? false}
+                  isSvg={nextImage2?.isSvg ?? false}
+                  style={{
+                    position: "absolute",
+                    inset: 0,
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "contain",
+                    zIndex: 1,
+                    visibility: "hidden",
+                  }}
+                  objectFit="contain"
+                  sizes="100vw"
+                />
+              )}
             </Card.Section>
           </Card>
         </Flex>

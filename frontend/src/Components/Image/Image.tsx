@@ -59,7 +59,6 @@ export const Image = ({
   }
 
   if (!hasPlaceholder && !availableWidths.length) {
-    console.log(style);
     return (
       <img
         src={baseUrl}

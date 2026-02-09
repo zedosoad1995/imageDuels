@@ -104,6 +104,18 @@ export const Feed = () => {
     });
   };
 
+  const openSignUpModal = () =>
+    modals.openConfirmModal({
+      title: "Create Account",
+      centered: true,
+      children: <Text size="sm">You cannot vote without an account.</Text>,
+      labels: { confirm: "Create Account", cancel: "Cancel" },
+      confirmProps: { color: "blue" },
+      onConfirm: () => {
+        navigate("/register");
+      },
+    });
+
   const handleVote = useCallback(
     (outcome: VoteOutcome, token: string | undefined) =>
       async (event?: React.MouseEvent<HTMLDivElement>) => {
@@ -125,20 +137,16 @@ export const Feed = () => {
         setWinnerImage(outcome === "WIN" ? "image1" : "image2");
         setIsProcessingVote(true);
 
-        await vote(token, outcome);
-
         setHasVoted(true);
+        vote(token, outcome);
 
-        await new Promise((promise) => setTimeout(promise, 300));
-
-        setIsProcessingVote(false);
-        setWinnerImage(undefined);
-
-        scrollToIndex(activeIndex + 1);
-
-        await new Promise((promise) => setTimeout(promise, 300));
+        setTimeout(() => {
+          setIsProcessingVote(false);
+          setWinnerImage(undefined);
+          scrollToIndex(activeIndex + 1);
+        }, 300);
       },
-    [activeIndex, loggedIn, isProcessingVote]
+    [activeIndex, loggedIn, isProcessingVote, duels, cursor]
   );
 
   useEffect(() => {
@@ -157,18 +165,6 @@ export const Feed = () => {
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [handleVote]);
-
-  const openSignUpModal = () =>
-    modals.openConfirmModal({
-      title: "Create Account",
-      centered: true,
-      children: <Text size="sm">You cannot vote without an account.</Text>,
-      labels: { confirm: "Create Account", cancel: "Cancel" },
-      confirmProps: { color: "blue" },
-      onConfirm: () => {
-        navigate("/register");
-      },
-    });
 
   const [virtualizedDuels, offsetIndex] = useMemo(() => {
     if (!duels) return [duels, 0];

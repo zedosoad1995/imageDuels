@@ -138,7 +138,7 @@ export const VoteCards = ({
                 transform: "scale(1.1)",
               }}
               objectFit="cover"
-              sizes="(max-width: 799px) 50vw, (max-width: 1500px) 46vw, 700px"
+              sizes="100vw"
             />
             <Image
               {...image1}
@@ -151,7 +151,7 @@ export const VoteCards = ({
                 zIndex: 1,
               }}
               objectFit="contain"
-              sizes="(max-width: 799px) 50vw, (max-width: 1500px) 46vw, 700px"
+              sizes="100vw"
             />
           </Card.Section>
         </Card>
@@ -249,7 +249,7 @@ export const VoteCards = ({
                 transform: "scale(1.1)",
               }}
               objectFit="cover"
-              sizes="(max-width: 799px) 50vw, (max-width: 1500px) 46vw, 700px"
+              sizes="100vw"
             />
             <Image
               {...image2}
@@ -262,7 +262,7 @@ export const VoteCards = ({
                 zIndex: 1,
               }}
               objectFit="contain"
-              sizes="(max-width: 799px) 50vw, (max-width: 1500px) 46vw, 700px"
+              sizes="100vw"
             />
           </Card.Section>
         </Card>
