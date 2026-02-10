@@ -6,27 +6,27 @@ export const theme: MantineThemeOverride = {
   },
   shadows: {
     around: "0 0 6px 2px rgba(0, 0, 0, 0.5)",
-    card: "0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.1)",
-    cardHover:
-      "0 10px 25px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)",
+    card: "0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04)",
+    cardHover: "0 12px 24px rgba(0, 0, 0, 0.1), 0 4px 8px rgba(0, 0, 0, 0.06)",
     elevated:
       "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
     soft: "0 2px 15px rgba(0, 0, 0, 0.08)",
   },
   colors: {
     brand: [
-      "#f0f4ff",
-      "#e0e9ff",
-      "#c7d7fe",
-      "#a5b8fc",
-      "#7d95f8",
-      "#5b6ef2",
-      "#4c5ce8",
-      "#3f4cd4",
-      "#3640b3",
-      "#2f3893",
+      "#eff6ff",
+      "#dbeafe",
+      "#bfdbfe",
+      "#93c5fd",
+      "#60a5fa",
+      "#3b82f6",
+      "#2563eb",
+      "#1d4ed8",
+      "#1e40af",
+      "#1e3a8a",
     ],
   },
+  colorScheme: "light",
   primaryColor: "brand",
   defaultRadius: "lg",
   fontFamily:
@@ -54,6 +54,8 @@ export const theme: MantineThemeOverride = {
       styles: {
         root: {
           transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+          backgroundColor: "#ffffff",
+          color: "#111827",
         },
       },
     },
@@ -75,12 +77,23 @@ export const theme: MantineThemeOverride = {
       styles: {
         input: {
           transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
+          backgroundColor: "#ffffff",
+          color: "#111827",
+          borderColor: "rgba(0, 0, 0, 0.1)",
+          "&::placeholder": {
+            color: "#9ca3af",
+          },
         },
       },
     },
     SegmentedControl: {
       defaultProps: {
         radius: "lg",
+      },
+      styles: {
+        root: {
+          backgroundColor: "#ffffff",
+        },
       },
     },
     Badge: {
@@ -94,10 +107,24 @@ export const theme: MantineThemeOverride = {
         shadow: "card",
         withBorder: false,
       },
+      styles: {
+        root: {
+          backgroundColor: "#ffffff",
+          color: "#111827",
+        },
+      },
+    },
+    Modal: {
+      styles: {
+        content: {
+          backgroundColor: "#ffffff",
+          color: "#111827",
+        },
+      },
     },
   },
   other: {
-    glassBackground: "rgba(255, 255, 255, 0.7)",
-    glassBorder: "rgba(255, 255, 255, 0.18)",
+    glassBackground: "#ffffff",
+    glassBorder: "rgba(0, 0, 0, 0.08)",
   },
 };

@@ -3,52 +3,36 @@
 }
 
 :root {
-  --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  --gradient-secondary: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-  --gradient-accent: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-  --gradient-background: linear-gradient(
-    135deg,
-    #f5f7fa 0%,
-    #e8ecf1 25%,
-    #f0f4ff 50%,
-    #ffffff 75%,
-    #fafbfc 100%
-  );
+  --gradient-primary: linear-gradient(135deg, #0ea5e9 0%, #3b82f6 100%);
+  --gradient-secondary: linear-gradient(135deg, #06b6d4 0%, #0ea5e9 100%);
+  --gradient-accent: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  --gradient-background: #fafafa;
+  --color-brand-50: #eff6ff;
+  --color-brand-100: #dbeafe;
+  --color-brand-200: #bfdbfe;
+  --color-brand-300: #93c5fd;
+  --color-brand-400: #60a5fa;
+  --color-brand-500: #3b82f6;
+  --color-brand-600: #2563eb;
+  --color-brand-700: #1d4ed8;
+  --color-brand-800: #1e40af;
+  --color-brand-900: #1e3a8a;
 }
 
 body {
-  background: var(--gradient-background);
+  background: #fafafa;
+  background-image: radial-gradient(
+    circle at 1px 1px,
+    rgba(0, 0, 0, 0.015) 1px,
+    transparent 0
+  );
+  background-size: 24px 24px;
   background-attachment: fixed;
   min-height: 100vh;
   margin: 0;
   padding: 0;
   position: relative;
-}
-
-body::before {
-  content: "";
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: radial-gradient(
-      circle at 20% 50%,
-      rgba(91, 110, 242, 0.08) 0%,
-      transparent 50%
-    ),
-    radial-gradient(
-      circle at 80% 80%,
-      rgba(118, 75, 162, 0.06) 0%,
-      transparent 50%
-    ),
-    radial-gradient(
-      circle at 40% 20%,
-      rgba(79, 172, 254, 0.05) 0%,
-      transparent 50%
-    );
-  pointer-events: none;
-  z-index: 0;
+  color: #1f2937;
 }
 
 /* Smooth scrolling */
@@ -58,8 +42,8 @@ html {
 
 /* Custom scrollbar */
 ::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
+  width: 8px;
+  height: 8px;
 }
 
 ::-webkit-scrollbar-track {
@@ -67,25 +51,22 @@ html {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.15);
+  background: rgba(0, 0, 0, 0.1);
   border-radius: 10px;
-  border: 2px solid transparent;
-  background-clip: padding-box;
   transition: background 0.2s ease;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 0, 0, 0.25);
-  background-clip: padding-box;
+  background: rgba(0, 0, 0, 0.2);
 }
 
 /* Selection */
 ::selection {
-  background: rgba(91, 110, 242, 0.2);
+  background: rgba(59, 130, 246, 0.2);
   color: inherit;
 }
 
 ::-moz-selection {
-  background: rgba(91, 110, 242, 0.2);
+  background: rgba(59, 130, 246, 0.2);
   color: inherit;
 }

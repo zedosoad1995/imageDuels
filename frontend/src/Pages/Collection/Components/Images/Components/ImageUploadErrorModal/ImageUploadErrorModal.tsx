@@ -54,7 +54,7 @@ export const ImageUploadErrorModal = ({
             bottom: 0,
             left: 0,
             right: 0,
-            background: "white",
+            background: "#ffffff",
             zIndex: 1,
           }}
         >

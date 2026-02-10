@@ -58,9 +58,9 @@ export const Header = () => {
           }}
           onMouseEnter={(e) => {
             e.currentTarget.style.transform = "scale(1.08)";
-            e.currentTarget.style.backgroundColor = "rgba(91, 110, 242, 0.12)";
+            e.currentTarget.style.backgroundColor = "rgba(59, 130, 246, 0.1)";
             e.currentTarget.style.boxShadow =
-              "0 4px 12px rgba(91, 110, 242, 0.2)";
+              "0 2px 8px rgba(59, 130, 246, 0.15)";
           }}
           onMouseLeave={(e) => {
             e.currentTarget.style.transform = "scale(1)";
@@ -81,14 +81,12 @@ export const Header = () => {
         <Title
           style={{
             cursor: "pointer",
-            fontSize: "21px",
+            fontSize: "20px",
             fontWeight: 600,
             color: "#0f172a",
-            letterSpacing: "-0.02em",
-            background: "linear-gradient(135deg, #0f172a 0%, #334155 100%)",
-            WebkitBackgroundClip: "text",
-            WebkitTextFillColor: "transparent",
-            backgroundClip: "text",
+            letterSpacing: "-0.025em",
+            margin: 0,
+            lineHeight: 1.2,
           }}
         >
           {pageName}

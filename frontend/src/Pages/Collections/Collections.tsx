@@ -118,6 +118,28 @@ export const Collections = () => {
           size="md"
           className={classes.segmentedControl}
           style={{ flexShrink: 0 }}
+          styles={{
+            root: {
+              backgroundColor: "#f1f5f9",
+              border: "1px solid rgba(0, 0, 0, 0.1)",
+              padding: "4px",
+            },
+            indicator: {
+              backgroundColor: "#ffffff",
+              boxShadow:
+                "0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.08)",
+              border: "1px solid rgba(0, 0, 0, 0.06)",
+            },
+            label: {
+              color: "#475569",
+              fontWeight: 500,
+              fontSize: "14px",
+              "&[data-active]": {
+                color: "#0f172a",
+                fontWeight: 600,
+              },
+            },
+          }}
         />
         <TextInput
           className={classes.searchInput}
@@ -128,24 +150,26 @@ export const Collections = () => {
           onChange={handleChangeSearch}
           styles={{
             input: {
-              border: "1px solid rgba(255, 255, 255, 0.3)",
-              backgroundColor: "rgba(255, 255, 255, 0.75)",
-              backdropFilter: "blur(20px) saturate(180%)",
-              WebkitBackdropFilter: "blur(20px) saturate(180%)",
-              transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-              boxShadow:
-                "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06), inset 0 1px 0 0 rgba(255, 255, 255, 0.5)",
+              border: "1px solid rgba(0, 0, 0, 0.1)",
+              backgroundColor: "#ffffff",
+              color: "#0f172a",
+              transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
+              boxShadow: "0 1px 2px rgba(0, 0, 0, 0.05)",
+              fontSize: "14px",
+              "&::placeholder": {
+                color: "#94a3b8",
+              },
               "&:focus": {
-                border: "1px solid rgba(91, 110, 242, 0.4)",
-                backgroundColor: "rgba(255, 255, 255, 0.9)",
+                border: "1px solid rgba(59, 130, 246, 0.5)",
                 boxShadow:
-                  "0 6px 8px -1px rgba(0, 0, 0, 0.12), 0 3px 5px -1px rgba(0, 0, 0, 0.08), 0 0 0 3px rgba(91, 110, 242, 0.1), inset 0 1px 0 0 rgba(255, 255, 255, 0.6)",
+                  "0 0 0 4px rgba(59, 130, 246, 0.1), 0 2px 4px rgba(0, 0, 0, 0.06), 0 0 0 1px rgba(59, 130, 246, 0.3)",
+                transform: "translateY(-1px)",
               },
             },
           }}
         />
       </Group>
-      <Grid gutter={{ base: 16, sm: 20, md: 24 }}>
+      <Grid gutter={{ base: 16, sm: 20, md: 28 }}>
         {collections.map(
           ({
             id,
@@ -169,7 +193,11 @@ export const Collections = () => {
                   <Collage images={thumbnailImages} />
                   <Box className={classes.cardContent}>
                     <Group className={classes.titleRow}>
-                      <Text className={classes.title} lineClamp={2}>
+                      <Text
+                        className={classes.title}
+                        lineClamp={2}
+                        styles={{ root: { fontWeight: 700 } }}
+                      >
                         {title}
                       </Text>
                       {user?.role === "ADMIN" && mode !== "PUBLIC" && (
@@ -178,6 +206,17 @@ export const Collections = () => {
                           size="sm"
                           variant="light"
                           color="blue"
+                          styles={{
+                            root: {
+                              fontSize: "10px",
+                              fontWeight: 600,
+                              textTransform: "uppercase",
+                              letterSpacing: "0.6px",
+                              padding: "5px 10px",
+                              borderRadius: "8px",
+                              boxShadow: "0 1px 2px rgba(0, 0, 0, 0.05)",
+                            },
+                          }}
                         >
                           {mode.toLowerCase()}
                         </Badge>
@@ -188,6 +227,17 @@ export const Collections = () => {
                           size="sm"
                           variant="light"
                           color="red"
+                          styles={{
+                            root: {
+                              fontSize: "10px",
+                              fontWeight: 600,
+                              textTransform: "uppercase",
+                              letterSpacing: "0.6px",
+                              padding: "5px 10px",
+                              borderRadius: "8px",
+                              boxShadow: "0 1px 2px rgba(0, 0, 0, 0.05)",
+                            },
+                          }}
                         >
                           NSFW +18
                         </Badge>
@@ -198,12 +248,34 @@ export const Collections = () => {
                           size="sm"
                           variant="light"
                           color="gray"
+                          styles={{
+                            root: {
+                              fontSize: "10px",
+                              fontWeight: 600,
+                              textTransform: "uppercase",
+                              letterSpacing: "0.6px",
+                              padding: "5px 10px",
+                              borderRadius: "8px",
+                              boxShadow: "0 1px 2px rgba(0, 0, 0, 0.05)",
+                            },
+                          }}
                         >
                           Offline
                         </Badge>
                       )}
                     </Group>
-                    <Text className={classes.stats}>
+                    <Text
+                      className={classes.stats}
+                      styles={{
+                        root: {
+                          fontSize: "13px",
+                          color: "#64748b",
+                          fontWeight: 500,
+                          lineHeight: 1.5,
+                          letterSpacing: 0,
+                        },
+                      }}
+                    >
                       {totalVotes} votes • {totalImages} images
                       {user?.role === "ADMIN" && (
                         <>
