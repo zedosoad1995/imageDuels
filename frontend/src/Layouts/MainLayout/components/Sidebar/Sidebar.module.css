@@ -15,12 +15,6 @@
   gap: 4px;
 }
 
-.header {
-  padding-bottom: var(--mantine-spacing-xl);
-  padding-top: var(--mantine-spacing-sm);
-  border-bottom: 1px solid var(--mantine-color-gray-3);
-}
-
 .logoBtn {
   height: 100%;
   width: 100%;
