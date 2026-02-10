@@ -34,15 +34,62 @@ export const Header = () => {
   return (
     <AppShell.Header className={classes.base}>
       <div
-        style={{ display: "flex", alignItems: "center", gap: 6 }}
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 12,
+          cursor: "pointer",
+          transition: "opacity 0.2s ease",
+        }}
         onClick={handleClickLogo}
+        onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.8")}
+        onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
       >
-        <UnstyledButton style={{ position: "relative", top: -3 }}>
-          <img src="/my-logo.svg" style={{ width: 30, display: "block" }} />
+        <UnstyledButton
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            width: 38,
+            height: 38,
+            borderRadius: "12px",
+            transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+            position: "relative",
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.transform = "scale(1.08)";
+            e.currentTarget.style.backgroundColor = "rgba(91, 110, 242, 0.12)";
+            e.currentTarget.style.boxShadow =
+              "0 4px 12px rgba(91, 110, 242, 0.2)";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.transform = "scale(1)";
+            e.currentTarget.style.backgroundColor = "transparent";
+            e.currentTarget.style.boxShadow = "none";
+          }}
+        >
+          <img
+            src="/my-logo.svg"
+            style={{
+              width: 30,
+              height: 30,
+              display: "block",
+              filter: "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1))",
+            }}
+          />
         </UnstyledButton>
         <Title
-          style={{ position: "relative", top: 2, cursor: "pointer", marginLeft: 4 }}
-          size={24}
+          style={{
+            cursor: "pointer",
+            fontSize: "21px",
+            fontWeight: 600,
+            color: "#0f172a",
+            letterSpacing: "-0.02em",
+            background: "linear-gradient(135deg, #0f172a 0%, #334155 100%)",
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+            backgroundClip: "text",
+          }}
         >
           {pageName}
         </Title>

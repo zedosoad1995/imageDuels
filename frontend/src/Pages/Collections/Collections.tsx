@@ -8,6 +8,8 @@ import {
   Badge,
   Grid,
   TextInput,
+  Paper,
+  Box,
 } from "@mantine/core";
 import {
   IGetCollections,
@@ -19,6 +21,7 @@ import { Collage } from "../../Components/Collage/Collage";
 import SearchIcon from "../../assets/svgs/search.svg?react";
 import debounce from "lodash.debounce";
 import { useInfiniteScroll } from "../../Hooks/useInfiniteScroll";
+import classes from "./Collections.module.css";
 
 const orderValues: { value: IGetCollectionsOrderBy; label: string }[] = [
   {
@@ -106,24 +109,43 @@ export const Collections = () => {
   };
 
   return (
-    <>
-      <Group mb={16}>
+    <Box className={classes.container}>
+      <Group className={classes.controls}>
         <SegmentedControl
           data={orderValues}
           value={orderBy}
           onChange={handleChangeOrderBy}
+          size="md"
+          className={classes.segmentedControl}
+          style={{ flexShrink: 0 }}
         />
         <TextInput
-          radius="md"
+          className={classes.searchInput}
           size="md"
-          placeholder="Search"
+          placeholder="Search collections..."
           leftSection={<SearchIcon size={18} stroke={1.5} />}
-          style={{ flex: 1 }}
           value={search}
           onChange={handleChangeSearch}
+          styles={{
+            input: {
+              border: "1px solid rgba(255, 255, 255, 0.3)",
+              backgroundColor: "rgba(255, 255, 255, 0.75)",
+              backdropFilter: "blur(20px) saturate(180%)",
+              WebkitBackdropFilter: "blur(20px) saturate(180%)",
+              transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+              boxShadow:
+                "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06), inset 0 1px 0 0 rgba(255, 255, 255, 0.5)",
+              "&:focus": {
+                border: "1px solid rgba(91, 110, 242, 0.4)",
+                backgroundColor: "rgba(255, 255, 255, 0.9)",
+                boxShadow:
+                  "0 6px 8px -1px rgba(0, 0, 0, 0.12), 0 3px 5px -1px rgba(0, 0, 0, 0.08), 0 0 0 3px rgba(91, 110, 242, 0.1), inset 0 1px 0 0 rgba(255, 255, 255, 0.6)",
+              },
+            },
+          }}
         />
       </Group>
-      <Grid>
+      <Grid gutter={{ base: 16, sm: 20, md: 24 }}>
         {collections.map(
           ({
             id,
@@ -137,46 +159,67 @@ export const Collections = () => {
             createdBy,
           }) => {
             return (
-              <Grid.Col
-                key={id}
-                span={{ base: 12, xs: 6, lg: 4, xl: 3 }}
-                className="collectionExploreBase"
-                onClick={handleClickCollection(id)}
-              >
-                <Collage images={thumbnailImages} />
-                <Group mt={2} pl={0} gap={8}>
-                  <Text fw={700}>{title}</Text>
-                  {user?.role === "ADMIN" && mode !== "PUBLIC" && (
-                    <Badge size="xs" variant="light" color="blue">
-                      {mode.toLowerCase()}
-                    </Badge>
-                  )}
-                  {isNSFW && (
-                    <Badge size="xs" variant="light" color="red">
-                      NSFW +18
-                    </Badge>
-                  )}
-                  {user?.role === "ADMIN" && !isLive && (
-                    <Badge size="xs" variant="light" color="gray">
-                      Offline
-                    </Badge>
-                  )}
-                </Group>
-                <Text fw={300} size="xs" pl={0}>
-                  {totalVotes} votes • {totalImages} images
-                  {user?.role === "ADMIN" && (
-                    <>
-                      {" "}
-                      • by <i>{createdBy}</i>
-                    </>
-                  )}
-                </Text>
+              <Grid.Col key={id} span={{ base: 12, xs: 6, lg: 4, xl: 3 }}>
+                <Paper
+                  className={`${classes.collectionCard} collectionExploreBase`}
+                  onClick={handleClickCollection(id)}
+                  p={0}
+                  withBorder={false}
+                >
+                  <Collage images={thumbnailImages} />
+                  <Box className={classes.cardContent}>
+                    <Group className={classes.titleRow}>
+                      <Text className={classes.title} lineClamp={2}>
+                        {title}
+                      </Text>
+                      {user?.role === "ADMIN" && mode !== "PUBLIC" && (
+                        <Badge
+                          className={classes.badge}
+                          size="sm"
+                          variant="light"
+                          color="blue"
+                        >
+                          {mode.toLowerCase()}
+                        </Badge>
+                      )}
+                      {isNSFW && (
+                        <Badge
+                          className={classes.badge}
+                          size="sm"
+                          variant="light"
+                          color="red"
+                        >
+                          NSFW +18
+                        </Badge>
+                      )}
+                      {user?.role === "ADMIN" && !isLive && (
+                        <Badge
+                          className={classes.badge}
+                          size="sm"
+                          variant="light"
+                          color="gray"
+                        >
+                          Offline
+                        </Badge>
+                      )}
+                    </Group>
+                    <Text className={classes.stats}>
+                      {totalVotes} votes • {totalImages} images
+                      {user?.role === "ADMIN" && (
+                        <>
+                          {" "}
+                          • by <i>{createdBy}</i>
+                        </>
+                      )}
+                    </Text>
+                  </Box>
+                </Paper>
               </Grid.Col>
             );
           }
         )}
       </Grid>
-      <div ref={sentinelRef} style={{ height: 1 }} />
-    </>
+      <div ref={sentinelRef} className={classes.loadingSentinel} />
+    </Box>
   );
 };

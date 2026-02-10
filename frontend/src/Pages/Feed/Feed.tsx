@@ -287,7 +287,7 @@ export const Feed = () => {
                       mx={"auto"}
                       radius={"xl"}
                       onClick={() => {
-                        scrollToIndex(activeIndex + 1 - offsetIndex);
+                        scrollToIndex(activeIndex + 1);
                       }}
                     >
                       <Flex justify={"center"} align={"center"} gap={4}>
