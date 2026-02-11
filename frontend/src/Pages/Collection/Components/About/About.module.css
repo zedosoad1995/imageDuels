@@ -1,0 +1,32 @@
+.card {
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  border-radius: 20px !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04) !important;
+  padding: 24px !important;
+}
+
+.questionLabel {
+  font-size: 13px !important;
+  color: #64748b !important;
+  font-weight: 500 !important;
+  margin-bottom: 4px !important;
+  display: block !important;
+}
+
+.question {
+  font-weight: 600 !important;
+  font-size: 16px !important;
+  color: #0f172a !important;
+  margin-bottom: 16px !important;
+  line-height: 1.5 !important;
+}
+
+.description {
+  color: #475569 !important;
+  font-size: 15px !important;
+  line-height: 1.6 !important;
+  overflow-wrap: break-word !important;
+  word-wrap: break-word !important;
+  white-space: pre-wrap !important;
+}

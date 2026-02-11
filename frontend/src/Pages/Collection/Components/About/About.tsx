@@ -7,6 +7,7 @@ import {
   NumberInput,
   Radio,
   Group,
+  Card,
 } from "@mantine/core";
 import { IGetCollection } from "../../../../Types/collection";
 import { ModeSelect } from "../../../../Components/ModeSelect/ModeSelect";
@@ -25,6 +26,7 @@ import { CollectionContext } from "../../../../Contexts/CollectionContext";
 import { UserContext } from "../../../../Contexts/UserContext";
 import { Switch } from "../../../../Components/Switch/Switch";
 import { CollectionModeType } from "../../../../Types/collection";
+import classes from "./About.module.css";
 
 interface Props {
   collection: IGetCollection;
@@ -180,14 +182,17 @@ export const About = ({ collection }: Props) => {
     }
 
     return (
-      <>
-        {collection.question && <Text>Question: {collection.question}</Text>}
-        {collection.description && (
-          <Text style={{ lineBreak: "anywhere", whiteSpace: "pre-wrap" }}>
-            {collection.description}
-          </Text>
+      <Card className={classes.card}>
+        {collection.question && (
+          <div>
+            <Text className={classes.questionLabel}>Question:</Text>
+            <Text className={classes.question}>{collection.question}</Text>
+          </div>
         )}
-      </>
+        {collection.description && (
+          <Text className={classes.description}>{collection.description}</Text>
+        )}
+      </Card>
     );
   }
 
