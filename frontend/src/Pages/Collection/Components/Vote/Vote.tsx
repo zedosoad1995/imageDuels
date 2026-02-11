@@ -325,17 +325,16 @@ export const Vote = ({ collection }: Props) => {
         <Stack gap={4} align="center" style={{ width: "100%", flex: 1 }}>
           <Card
             withBorder
-            className={classes.imageCard}
+            className={`${classes.imageCard} ${
+              isProcessingVote && winnerImage === "image1"
+                ? classes.imageCardSelected
+                : ""
+            }`}
             style={{
               width: "100%",
-              boxShadow:
-                isProcessingVote && winnerImage === "image1"
-                  ? "0 0 6px 4px rgba(0, 0, 0, 0.5)"
-                  : undefined,
             }}
             onClick={handleVote("WIN")}
-            bg="#FAFAFA"
-            radius={12}
+            radius={20}
           >
             <Card.Section
               withBorder
@@ -374,7 +373,7 @@ export const Vote = ({ collection }: Props) => {
                   <div
                     style={{
                       width: "100%",
-                      backgroundColor: "#00000060",
+                      backgroundColor: "#00000040",
                       zIndex: 99,
                     }}
                   ></div>
@@ -462,17 +461,16 @@ export const Vote = ({ collection }: Props) => {
           </Card>
           <Card
             withBorder
-            className={classes.imageCard}
+            className={`${classes.imageCard} ${
+              isProcessingVote && winnerImage === "image2"
+                ? classes.imageCardSelected
+                : ""
+            }`}
             onClick={handleVote("LOSS")}
             style={{
               width: "100%",
-              boxShadow:
-                isProcessingVote && winnerImage === "image2"
-                  ? "0 0 6px 4px rgba(0, 0, 0, 0.5)"
-                  : undefined,
             }}
-            bg="#FAFAFA"
-            radius={12}
+            radius={20}
           >
             <Card.Section
               withBorder
@@ -511,7 +509,7 @@ export const Vote = ({ collection }: Props) => {
                   <div
                     style={{
                       width: "100%",
-                      backgroundColor: "#00000060",
+                      backgroundColor: "#00000040",
                       zIndex: 99,
                     }}
                   ></div>
@@ -603,16 +601,13 @@ export const Vote = ({ collection }: Props) => {
         <Flex gap={8}>
           <Card
             withBorder
-            className={classes.imageCard}
+            className={`${classes.imageCard} ${
+              isProcessingVote && winnerImage === "image1"
+                ? classes.imageCardSelected
+                : ""
+            }`}
             onClick={handleVote("WIN")}
-            bg="#FAFAFA"
-            radius={12}
-            style={{
-              boxShadow:
-                isProcessingVote && winnerImage === "image2"
-                  ? "0 0 6px 4px rgba(0, 0, 0, 0.5)"
-                  : undefined,
-            }}
+            radius={20}
           >
             <Card.Section
               withBorder
@@ -651,7 +646,7 @@ export const Vote = ({ collection }: Props) => {
                   <div
                     style={{
                       width: "100%",
-                      backgroundColor: "#00000060",
+                      backgroundColor: "#00000040",
                       zIndex: 99,
                     }}
                   ></div>
@@ -739,16 +734,13 @@ export const Vote = ({ collection }: Props) => {
           </Card>
           <Card
             withBorder
-            className={classes.imageCard}
+            className={`${classes.imageCard} ${
+              isProcessingVote && winnerImage === "image2"
+                ? classes.imageCardSelected
+                : ""
+            }`}
             onClick={handleVote("LOSS")}
-            bg="#FAFAFA"
-            radius={12}
-            style={{
-              boxShadow:
-                isProcessingVote && winnerImage === "image2"
-                  ? "0 0 6px 4px rgba(0, 0, 0, 0.5)"
-                  : undefined,
-            }}
+            radius={20}
           >
             <Card.Section
               withBorder
@@ -787,7 +779,7 @@ export const Vote = ({ collection }: Props) => {
                   <div
                     style={{
                       width: "100%",
-                      backgroundColor: "#00000060",
+                      backgroundColor: "#00000040",
                       zIndex: 99,
                     }}
                   ></div>

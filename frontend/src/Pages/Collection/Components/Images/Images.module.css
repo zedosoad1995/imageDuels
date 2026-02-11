@@ -1,18 +1,10 @@
-.card {
-  cursor: pointer;
-
-  &:hover {
-    box-shadow: var(--mantine-shadow-around);
-  }
-}
-
 .cardInfo {
   padding-top: var(--mantine-spacing-xxs);
   padding-bottom: var(--mantine-spacing-xs);
 }
 
 .controls {
-  margin-bottom: var(--mantine-spacing-xs);
+  margin-bottom: 6px;
   flex-wrap: wrap;
 }
 
@@ -26,10 +18,4 @@
   cursor: pointer;
 }
 
-masonrycontainer {
-  gap: 4px !important;
 
-  & div {
-    gap: 4px !important;
-  }
-}

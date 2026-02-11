@@ -265,6 +265,7 @@ export const Images = ({ collection }: Props) => {
         BaseItem={ImageCard}
         data={masonryData}
         cols={{ base: 1, 600: 2, 1200: 3, 1500: 4 }}
+        gap={4}
       />
 
       <div ref={sentinelRef} style={{ height: 1 }} />
