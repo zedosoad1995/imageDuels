@@ -8,17 +8,17 @@ const modesData: {
   description: string;
 }[] = [
   {
-    value: "PUBLIC",
+    value: CollectionModeType.PUBLIC,
     name: "Public",
     description: "Anyone can see and find this collection.",
   },
   {
-    value: "PRIVATE",
+    value: CollectionModeType.PRIVATE,
     name: "Private",
     description: "Only accessible via a shared link; not searchable.",
   },
   {
-    value: "PERSONAL",
+    value: CollectionModeType.PERSONAL,
     name: "Personal",
     description:
       "Only you can ever access this collection, with no way to share it.",
@@ -33,7 +33,7 @@ interface Props {
 export const ModeSelect = ({ value, onChange }: Props) => {
   return (
     <Radio.Group value={value} onChange={onChange} label="Collection Mode">
-      <Stack pt="md" gap="xs">
+      <Stack pt="xs" gap="xs">
         {modesData.map((item) => (
           <Radio.Card
             radius="md"
