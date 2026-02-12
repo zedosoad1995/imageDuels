@@ -116,20 +116,21 @@ export const MainLayout = () => {
     );
   }
 
-  const showHeaderFooter = !["collection"].includes(page as string);
+  const showHeader = !["collection"].includes(page as string);
+  const showFooter = !["collection"].includes(page as string);
 
   return (
     <>
       <AppShell
         padding={page === "feed" ? 0 : 8}
-        footer={{ height: showHeaderFooter ? 50 : 0 }}
-        header={{ height: showHeaderFooter ? 48 : 0 }}
+        footer={{ height: showHeader ? 50 : 0 }}
+        header={{ height: showFooter ? 50 : 0 }}
       >
-        {showHeaderFooter && <Header />}
+        {showHeader && <Header />}
         <AppShell.Main className={classes.main}>
           <Outlet />
         </AppShell.Main>
-        {showHeaderFooter && <Footer />}
+        {showFooter && <Footer />}
       </AppShell>
       <Modal
         opened={!!user && !user.isProfileCompleted}

@@ -113,7 +113,6 @@
 .loadingSentinel {
   height: 1px;
   width: 100%;
-  margin-top: 48px;
 }
 
 /* Animation for cards appearing */

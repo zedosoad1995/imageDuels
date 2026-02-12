@@ -1,8 +1,32 @@
 .imageCard {
   cursor: pointer;
   flex: 1;
+  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  border-radius: 20px !important;
+  overflow: hidden !important;
+  background: #ffffff !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04) !important;
+  border: 1px solid rgba(0, 0, 0, 0.04) !important;
+  transform: translateY(0);
 
   &:hover {
-    box-shadow: var(--mantine-shadow-around);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.04) !important;
+    border-color: rgba(0, 0, 0, 0.08) !important;
   }
+
+  &:active {
+    transform: translateY(0);
+    transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  }
+}
+
+.imageCardMobile {
+  border-radius: 12px !important;
+}
+
+.imageCardSelected {
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.12), 0 4px 12px rgba(0, 0, 0, 0.08),
+    0 2px 4px rgba(0, 0, 0, 0.04) !important;
+  border-color: rgba(59, 130, 246, 0.25) !important;
 }

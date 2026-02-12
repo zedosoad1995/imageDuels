@@ -43,19 +43,17 @@ export const VoteCards = ({
 
   if (isMobile) {
     return (
-      <Stack gap={4} flex={1}>
+      <Stack gap={6} flex={1}>
         <Card
           withBorder
-          className={classes.imageCard}
+          className={`${classes.imageCard} ${classes.imageCardMobile} ${
+            isProcessingVote && winnerImage === "image1"
+              ? classes.imageCardSelected
+              : ""
+          }`}
           onClick={handleVote("WIN", token)}
-          bg="#FAFAFA"
+          bg="#ffffff"
           radius={12}
-          style={{
-            boxShadow:
-              isProcessingVote && winnerImage === "image1"
-                ? "0 0 6px 4px rgba(0, 0, 0, 0.5)"
-                : undefined,
-          }}
         >
           <Card.Section
             withBorder
@@ -95,7 +93,7 @@ export const VoteCards = ({
                 <div
                   style={{
                     width: "100%",
-                    backgroundColor: "#00000060",
+                    backgroundColor: "#00000040",
                     zIndex: 99,
                   }}
                 ></div>
@@ -107,7 +105,7 @@ export const VoteCards = ({
                       left: "50%",
                       transform: "translateX(-50%) translateY(-50%)",
                       color: "white",
-                      fontSize: 60,
+                      fontSize: 44,
                       fontWeight: 600,
                       zIndex: 100,
                       margin: 0,
@@ -116,7 +114,7 @@ export const VoteCards = ({
                     {(image1.winProb * 100).toFixed(1)}
                     <span
                       style={{
-                        fontSize: 30,
+                        fontSize: 22,
                       }}
                     >
                       %
@@ -157,16 +155,14 @@ export const VoteCards = ({
         </Card>
         <Card
           withBorder
-          className={classes.imageCard}
+          className={`${classes.imageCard} ${classes.imageCardMobile} ${
+            isProcessingVote && winnerImage === "image2"
+              ? classes.imageCardSelected
+              : ""
+          }`}
           onClick={handleVote("LOSS", token)}
-          bg="#FAFAFA"
+          bg="#ffffff"
           radius={12}
-          style={{
-            boxShadow:
-              isProcessingVote && winnerImage === "image2"
-                ? "0 0 6px 4px rgba(0, 0, 0, 0.5)"
-                : undefined,
-          }}
         >
           <Card.Section
             withBorder
@@ -206,7 +202,7 @@ export const VoteCards = ({
                 <div
                   style={{
                     width: "100%",
-                    backgroundColor: "#00000060",
+                    backgroundColor: "#00000040",
                     zIndex: 99,
                   }}
                 ></div>
@@ -218,7 +214,7 @@ export const VoteCards = ({
                       left: "50%",
                       transform: "translateX(-50%) translateY(-50%)",
                       color: "white",
-                      fontSize: 60,
+                      fontSize: 44,
                       fontWeight: 600,
                       zIndex: 100,
                       margin: 0,
@@ -227,7 +223,7 @@ export const VoteCards = ({
                     {(image2.winProb * 100).toFixed(1)}
                     <span
                       style={{
-                        fontSize: 30,
+                        fontSize: 22,
                       }}
                     >
                       %
@@ -272,7 +268,7 @@ export const VoteCards = ({
 
   return (
     <Flex
-      gap={8}
+      gap={16}
       flex={1}
       style={{
         maxHeight: "60cqw",
@@ -280,16 +276,14 @@ export const VoteCards = ({
     >
       <Card
         withBorder
-        className={classes.imageCard}
+        className={`${classes.imageCard} ${
+          isProcessingVote && winnerImage === "image1"
+            ? classes.imageCardSelected
+            : ""
+        }`}
         onClick={handleVote("WIN", token)}
-        bg="#FAFAFA"
-        radius={12}
-        style={{
-          boxShadow:
-            isProcessingVote && winnerImage === "image1"
-              ? "0 0 6px 4px rgba(0, 0, 0, 0.5)"
-              : undefined,
-        }}
+        bg="#ffffff"
+        radius={20}
       >
         <Card.Section
           withBorder
@@ -391,16 +385,14 @@ export const VoteCards = ({
       </Card>
       <Card
         withBorder
-        className={classes.imageCard}
+        className={`${classes.imageCard} ${
+          isProcessingVote && winnerImage === "image2"
+            ? classes.imageCardSelected
+            : ""
+        }`}
         onClick={handleVote("LOSS", token)}
-        bg="#FAFAFA"
-        radius={12}
-        style={{
-          boxShadow:
-            isProcessingVote && winnerImage === "image2"
-              ? "0 0 6px 4px rgba(0, 0, 0, 0.5)"
-              : undefined,
-        }}
+        bg="#ffffff"
+        radius={20}
       >
         <Card.Section
           withBorder

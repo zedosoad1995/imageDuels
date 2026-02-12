@@ -21,7 +21,7 @@ import { useReelsPaging } from "../../Hooks/useReelsPaging";
 import { VoteCards } from "./Components/VoteCards/VoteCards";
 
 const SHOW_PERC = true;
-const VOTE_ANIMATION_TIME = 500;
+const VOTE_ANIMATION_TIME = 400;
 
 export const Feed = () => {
   const { loggedIn } = useContext(UserContext);
@@ -195,7 +195,7 @@ export const Feed = () => {
           height: "100vh",
           overflowY: "auto",
           marginTop: isLaptopOrTablet ? 0 : -50,
-          marginBottom: isLaptopOrTablet ? 0 : -48,
+          marginBottom: isLaptopOrTablet ? 0 : -50,
         }}
         className={classes.hideScrollbar}
       >
@@ -224,7 +224,7 @@ export const Feed = () => {
                 flexDirection: "column",
                 justifyContent: "center",
                 paddingTop: isLaptopOrTablet ? 0 : 50,
-                paddingBottom: isLaptopOrTablet ? 0 : 48,
+                paddingBottom: isLaptopOrTablet ? 0 : 50,
               }}
               ref={(el) => {
                 itemRefs.current[index + offsetIndex] = el;
@@ -238,8 +238,8 @@ export const Feed = () => {
                   flex: 1,
                   paddingLeft: isLaptopOrTablet ? 16 : 8,
                   paddingRight: isLaptopOrTablet ? 16 : 8,
-                  paddingTop: isLaptopOrTablet ? 16 : 0,
-                  paddingBottom: isLaptopOrTablet ? 16 : 0,
+                  paddingTop: isLaptopOrTablet ? 16 : 8,
+                  paddingBottom: isLaptopOrTablet ? 16 : 8,
                 }}
               >
                 <div
@@ -253,22 +253,39 @@ export const Feed = () => {
                     width: "100%",
                   }}
                 >
-                  <Flex justify={"center"} mb={20}>
+                  <Flex justify={"center"} mb={isLaptopOrTablet ? 24 : 10}>
                     <Button
                       variant="light"
                       color="gray"
                       radius="xl"
-                      size="md"
+                      size={isLaptopOrTablet ? "md" : "sm"}
                       onClick={handleClickCollection(collectionId)}
+                      style={{
+                        transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
+                        fontWeight: 500,
+                      }}
+                      styles={{
+                        root: {
+                          "&:hover": {
+                            transform: "translateY(-1px)",
+                            boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
+                          },
+                        },
+                      }}
                     >
                       {collectionName}
                     </Button>
                   </Flex>
                   <Text
                     fw={600}
-                    size={isLaptopOrTablet ? "28px" : "22px"}
-                    pb={16}
-                    style={{ textAlign: "center" }}
+                    size={isLaptopOrTablet ? "28px" : "18px"}
+                    pb={isLaptopOrTablet ? 24 : 12}
+                    style={{
+                      textAlign: "center",
+                      color: "#0f172a",
+                      letterSpacing: "-0.02em",
+                      lineHeight: 1.3,
+                    }}
                   >
                     {collectionQuestion || "Which image is better?"}
                   </Text>
@@ -280,18 +297,36 @@ export const Feed = () => {
                     isProcessingVote={SHOW_PERC ? isProcessingVote : false}
                     winnerImage={SHOW_PERC ? winnerImage : undefined}
                   />
-                  <Flex justify={"center"} direction={"column"} gap={0} mt={18}>
+                  <Flex
+                    justify={"center"}
+                    direction={"column"}
+                    gap={0}
+                    mt={isLaptopOrTablet ? 24 : 12}
+                  >
                     <Button
-                      variant="transparent"
+                      variant="light"
                       color="gray"
                       mx={"auto"}
                       radius={"xl"}
+                      size={isLaptopOrTablet ? "sm" : "xs"}
                       onClick={() => {
                         scrollToIndex(activeIndex + 1);
                       }}
+                      style={{
+                        transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
+                        fontWeight: 500,
+                      }}
+                      styles={{
+                        root: {
+                          "&:hover": {
+                            transform: "translateY(-1px)",
+                            boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
+                          },
+                        },
+                      }}
                     >
-                      <Flex justify={"center"} align={"center"} gap={4}>
-                        <Text>Next Duel</Text>
+                      <Flex justify={"center"} align={"center"} gap={6}>
+                        <Text size="sm">Next Duel</Text>
                         <DownArrowIcon height={14} width={14} />
                       </Flex>
                     </Button>

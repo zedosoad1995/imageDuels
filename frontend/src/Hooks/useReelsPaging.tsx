@@ -41,9 +41,21 @@ export function useReelsPaging({
       const i = Math.max(0, Math.min(next, count - 1));
       indexRef.current = i;
       onIndexChange?.(i);
-      smoothScrollTo(feedRef.current!, i * window.innerHeight, 300);
+      const feedEl = feedRef.current;
+      if (!feedEl) return;
+
+      const itemEl = itemRefs.current?.[i];
+      let targetScroll: number;
+
+      if (itemEl) {
+        targetScroll = itemEl.offsetTop;
+      } else {
+        targetScroll = i * feedEl.clientHeight;
+      }
+
+      smoothScrollTo(feedEl, targetScroll, 300);
     },
-    [count, itemRefs, onIndexChange]
+    [count, feedRef, itemRefs, onIndexChange]
   );
 
   useEffect(() => {
