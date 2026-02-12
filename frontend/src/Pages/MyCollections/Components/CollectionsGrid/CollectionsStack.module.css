@@ -1,9 +1,110 @@
-.card {
+.collectionCard {
   cursor: pointer;
-  transition: box-shadow 50ms ease, transform 50ms ease;
+  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 20px;
+  overflow: hidden;
+  background: #ffffff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+  position: relative;
+  transform: translateY(0);
+  border: 1px solid rgba(0, 0, 0, 0.04);
+}
 
-  &:hover {
-    box-shadow: var(--mantine-shadow-xs);
-    transform: scale(1.003);
+.collectionCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.04);
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+.collectionCard:active {
+  transform: translateY(0);
+  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.cardContent {
+  padding: 18px;
+  background: transparent;
+  position: relative;
+  z-index: 2;
+}
+
+.titleRow {
+  margin-bottom: 4px;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.title {
+  font-weight: 700 !important;
+  font-size: 16px;
+  line-height: 1.4;
+  color: #0f172a;
+  flex: 1;
+  min-width: 0;
+  letter-spacing: -0.015em;
+  margin: 0;
+  display: block;
+}
+
+.stats {
+  font-size: 13px;
+  color: #64748b;
+  font-weight: 500;
+  line-height: 1.5;
+  letter-spacing: 0;
+  transition: color 0.2s ease;
+}
+
+.collectionCard:hover .stats {
+  color: #475569;
+}
+
+.badge {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  padding: 5px 10px;
+  border-radius: 8px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+/* Animation for cards appearing */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.98);
   }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.collectionCard {
+  animation: fadeInUp 0.4s cubic-bezier(0.4, 0, 0.2, 1) backwards;
+}
+
+.collectionCard:nth-child(1) {
+  animation-delay: 0.03s;
+}
+.collectionCard:nth-child(2) {
+  animation-delay: 0.06s;
+}
+.collectionCard:nth-child(3) {
+  animation-delay: 0.09s;
+}
+.collectionCard:nth-child(4) {
+  animation-delay: 0.12s;
+}
+.collectionCard:nth-child(5) {
+  animation-delay: 0.15s;
+}
+.collectionCard:nth-child(6) {
+  animation-delay: 0.18s;
+}
+.collectionCard:nth-child(n + 7) {
+  animation-delay: 0.21s;
 }
