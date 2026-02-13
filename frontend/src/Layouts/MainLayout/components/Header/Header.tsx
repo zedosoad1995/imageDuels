@@ -26,6 +26,7 @@ export const Header = () => {
       collections: "Collections",
       "my-collections": "My Collections",
       "create-collection": "New Collection",
+      collection: "Collection",
     };
 
     return pageLabelMap[page];
@@ -33,41 +34,8 @@ export const Header = () => {
 
   return (
     <AppShell.Header className={classes.base}>
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: 12,
-          cursor: "pointer",
-          transition: "opacity 0.2s ease",
-        }}
-        onClick={handleClickLogo}
-        onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.8")}
-        onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
-      >
-        <UnstyledButton
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            width: 38,
-            height: 38,
-            borderRadius: "12px",
-            transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-            position: "relative",
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.transform = "scale(1.08)";
-            e.currentTarget.style.backgroundColor = "rgba(59, 130, 246, 0.1)";
-            e.currentTarget.style.boxShadow =
-              "0 2px 8px rgba(59, 130, 246, 0.15)";
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.transform = "scale(1)";
-            e.currentTarget.style.backgroundColor = "transparent";
-            e.currentTarget.style.boxShadow = "none";
-          }}
-        >
+      <div className={classes.container} onClick={handleClickLogo}>
+        <UnstyledButton className={classes.logoButton}>
           <img
             src="/my-logo.svg"
             style={{
