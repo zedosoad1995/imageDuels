@@ -30,6 +30,7 @@ export const collectionResSchema = z.object({
     }),
   ),
   belongsToMe: z.boolean(),
+  ownerId: z.string(),
   nextCursor: z.string().nullable(),
 });
 

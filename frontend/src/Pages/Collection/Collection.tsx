@@ -28,6 +28,7 @@ import { usePage } from "../../Hooks/usePage";
 import classes from "./Collection.module.css";
 import { MEDIA_QUERY_IS_MOBILE } from "../../Utils/breakpoints";
 import { useMediaQuery } from "@mantine/hooks";
+import { banUser } from "../../Api/users";
 
 export const CollectionChild = () => {
   const { collection, fetchCollection, setCollection } =
@@ -145,7 +146,7 @@ export const CollectionChild = () => {
             </Tooltip>
           )}
         </Group>
-        {collection.mode !== "PERSONAL" && (
+        {(collection.mode !== "PERSONAL" || user?.role === "ADMIN") && (
           <Menu shadow="md" width={150} position="bottom-end">
             <Menu.Target>
               <ActionIcon variant="default">
@@ -169,6 +170,14 @@ export const CollectionChild = () => {
                 </Menu.Item>
               )}
               <CopyItem disabled={!collection.isValid} />
+              {user?.role === "ADMIN" && (
+                <Menu.Item
+                  disabled={collection.belongsToMe}
+                  onClick={() => banUser(collection.ownerId)}
+                >
+                  Ban User
+                </Menu.Item>
+              )}
             </Menu.Dropdown>
           </Menu>
         )}

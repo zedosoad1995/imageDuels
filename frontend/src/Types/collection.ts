@@ -57,6 +57,7 @@ export type IGetCollection = ICollection & {
     isSvg: boolean;
   }[];
   belongsToMe: boolean;
+  ownerId: string;
   nextCursor: string | null;
 };
 

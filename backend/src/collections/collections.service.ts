@@ -52,7 +52,7 @@ export class CollectionsService {
       decodedCursor[orderByOptions.cursorField] !== undefined &&
       decodedCursor[orderByOptions.cursorField] !== null;
 
-    const where: Prisma.Sql[] = [];
+    const where: Prisma.Sql[] = [Prisma.sql`u.is_banned IS FALSE`];
 
     if (!showAllModes) {
       if (mode) {
@@ -251,7 +251,10 @@ export class CollectionsService {
         (  
           SELECT c.id, c.title, c.question
           FROM collections c
+          INNER JOIN u
+            ON u.id = c.owner_id
           WHERE c.mode = 'PUBLIC'
+            AND u.is_banned IS FALSE
             AND c.is_live IS TRUE
             AND c.num_images >= 2
             AND c.id >= ${randomId}
@@ -279,7 +282,10 @@ export class CollectionsService {
         (
           SELECT c.id, c.title, c.question
           FROM collections c
+          INNER JOIN u
+            ON u.id = c.owner_id
           WHERE c.mode = 'PUBLIC'
+            AND u.is_banned IS FALSE
             AND c.is_live IS TRUE
             AND c.num_images >= 2
             AND c.id < ${randomId}
@@ -382,6 +388,9 @@ export class CollectionsService {
     const collection = await prisma.collection.findUnique({
       where: {
         id: collectionId,
+        owner: {
+          isBanned: false,
+        },
       },
       include: {
         images: {

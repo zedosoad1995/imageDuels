@@ -24,3 +24,7 @@ export const editMe = (body: IEditUserBody): Promise<IUser> => {
 export const deleteMe = (): Promise<void> => {
   return api.delete("/users/me");
 };
+
+export const banUser = (userId: string): Promise<void> => {
+  return api.put(`/users/${userId}/ban`);
+};

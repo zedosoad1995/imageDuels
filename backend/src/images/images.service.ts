@@ -227,8 +227,10 @@ export class ImagesService {
         i.is_svg AS "isSvg"
       FROM images i
       INNER JOIN collections c ON c.id = i.collection_id
+      INNER JOIN users u ON c.owner_id = u.id
       WHERE
         i.collection_id = ${collectionId}
+        AND u.is_banned IS FALSE
         AND (
           ${userId}::text IS NULL 
           OR ${isAdmin} IS TRUE
@@ -356,20 +358,6 @@ export class ImagesService {
     }
 
     return { duel: [image1, image2], collectionId };
-  }
-
-  async getOne(imageId: string): Promise<Image> {
-    const image = await prisma.image.findFirst({
-      where: {
-        id: imageId,
-      },
-    });
-
-    if (!image) {
-      throw new BadRequestException(`Invalid image ${imageId}`);
-    }
-
-    return image;
   }
 
   async deleteOne(imageId: string, userId: string, isAdmin: boolean) {
