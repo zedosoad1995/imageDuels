@@ -1,8 +1,8 @@
 import { AppShell, Button, Modal, Stack, TextInput } from "@mantine/core";
-import { Outlet, useNavigate } from "react-router";
+import { Outlet, useNavigate, useSearchParams } from "react-router";
 import classes from "./MainLayout.module.css";
 import { Sidebar } from "./components/Sidebar/Sidebar";
-import { useCallback, useContext, useState } from "react";
+import { useCallback, useContext, useEffect, useState } from "react";
 import { UserContext } from "../../Contexts/UserContext";
 import debounce from "lodash.debounce";
 import { checkUsername, completeRegistration } from "../../Api/users";
@@ -18,6 +18,14 @@ export const MainLayout = () => {
 
   const navigate = useNavigate();
   const page = usePage();
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  useEffect(() => {
+    if (searchParams.get("banned") === "true") {
+      navigate("/banned", { replace: true });
+      setSearchParams({}, { replace: true });
+    }
+  }, [searchParams, navigate, setSearchParams]);
 
   const [username, setUsername] = useState("");
   const [isUniqueUsername, setIsUniqueUsername] = useState(false);

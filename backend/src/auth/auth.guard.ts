@@ -49,7 +49,10 @@ export const AuthGuard = (
         }
 
         if (loggedUser.isBanned) {
-          throw new ForbiddenException('Account is banned');
+          throw new ForbiddenException({
+            message: 'Account is banned',
+            code: 'USER_BANNED',
+          });
         }
 
         if (!allowIncompleteProfile && !loggedUser.isProfileCompleted) {

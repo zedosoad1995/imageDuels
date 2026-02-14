@@ -25,11 +25,6 @@ export class UsersService {
     });
   }
 
-  async isEmailTaken(email: string): Promise<boolean> {
-    const existingUser = await this.getOne({ email });
-    return !!existingUser;
-  }
-
   async isUsernameTaken(username: string): Promise<boolean> {
     const existingUser = await this.getOne({ username });
     return !!existingUser;
@@ -64,11 +59,11 @@ export class UsersService {
   async ban(banUserId: string) {
     return prisma.user.update({
       data: {
-        isBanned: true
+        isBanned: true,
       },
       where: {
-        id: banUserId
-      }
+        id: banUserId,
+      },
     });
   }
 }

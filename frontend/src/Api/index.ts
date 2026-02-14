@@ -14,6 +14,17 @@ api.interceptors.response.use(
       await logout();
     }
 
+    // Check for banned user error
+    if (error.response?.status === 403) {
+      const errorData = error.response.data as any;
+      if (
+        errorData?.code === 'USER_BANNED'
+      ) {
+        window.location.href = "/banned";
+        return;
+      }
+    }
+
     throw error;
   }
 );

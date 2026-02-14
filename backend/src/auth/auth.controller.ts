@@ -59,7 +59,7 @@ export class AuthController {
     });
 
     if (user?.isBanned) {
-      throw new ForbiddenException('Account is banned');
+      return res.redirect(`${process.env.FRONTEND_URL as string}?banned=true`);
     }
 
     if (!user) {

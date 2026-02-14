@@ -8,7 +8,8 @@ export type PageName =
   | "settings"
   | "login"
   | "register"
-  | "collection";
+  | "collection"
+  | "banned";
 
 interface PageProviderProps {
   children: React.ReactNode;
