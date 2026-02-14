@@ -443,6 +443,7 @@ export class CollectionsService {
 
         return {
           ...image,
+          elo: rating,
           percentile,
         };
       }),

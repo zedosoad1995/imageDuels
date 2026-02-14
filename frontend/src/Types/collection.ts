@@ -48,6 +48,7 @@ export type IGetCollection = ICollection & {
     filepath: string;
     numVotes: number;
     percentile: number;
+    elo: number;
     height: number;
     width: number;
     hasPlaceholder: boolean;

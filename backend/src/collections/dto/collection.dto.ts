@@ -20,6 +20,7 @@ export const collectionResSchema = z.object({
       filepath: z.string(),
       numVotes: z.number(),
       percentile: z.number(),
+      elo: z.number(),
       height: z.number(),
       width: z.number(),
       hasPlaceholder: z.boolean(),
