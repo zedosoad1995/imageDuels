@@ -6,7 +6,9 @@ import {
   Get,
   HttpCode,
   NotFoundException,
+  Param,
   Patch,
+  Put,
   Query,
   UnauthorizedException,
   UseGuards,
@@ -23,7 +25,7 @@ import { LoggedUser, UserId } from './users.decorator';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { EditUserDto, editUserSchema } from './dto/editUser.dto';
 import { User } from '@prisma/client';
-import { ProfileCompletedGuard } from './guards/profileCompleted.guard';
+import { isAdminGuard } from './guards/isAdmin.guard';
 
 @Controller('users')
 export class UsersController {
@@ -70,7 +72,7 @@ export class UsersController {
   }
 
   @Patch('complete-registration')
-  @UseGuards(AuthGuard())
+  @UseGuards(AuthGuard({ allowIncompleteProfile: true }))
   @UsePipes(new ZodValidationPipe(completeRegistrationSchema))
   async completeRegistration(
     @Body() completeRegistrationDto: CompleteRegistrationDto,
@@ -84,7 +86,7 @@ export class UsersController {
     return getMeSchema.parse(user);
   }
 
-  @UseGuards(AuthGuard(true), ProfileCompletedGuard)
+  @UseGuards(AuthGuard())
   @UsePipes(new ZodValidationPipe(editUserSchema))
   @Patch('me')
   async edit(
@@ -96,7 +98,7 @@ export class UsersController {
     return getMeSchema.parse(user);
   }
 
-  @UseGuards(AuthGuard(true), ProfileCompletedGuard)
+  @UseGuards(AuthGuard())
   @HttpCode(204)
   @Delete('me')
   async deleteMe(@LoggedUser({ getTokenFromHeader: true }) loggedUser: User) {
@@ -105,5 +107,18 @@ export class UsersController {
     }
 
     await this.usersService.deleteOne(loggedUser.id);
+  }
+
+  @UseGuards(AuthGuard(), isAdminGuard)
+  @Put(':userId/ban')
+  async banUser(
+    @Param('userId') banUserId: string,
+    @UserId({ getTokenFromHeader: true }) loggedUserId: string,
+  ) {
+    if (banUserId === loggedUserId) {
+      throw new BadRequestException('User cannot ban itself');
+    }
+
+    await this.usersService.ban(banUserId);
   }
 }

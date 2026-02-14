@@ -14,7 +14,6 @@ import { AuthGuard } from 'src/auth/auth.guard';
 import { ZodValidationPipe } from 'src/common/pipes/zodValidation';
 import { VoteDto, voteSchema } from './dto/vote.dto';
 import { DuelsService } from './duels.service';
-import { ProfileCompletedGuard } from 'src/users/guards/profileCompleted.guard';
 import { ImagesService } from 'src/images/images.service';
 import { CollectionsService } from 'src/collections/collections.service';
 import { User } from '@prisma/client';
@@ -89,7 +88,7 @@ export class DuelsController {
     };
   }
 
-  @UseGuards(AuthGuard(true), ProfileCompletedGuard)
+  @UseGuards(AuthGuard())
   @UsePipes(new ZodValidationPipe(voteSchema))
   @HttpCode(204)
   @Post('vote')

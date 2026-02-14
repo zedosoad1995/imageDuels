@@ -15,6 +15,7 @@ model User {
   role               RoleEnum     @default(REGULAR)
   canSeeNSFW         Boolean      @default(false) @map("can_see_nsfw")
   isProfileCompleted Boolean      @default(false) @map("is_profile_completed")
+  isBanned           Boolean      @default(false) @map("is_banned")
   createdAt          DateTime     @default(now()) @map("created_at")
   Collection         Collection[]
   duels              Duel[]

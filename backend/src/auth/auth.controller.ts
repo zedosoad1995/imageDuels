@@ -1,5 +1,6 @@
 import {
   Controller,
+  ForbiddenException,
   Get,
   HttpCode,
   Post,
@@ -56,6 +57,10 @@ export class AuthController {
       googleId: googleUser.id,
       email: googleUser.email,
     });
+
+    if (user?.isBanned) {
+      throw new ForbiddenException('Account is banned');
+    }
 
     if (!user) {
       user = await this.usersService.createIncompleteGoogleProfile({

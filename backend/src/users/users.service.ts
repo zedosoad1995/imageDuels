@@ -60,4 +60,15 @@ export class UsersService {
       },
     });
   }
+
+  async ban(banUserId: string) {
+    return prisma.user.update({
+      data: {
+        isBanned: true
+      },
+      where: {
+        id: banUserId
+      }
+    });
+  }
 }

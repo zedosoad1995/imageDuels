@@ -1,6 +1,7 @@
 import {
   CanActivate,
   ExecutionContext,
+  ForbiddenException,
   Injectable,
   Logger,
   mixin,
@@ -12,7 +13,11 @@ import { prisma } from 'src/common/helpers/prisma';
 
 const logger = new Logger('Auth Guards');
 
-export const AuthGuard = (fetchUser: boolean = false): Type<CanActivate> => {
+export const AuthGuard = (
+  { allowIncompleteProfile = false }: { allowIncompleteProfile?: boolean } = {
+    allowIncompleteProfile: false,
+  },
+): Type<CanActivate> => {
   @Injectable()
   class TempAuthGuard implements CanActivate {
     constructor(private jwtService: JwtService) {}
@@ -29,21 +34,29 @@ export const AuthGuard = (fetchUser: boolean = false): Type<CanActivate> => {
           secret: process.env.JWT_KEY,
         });
 
-        if (fetchUser) {
-          if (!payload.user?.id) {
-            throw new UnauthorizedException();
-          }
-
-          const loggedUser = await prisma.user.findUnique({
-            where: {
-              id: payload.user.id,
-            },
-          });
-
-          request['user'] = loggedUser;
-        } else {
-          request['user'] = payload.user;
+        if (!payload.user?.id) {
+          throw new UnauthorizedException();
         }
+
+        const loggedUser = await prisma.user.findUnique({
+          where: {
+            id: payload.user.id,
+          },
+        });
+
+        if (!loggedUser) {
+          throw new UnauthorizedException();
+        }
+
+        if (loggedUser.isBanned) {
+          throw new ForbiddenException('Account is banned');
+        }
+
+        if (!allowIncompleteProfile && !loggedUser.isProfileCompleted) {
+          throw new ForbiddenException('Complete your profile first');
+        }
+
+        request['user'] = loggedUser;
       } catch (error) {
         logger.error(error);
         throw new UnauthorizedException();

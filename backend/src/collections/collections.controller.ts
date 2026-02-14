@@ -45,7 +45,6 @@ import { unlink } from 'fs';
 import { LoggedUser, UserId } from 'src/users/users.decorator';
 import { CollectionModeEnum, User } from '@prisma/client';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
-import { ProfileCompletedGuard } from 'src/users/guards/profileCompleted.guard';
 import { pick } from 'src/common/helpers/general';
 
 const ALLOWED_MIMES = new Set([
@@ -145,14 +144,14 @@ export class CollectionsController {
     return this.collectionsService.getMyStats(userId);
   }
 
-  @UseGuards(AuthGuard(true), ProfileCompletedGuard)
+  @UseGuards(AuthGuard())
   @UsePipes(new ZodValidationPipe(createCollectionSchema))
   @Post('')
   create(@Body() createCollectionDto: CreateCollectionDto, @Request() req) {
     return this.collectionsService.create(createCollectionDto, req.user.id);
   }
 
-  @UseGuards(AuthGuard(true), ProfileCompletedGuard)
+  @UseGuards(AuthGuard())
   @UsePipes(new ZodValidationPipe(editCollectionSchema))
   @Patch(':collectionId')
   edit(
@@ -168,7 +167,7 @@ export class CollectionsController {
     );
   }
 
-  @UseGuards(AuthGuard(true), ProfileCompletedGuard)
+  @UseGuards(AuthGuard())
   @Post(':collectionId/add-image')
   @UseInterceptors(
     FileInterceptor('image', {
@@ -236,7 +235,7 @@ export class CollectionsController {
     };
   }
 
-  @UseGuards(AuthGuard(true), ProfileCompletedGuard)
+  @UseGuards(AuthGuard())
   @Delete(':collectionId')
   @HttpCode(204)
   async deleteOne(

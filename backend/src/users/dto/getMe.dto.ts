@@ -8,4 +8,5 @@ export const getMeSchema = z.object({
   role: customEnum(Object.values(RoleEnum)),
   canSeeNSFW: z.boolean(),
   isProfileCompleted: z.boolean(),
+  isBanned: z.boolean()
 });

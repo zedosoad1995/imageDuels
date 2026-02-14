@@ -4,11 +4,10 @@ import { unlink } from 'fs';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { User } from '@prisma/client';
 import { LoggedUser } from 'src/users/users.decorator';
-import { ProfileCompletedGuard } from 'src/users/guards/profileCompleted.guard';
 
 const UPLOAD_FOLDER = './uploads';
 
-@UseGuards(AuthGuard(true), ProfileCompletedGuard)
+@UseGuards(AuthGuard())
 @Controller('images')
 export class ImagesController {
   constructor(private readonly imagesService: ImagesService) {}

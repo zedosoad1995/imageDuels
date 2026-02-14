@@ -22,6 +22,7 @@ export const LoggedUser = createParamDecorator(
           const loggedUser = await prisma.user.findUnique({
             where: {
               id: request.user?.id,
+              isBanned: false,
             },
           });
           return loggedUser;
@@ -43,6 +44,7 @@ export const LoggedUser = createParamDecorator(
       const loggedUser = await prisma.user.findUnique({
         where: {
           id: payload?.user?.id,
+          isBanned: false,
         },
       });
 
